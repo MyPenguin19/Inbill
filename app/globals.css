@@ -182,15 +182,25 @@ input {
   white-space: pre-wrap;
 }
 
-.report-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20px;
+.bill-preview-image {
+  width: 100%;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  object-fit: contain;
+  background: #faf7f1;
 }
 
 .report-section h2 {
   margin: 0;
   font-size: 1.25rem;
+}
+
+.report-markdown pre {
+  margin: 0;
+  white-space: pre-wrap;
+  line-height: 1.7;
+  color: #2b2722;
+  font-family: "Courier New", Courier, monospace;
 }
 
 @media (max-width: 800px) {
@@ -200,9 +210,5 @@ input {
 
   .hero {
     padding: 28px 20px;
-  }
-
-  .report-grid {
-    grid-template-columns: 1fr;
   }
 }

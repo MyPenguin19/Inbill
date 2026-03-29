@@ -3,7 +3,11 @@
 import { useEffect, useState } from "react";
 
 import { ReportView } from "@/components/report-view";
-import { BILL_STORAGE_KEY, FILE_NAME_STORAGE_KEY } from "@/lib/bill";
+import {
+  BILL_IMAGE_STORAGE_KEY,
+  BILL_STORAGE_KEY,
+  FILE_NAME_STORAGE_KEY,
+} from "@/lib/bill";
 import type { AnalysisReport } from "@/lib/types";
 
 async function readJsonResponse<T>(response: Response): Promise<T> {
@@ -28,6 +32,7 @@ type ResultClientProps = {
 
 export function ResultClient({ isPaid = true, sessionId }: ResultClientProps = {}) {
   const [billText, setBillText] = useState("");
+  const [billImageData, setBillImageData] = useState("");
   const [fileName, setFileName] = useState("medical bill");
   const [report, setReport] = useState<AnalysisReport | null>(null);
   const [error, setError] = useState("");
@@ -35,15 +40,17 @@ export function ResultClient({ isPaid = true, sessionId }: ResultClientProps = {
 
   useEffect(() => {
     const savedBill = window.sessionStorage.getItem(BILL_STORAGE_KEY);
+    const savedImage = window.sessionStorage.getItem(BILL_IMAGE_STORAGE_KEY);
     const savedFileName = window.sessionStorage.getItem(FILE_NAME_STORAGE_KEY);
 
     setBillText(savedBill || "");
+    setBillImageData(savedImage || "");
     setFileName(savedFileName || "uploaded-medical-bill");
   }, []);
 
   const handleGenerateAnalysis = async () => {
-    if (!billText.trim()) {
-      setError("We could not find uploaded bill text for this session. Please upload your file again.");
+    if (!billText.trim() && !billImageData.trim()) {
+      setError("We could not find uploaded bill data for this session. Please upload your file again.");
       return;
     }
 
@@ -58,6 +65,7 @@ export function ResultClient({ isPaid = true, sessionId }: ResultClientProps = {
         },
         body: JSON.stringify({
           extractedText: billText,
+          imageDataUrl: billImageData,
           sessionId,
         }),
       });
@@ -83,21 +91,31 @@ export function ResultClient({ isPaid = true, sessionId }: ResultClientProps = {
     }
   };
 
+  useEffect(() => {
+    if (!report && !isLoading && (billText.trim() || billImageData.trim())) {
+      void handleGenerateAnalysis();
+    }
+  }, [billImageData, billText, isLoading, report]);
+
   return (
     <div className="result-shell">
       <div className="status-card">
         <p className="eyebrow">Analysis workspace</p>
         <h1>Ready to analyze your bill</h1>
-        <p>Reviewing {fileName}. Generate the report when you are ready.</p>
+        <p>Reviewing {fileName}. The report will generate automatically when the bill data is ready.</p>
         <button className="primary-button" type="button" onClick={handleGenerateAnalysis} disabled={isLoading}>
-          {isLoading ? "Generating..." : "Generate Analysis"}
+          {isLoading ? "Generating..." : "Generate Analysis Again"}
         </button>
         {error ? <p className="error-text">{error}</p> : null}
       </div>
 
       <div className="preview-card">
         <p className="eyebrow">Input preview</p>
-        <pre>{billText || "No uploaded bill text found in this browser session yet."}</pre>
+        {billImageData ? (
+          <img alt="Uploaded medical bill preview" className="bill-preview-image" src={billImageData} />
+        ) : (
+          <pre>{billText || "No uploaded bill text found in this browser session yet."}</pre>
+        )}
       </div>
 
       {report ? <ReportView report={report} /> : null}

@@ -2,7 +2,12 @@
 
 import { ChangeEvent, DragEvent, useMemo, useState } from "react";
 
-import { BILL_STORAGE_KEY, FILE_NAME_STORAGE_KEY, isAcceptedBillFile } from "@/lib/bill";
+import {
+  BILL_IMAGE_STORAGE_KEY,
+  BILL_STORAGE_KEY,
+  FILE_NAME_STORAGE_KEY,
+  isAcceptedBillFile,
+} from "@/lib/bill";
 
 const loadingSteps = [
   "Reading your statement",
@@ -24,18 +29,6 @@ async function readJsonResponse<T>(response: Response): Promise<T> {
   }
 
   return JSON.parse(bodyText) as T;
-}
-
-async function extractTextFromImage(file: File) {
-  const { createWorker } = await import("tesseract.js");
-  const worker = await createWorker("eng");
-
-  try {
-    const result = await worker.recognize(file);
-    return result.data.text.trim();
-  } finally {
-    await worker.terminate();
-  }
 }
 
 export default function HomePage() {
@@ -124,7 +117,7 @@ export default function HomePage() {
         setVisibleStep(1);
 
         if (selectedFile.type.startsWith("image/")) {
-          extractedText = await extractTextFromImage(selectedFile);
+          window.sessionStorage.setItem(BILL_IMAGE_STORAGE_KEY, selectedFileData);
         } else {
           const extractForm = new FormData();
           extractForm.set("file", selectedFile);
@@ -149,11 +142,14 @@ export default function HomePage() {
         extractedText = notesText.trim();
       }
 
-      if (!extractedText.trim()) {
+      if (!extractedText.trim() && !selectedFileData.trim()) {
         throw new Error("We could not extract readable bill text from that input.");
       }
 
       window.sessionStorage.setItem(BILL_STORAGE_KEY, extractedText);
+      if (!selectedFile?.type.startsWith("image/")) {
+        window.sessionStorage.removeItem(BILL_IMAGE_STORAGE_KEY);
+      }
       window.sessionStorage.setItem(FILE_NAME_STORAGE_KEY, selectedFile?.name || "billing-notes.txt");
 
       setVisibleStep(2);
@@ -170,6 +166,7 @@ export default function HomePage() {
   const removeFile = () => {
     setSelectedFile(null);
     setSelectedFileData("");
+    window.sessionStorage.removeItem(BILL_IMAGE_STORAGE_KEY);
     setError("");
   };
 
