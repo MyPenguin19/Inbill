@@ -1,12 +1,23 @@
 "use client";
 
 import { ChangeEvent, FormEvent, useState } from "react";
-
 import {
   BILL_STORAGE_KEY,
   FILE_NAME_STORAGE_KEY,
   isAcceptedBillFile,
 } from "@/lib/bill";
+
+async function extractTextFromImage(file: File) {
+  const { createWorker } = await import("tesseract.js");
+  const worker = await createWorker("eng");
+
+  try {
+    const result = await worker.recognize(file);
+    return result.data.text.trim();
+  } finally {
+    await worker.terminate();
+  }
+}
 
 export function FileUploadForm() {
   const [selectedFileName, setSelectedFileName] = useState("No file selected yet.");
@@ -38,28 +49,41 @@ export function FileUploadForm() {
         throw new Error("Unsupported file type. Please upload a PDF, image, or text file.");
       }
 
-      setStatusMessage("Extracting bill text...");
+      let extractedText = "";
 
-      const extractForm = new FormData();
-      extractForm.set("file", file);
+      if (file.type.startsWith("image/")) {
+        setStatusMessage("Reading text from image...");
+        extractedText = await extractTextFromImage(file);
+      } else {
+        setStatusMessage("Extracting bill text...");
 
-      const extractResponse = await fetch("/api/extract", {
-        method: "POST",
-        body: extractForm,
-      });
+        const extractForm = new FormData();
+        extractForm.set("file", file);
 
-      const extractPayload = (await extractResponse.json()) as {
-        extractedText?: string;
-        error?: string;
-        fileName?: string;
-      };
+        const extractResponse = await fetch("/api/extract", {
+          method: "POST",
+          body: extractForm,
+        });
 
-      if (!extractResponse.ok || !extractPayload.extractedText) {
-        throw new Error(extractPayload.error || "Unable to extract bill text.");
+        const extractPayload = (await extractResponse.json()) as {
+          extractedText?: string;
+          error?: string;
+          fileName?: string;
+        };
+
+        if (!extractResponse.ok || !extractPayload.extractedText) {
+          throw new Error(extractPayload.error || "Unable to extract bill text.");
+        }
+
+        extractedText = extractPayload.extractedText;
       }
 
-      window.sessionStorage.setItem(BILL_STORAGE_KEY, extractPayload.extractedText);
-      window.sessionStorage.setItem(FILE_NAME_STORAGE_KEY, extractPayload.fileName || file.name);
+      if (!extractedText.trim()) {
+        throw new Error("We could not extract readable text from that file.");
+      }
+
+      window.sessionStorage.setItem(BILL_STORAGE_KEY, extractedText);
+      window.sessionStorage.setItem(FILE_NAME_STORAGE_KEY, file.name);
 
       setStatusMessage("Redirecting to secure checkout...");
 

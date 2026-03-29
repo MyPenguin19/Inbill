@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { PDFParse } from "pdf-parse";
-import { createWorker } from "tesseract.js";
 
 import { MAX_UPLOAD_SIZE_BYTES } from "@/lib/bill";
 
@@ -30,18 +29,6 @@ async function extractTextFromTextFile(file: File) {
   return (await file.text()).trim();
 }
 
-async function extractTextFromImage(file: File) {
-  const buffer = Buffer.from(await file.arrayBuffer());
-  const worker = await createWorker("eng");
-
-  try {
-    const result = await worker.recognize(buffer);
-    return result.data.text.trim();
-  } finally {
-    await worker.terminate();
-  }
-}
-
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
@@ -57,8 +44,6 @@ export async function POST(request: Request) {
 
     if (maybeFile.type === "application/pdf") {
       extractedText = await extractTextFromPdf(maybeFile);
-    } else if (maybeFile.type.startsWith("image/")) {
-      extractedText = await extractTextFromImage(maybeFile);
     } else {
       extractedText = await extractTextFromTextFile(maybeFile);
     }
