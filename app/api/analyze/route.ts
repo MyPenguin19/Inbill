@@ -5,6 +5,23 @@ import {
   analyzeMedicalBillFromText,
 } from "@/lib/analysis";
 
+function getReadableError(error: unknown) {
+  if (!(error instanceof Error)) {
+    return "Unable to generate medical bill analysis.";
+  }
+
+  const message = error.message;
+
+  if (
+    message.toLowerCase().includes("quota") ||
+    message.toLowerCase().includes("insufficient_quota")
+  ) {
+    return "OpenAI project quota or billing limit reached. Verify OPENAI_PROJECT_ID, billing, and model access for the project tied to this API key.";
+  }
+
+  return message;
+}
+
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as {
@@ -27,8 +44,7 @@ export async function POST(request: Request) {
   } catch (error) {
     return NextResponse.json(
       {
-        error:
-          error instanceof Error ? error.message : "Unable to generate medical bill analysis.",
+        error: getReadableError(error),
       },
       { status: 500 },
     );
