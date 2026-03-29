@@ -199,30 +199,30 @@ export default function HomePage() {
           <div className="hero-copy-panel">
             <span className="hero-kicker">Trusted Medical Bill Review</span>
             <h1>
-              Find errors in your medical bill before you <em>pay the wrong amount</em>.
+              Spot billing mistakes, overcharges, and unclear fees before you <em>pay your medical bill</em>.
             </h1>
             <p>
-              Upload a bill, EOB, or screenshot and get a plain-English breakdown of what may be wrong, what
-              you likely owe, and what to ask next.
+              Upload a bill, EOB, or screenshot and get a patient-friendly review with likely red flags,
+              estimated responsibility, and practical next steps.
             </p>
 
             <div className="hero-trust-row">
-              <span>HIPAA-conscious workflow</span>
-              <span>No account required</span>
-              <span>Actionable patient language</span>
+              <span>Private analysis workflow</span>
+              <span>No login required</span>
+              <span>Built for patients, not coders</span>
             </div>
 
             <div className="hero-metrics">
               <article>
-                <strong>1 file</strong>
+                <strong>AI Review</strong>
                 <span>Upload PDF, image, or text</span>
               </article>
               <article>
-                <strong>6 sections</strong>
+                <strong>Plain-English</strong>
                 <span>Clear report structure</span>
               </article>
               <article>
-                <strong>0 storage</strong>
+                <strong>In-Memory</strong>
                 <span>Files handled in memory only</span>
               </article>
             </div>
@@ -236,22 +236,22 @@ export default function HomePage() {
                 <span />
               </div>
               <div className="preview-summary-card">
-                <p className="preview-label">Sample Findings</p>
-                <h2>Potential duplicate lab charge</h2>
+                <p className="preview-label">Medical Bill Snapshot</p>
+                <h2>Potential duplicate lab charge found</h2>
                 <ul>
-                  <li>Charge description appears on two adjacent bill lines</li>
-                  <li>Insurance responsibility language is unclear</li>
-                  <li>Suggested next step: request an itemized statement</li>
+                  <li>Line item appears to repeat for the same service date</li>
+                  <li>Insurance denial note may point to coordination issue</li>
+                  <li>Suggested action: request an itemized bill and claim review</li>
                 </ul>
               </div>
               <div className="preview-mini-grid">
                 <article>
-                  <span>Likely Owe</span>
+                  <span>Estimated Balance</span>
                   <strong>$162.72</strong>
                 </article>
                 <article>
-                  <span>Red Flags</span>
-                  <strong>3 items</strong>
+                  <span>Potential Issues</span>
+                  <strong>3 flags</strong>
                 </article>
               </div>
             </div>
@@ -262,10 +262,10 @@ export default function HomePage() {
       <section className="workspace-section" id="workspace">
         <div className="workspace-header">
           <span className="section-pill">Upload Analyzer</span>
-          <h2>Start with your bill or insurance statement</h2>
+          <h2>Upload a medical bill and start your review</h2>
           <p>
-            This MVP runs in a single flow: upload the document, extract bill details, and open the analysis
-            workspace automatically.
+            The analyzer extracts bill details, opens your review workspace, and prepares a structured report
+            with questions and next steps.
           </p>
         </div>
 
@@ -357,8 +357,8 @@ export default function HomePage() {
       <section className="benefits-section" id="how-it-works">
         <div className="section-heading">
           <span className="section-pill">How It Works</span>
-          <h2>A straightforward review flow for patients</h2>
-          <p>Designed to feel more like a financial audit than a generic AI upload form.</p>
+          <h2>A simple process for reviewing confusing medical charges</h2>
+          <p>Focused on clarity, confidence, and practical follow-up with providers or insurance.</p>
         </div>
 
         <div className="benefits-grid">
@@ -388,15 +388,15 @@ export default function HomePage() {
       <section className="proof-banner" id="faq">
         <div className="proof-banner-inner">
           <article>
-            <strong>Plain English</strong>
+            <strong>Patient-Friendly</strong>
             <span>No billing jargon wall</span>
           </article>
           <article>
-            <strong>Action Steps</strong>
+            <strong>Actionable</strong>
             <span>Built for your next phone call</span>
           </article>
           <article>
-            <strong>In-Memory</strong>
+            <strong>Private by Design</strong>
             <span>No file storage in this MVP</span>
           </article>
         </div>
