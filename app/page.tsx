@@ -117,6 +117,7 @@ export default function HomePage() {
         setVisibleStep(1);
 
         if (selectedFile.type.startsWith("image/")) {
+          window.sessionStorage.setItem(BILL_STORAGE_KEY, "");
           window.sessionStorage.setItem(BILL_IMAGE_STORAGE_KEY, selectedFileData);
         } else {
           const extractForm = new FormData();
@@ -146,8 +147,11 @@ export default function HomePage() {
         throw new Error("We could not extract readable bill text from that input.");
       }
 
-      window.sessionStorage.setItem(BILL_STORAGE_KEY, extractedText);
       if (!selectedFile?.type.startsWith("image/")) {
+        window.sessionStorage.setItem(BILL_STORAGE_KEY, extractedText);
+        window.sessionStorage.removeItem(BILL_IMAGE_STORAGE_KEY);
+      } else if (activeTab !== "upload") {
+        window.sessionStorage.setItem(BILL_STORAGE_KEY, extractedText);
         window.sessionStorage.removeItem(BILL_IMAGE_STORAGE_KEY);
       }
       window.sessionStorage.setItem(FILE_NAME_STORAGE_KEY, selectedFile?.name || "billing-notes.txt");
@@ -166,6 +170,7 @@ export default function HomePage() {
   const removeFile = () => {
     setSelectedFile(null);
     setSelectedFileData("");
+    window.sessionStorage.removeItem(BILL_STORAGE_KEY);
     window.sessionStorage.removeItem(BILL_IMAGE_STORAGE_KEY);
     setError("");
   };
