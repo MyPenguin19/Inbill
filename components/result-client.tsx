@@ -99,18 +99,43 @@ export function ResultClient({ isPaid = true, sessionId }: ResultClientProps = {
 
   return (
     <div className="result-shell">
-      <div className="status-card">
-        <p className="eyebrow">Analysis workspace</p>
-        <h1>Ready to analyze your bill</h1>
-        <p>Reviewing {fileName}. The report will generate automatically when the bill data is ready.</p>
-        <button className="primary-button" type="button" onClick={handleGenerateAnalysis} disabled={isLoading}>
-          {isLoading ? "Generating..." : "Generate Analysis Again"}
-        </button>
-        {error ? <p className="error-text">{error}</p> : null}
+      <div className="result-top-grid">
+        <div className="result-hero-card">
+          <p className="eyebrow">Analysis workspace</p>
+          <h1>Reviewing your uploaded bill</h1>
+          <p>
+            Your report is generated from {fileName}. It focuses on likely patient responsibility, billing red
+            flags, practical questions, and your next call steps.
+          </p>
+
+          <div className="result-metrics">
+            <article className="result-metric-card issues">
+              <strong>{report ? "Ready" : "Pending"}</strong>
+              <span>Report status</span>
+            </article>
+            <article className="result-metric-card review">
+              <strong>{billImageData ? "Image" : "Text"}</strong>
+              <span>Document type</span>
+            </article>
+            <article className="result-metric-card ready">
+              <strong>{isLoading ? "Running" : "Live"}</strong>
+              <span>Analyzer state</span>
+            </article>
+          </div>
+        </div>
+
+        <div className="status-card">
+          <p className="eyebrow">Actions</p>
+          <p>Use this if you update the file or want to retry once your API setup is fixed.</p>
+          <button className="primary-button" type="button" onClick={handleGenerateAnalysis} disabled={isLoading}>
+            {isLoading ? "Generating..." : "Generate Analysis Again"}
+          </button>
+          {error ? <p className="error-text">{error}</p> : null}
+        </div>
       </div>
 
       <div className="preview-card">
-        <p className="eyebrow">Input preview</p>
+        <p className="eyebrow">Document preview</p>
         {billImageData ? (
           <img alt="Uploaded medical bill preview" className="bill-preview-image" src={billImageData} />
         ) : (

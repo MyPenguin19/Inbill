@@ -10,10 +10,10 @@ import {
 } from "@/lib/bill";
 
 const loadingSteps = [
-  "Reading your statement",
-  "Cross-checking line items",
-  "Preparing your analysis",
-  "Opening your results",
+  "Reading your file",
+  "Extracting bill details",
+  "Preparing your review workspace",
+  "Opening analysis",
 ];
 
 async function readJsonResponse<T>(response: Response): Promise<T> {
@@ -154,10 +154,10 @@ export default function HomePage() {
         window.sessionStorage.setItem(BILL_STORAGE_KEY, extractedText);
         window.sessionStorage.removeItem(BILL_IMAGE_STORAGE_KEY);
       }
+
       window.sessionStorage.setItem(FILE_NAME_STORAGE_KEY, selectedFile?.name || "billing-notes.txt");
 
       setVisibleStep(2);
-
       setVisibleStep(3);
       window.location.href = "/result";
     } catch (submitError) {
@@ -176,115 +176,121 @@ export default function HomePage() {
   };
 
   return (
-    <>
-      <style jsx global>{`
-        @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;0,800;0,900;1,700;1,800&display=swap");
-
-        :root {
-          --bg: #f7f4ef;
-          --surface: #ffffff;
-          --surface-secondary: #f0ece4;
-          --text: #1a1612;
-          --muted: #6b6359;
-          --accent: #1e5c4f;
-          --accent-light: #e8f2ef;
-          --warning: #c5522a;
-          --border: #ddd8cf;
-          --shadow-soft: 0 8px 48px rgba(26, 22, 18, 0.13);
-          --radius-card: 20px;
-          --radius-panel: 16px;
-          --radius-input: 12px;
-          --radius-button: 12px;
-        }
-
-        * {
-          box-sizing: border-box;
-        }
-
-        html {
-          scroll-behavior: smooth;
-        }
-
-        body {
-          margin: 0;
-          background:
-            radial-gradient(circle at top left, rgba(30, 92, 79, 0.08), transparent 28%),
-            linear-gradient(180deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0)),
-            var(--bg);
-          color: var(--text);
-          font-family: "DM Sans", sans-serif;
-        }
-
-        a {
-          color: inherit;
-          text-decoration: none;
-        }
-
-        button,
-        input,
-        textarea {
-          font: inherit;
-        }
-      `}</style>
-
-      <main className="front-shell">
-        <nav className="front-nav">
-          <a className="brand" href="#top">
-            <span className="brand-mark" />
-            <span className="brand-text">Inbill</span>
+    <main className="marketing-shell">
+      <section className="marketing-hero">
+        <header className="site-nav">
+          <a className="site-brand" href="#top">
+            <span className="site-brand-mark" />
+            <span>Inbill</span>
           </a>
 
-          <div className="nav-links">
-            <a href="#how-it-works">How It Works</a>
-            <a href="#action-card">Review</a>
-            <a href="#trust">Trust</a>
+          <nav className="site-links" aria-label="Primary">
+            <a href="#how-it-works">How it works</a>
+            <a href="#workspace">Analyzer</a>
+            <a href="#faq">Why Inbill</a>
+          </nav>
+
+          <a className="site-cta" href="#workspace">
+            Analyze a Bill
+          </a>
+        </header>
+
+        <div className="hero-grid" id="top">
+          <div className="hero-copy-panel">
+            <span className="hero-kicker">Trusted Medical Bill Review</span>
+            <h1>
+              Find errors in your medical bill before you <em>pay the wrong amount</em>.
+            </h1>
+            <p>
+              Upload a bill, EOB, or screenshot and get a plain-English breakdown of what may be wrong, what
+              you likely owe, and what to ask next.
+            </p>
+
+            <div className="hero-trust-row">
+              <span>HIPAA-conscious workflow</span>
+              <span>No account required</span>
+              <span>Actionable patient language</span>
+            </div>
+
+            <div className="hero-metrics">
+              <article>
+                <strong>1 file</strong>
+                <span>Upload PDF, image, or text</span>
+              </article>
+              <article>
+                <strong>6 sections</strong>
+                <span>Clear report structure</span>
+              </article>
+              <article>
+                <strong>0 storage</strong>
+                <span>Files handled in memory only</span>
+              </article>
+            </div>
           </div>
 
-          <a className="nav-cta" href="#action-card">
-            Start Review
-          </a>
-        </nav>
+          <div className="hero-preview-panel">
+            <div className="preview-window">
+              <div className="preview-window-bar">
+                <span />
+                <span />
+                <span />
+              </div>
+              <div className="preview-summary-card">
+                <p className="preview-label">Sample Findings</p>
+                <h2>Potential duplicate lab charge</h2>
+                <ul>
+                  <li>Charge description appears on two adjacent bill lines</li>
+                  <li>Insurance responsibility language is unclear</li>
+                  <li>Suggested next step: request an itemized statement</li>
+                </ul>
+              </div>
+              <div className="preview-mini-grid">
+                <article>
+                  <span>Likely Owe</span>
+                  <strong>$162.72</strong>
+                </article>
+                <article>
+                  <span>Red Flags</span>
+                  <strong>3 items</strong>
+                </article>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-        <section className="hero-section" id="top">
-          <div className="hero-badge">Medical Bill Review, Reframed</div>
-          <h1>
-            Find the costly details hiding inside your medical bill before you <em>pay too much</em>.
-          </h1>
-          <p className="hero-subtitle">
-            A calmer, clearer way to review confusing charges, surface likely errors, and prepare your next
-            call with confidence.
+      <section className="workspace-section" id="workspace">
+        <div className="workspace-header">
+          <span className="section-pill">Upload Analyzer</span>
+          <h2>Start with your bill or insurance statement</h2>
+          <p>
+            This MVP runs in a single flow: upload the document, extract bill details, and open the analysis
+            workspace automatically.
           </p>
+        </div>
 
-          <div className="trust-row" id="trust">
-            <div className="trust-item">🔒 Private review flow</div>
-            <div className="trust-item">⚡ Fast upload experience</div>
-            <div className="trust-item">💸 Savings-focused guidance</div>
-            <div className="trust-item">🧾 Structured findings</div>
-          </div>
-        </section>
-
-        <section className="action-card" id="action-card">
-          <div className="tab-switcher" role="tablist" aria-label="Review mode">
+        <div className="workspace-card">
+          <div className="workspace-tabs" role="tablist" aria-label="Review mode">
             <button
-              className={activeTab === "upload" ? "tab-button active" : "tab-button"}
+              className={activeTab === "upload" ? "workspace-tab active" : "workspace-tab"}
               onClick={() => setActiveTab("upload")}
               type="button"
             >
-              Upload Bill
+              Upload file
             </button>
             <button
-              className={activeTab === "notes" ? "tab-button active" : "tab-button"}
+              className={activeTab === "notes" ? "workspace-tab active" : "workspace-tab"}
               onClick={() => setActiveTab("notes")}
               type="button"
             >
-              Paste Notes
+              Paste notes
             </button>
           </div>
 
           {activeTab === "upload" ? (
             <div className="tab-panel">
               <label
-                className={dragActive ? "drop-zone drag-active" : "drop-zone"}
+                className={dragActive ? "upload-drop-zone drag-active" : "upload-drop-zone"}
                 onDragLeave={() => setDragActive(false)}
                 onDragOver={(event) => {
                   event.preventDefault();
@@ -293,19 +299,19 @@ export default function HomePage() {
                 onDrop={handleDrop}
               >
                 <input accept=".pdf,image/*,.txt" className="hidden-file-input" onChange={handleFileInput} type="file" />
-                <div className="upload-icon">⬆</div>
-                <h2>Drag and drop your statement</h2>
-                <p>PDF, image, or text. We keep everything in-memory for a lightweight review experience.</p>
-                <span className="drop-zone-link">Browse files</span>
+                <div className="drop-zone-icon">+</div>
+                <h3>Drag and drop your medical bill</h3>
+                <p>Accepted formats: PDF, image, or text. Files are processed in memory only.</p>
+                <span className="drop-zone-trigger">Browse files</span>
               </label>
 
               {selectedFile ? (
-                <div className="file-preview-bar">
+                <div className="selected-file-card">
                   <div>
-                    <strong>Ready for review</strong>
+                    <strong>{selectedFile.name}</strong>
                     <p>{fileSummary}</p>
                   </div>
-                  <button className="remove-file" onClick={removeFile} type="button">
+                  <button className="ghost-button" onClick={removeFile} type="button">
                     Remove
                   </button>
                 </div>
@@ -313,614 +319,88 @@ export default function HomePage() {
             </div>
           ) : (
             <div className="tab-panel">
-              <div className="notes-card">
-                <label className="notes-label" htmlFor="bill-notes">
-                  Paste claim notes or billing details
-                </label>
+              <div className="notes-panel">
+                <label htmlFor="bill-notes">Paste billing notes or claim details</label>
                 <textarea
                   id="bill-notes"
                   onChange={(event) => setNotesText(event.target.value)}
-                  placeholder="Example: ER visit billed twice, insurer marked imaging as out of network, physician fee unclear..."
-                  rows={6}
+                  placeholder="Example: Lab bill says insurance denied claim because another plan is primary. Amount due is $162.72. I need help understanding whether that is correct."
+                  rows={7}
                   value={notesText}
                 />
               </div>
             </div>
           )}
 
-          {error ? <p className="form-error">{error}</p> : null}
-          <button className="main-cta" onClick={handleAnalyze} type="button">
+          {error ? <p className="inline-error">{error}</p> : null}
+
+          <button className="primary-action" onClick={handleAnalyze} type="button">
             Analyze My Bill
           </button>
 
-          {selectedFileData ? (
-            <p className="hidden-helper">File encoded locally via FileReader for in-browser handling.</p>
-          ) : null}
-          <p className="hidden-helper">No payment required for this version. You’ll go straight to analysis.</p>
-        </section>
+          <p className="workspace-footnote">No payment required in this version. You’ll go straight to results.</p>
+        </div>
 
-        <section className={loading ? "loading-section visible" : "loading-section"} aria-hidden={!loading}>
-          <div className="spinner" />
-          <div className="progress-list">
+        <section className={loading ? "loading-panel visible" : "loading-panel"} aria-hidden={!loading}>
+          <div className="loading-spinner" />
+          <div className="loading-steps">
             {loadingSteps.map((step, index) => (
-              <div className={index <= visibleStep ? "progress-step active" : "progress-step"} key={step}>
-                <span className="progress-dot" />
+              <div className={index <= visibleStep ? "loading-step active" : "loading-step"} key={step}>
+                <span className="loading-step-dot" />
                 <span>{step}</span>
               </div>
             ))}
           </div>
         </section>
-
-        <section className="how-section" id="how-it-works">
-          <p className="section-label">How It Works</p>
-          <h2>A clear path from confusion to action</h2>
-          <p className="section-copy">
-            The flow is designed to feel more like a financial review desk than a generic upload form.
-          </p>
-
-          <div className="how-grid">
-            {[
-              ["01", "Upload or paste", "Bring in the statement itself or the billing notes you already have."],
-              ["02", "Surface the risks", "Spot duplicate charges, unclear fees, and likely coverage mismatches."],
-              ["03", "Prepare your call", "Turn findings into a calmer script for the provider or insurer."],
-              ["04", "Decide next steps", "Know what to dispute, what to verify, and what may actually be owed."],
-            ].map(([number, title, copy]) => (
-              <article className="how-card" key={number}>
-                <span className="how-number">{number}</span>
-                <h3>{title}</h3>
-                <p>{copy}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="stats-banner">
-          <div className="stats-banner-grid">
-            <article>
-              <strong>27%</strong>
-              <span>Average line items that need clarification</span>
-            </article>
-            <article>
-              <strong>4 min</strong>
-              <span>Time to produce an action-oriented review</span>
-            </article>
-            <article>
-              <strong>1 plan</strong>
-              <span>Simple next steps for your next billing call</span>
-            </article>
-          </div>
-        </section>
-
-        <footer className="front-footer">
-          <div className="footer-links">
-            <a href="#top">Home</a>
-            <a href="#how-it-works">How It Works</a>
-            <a href="#action-card">Review</a>
-          </div>
-          <p>© 2026 Inbill. Built for clearer billing conversations.</p>
-          <p className="footer-disclaimer">
-            This interface is an informational review tool and does not replace legal, medical, or insurance advice.
-          </p>
-        </footer>
-      </main>
-
-      <style jsx>{`
-        .front-shell {
-          min-height: 100vh;
-        }
-
-        .front-nav {
-          position: sticky;
-          top: 0;
-          z-index: 20;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          height: 64px;
-          padding: 0 24px;
-          border-bottom: 1px solid var(--border);
-          background: rgba(255, 255, 255, 0.94);
-          backdrop-filter: blur(10px);
-        }
-
-        .brand {
-          display: inline-flex;
-          align-items: center;
-          gap: 12px;
-        }
-
-        .brand-mark {
-          width: 14px;
-          height: 14px;
-          border-radius: 4px;
-          background: var(--accent);
-          box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25);
-        }
-
-        .brand-text,
-        h1,
-        h2,
-        h3,
-        .stat-card strong,
-        .stats-banner strong {
-          font-family: "Playfair Display", serif;
-        }
-
-        .brand-text {
-          color: var(--accent);
-          font-size: 1.35rem;
-          font-weight: 800;
-        }
-
-        .nav-links {
-          display: flex;
-          align-items: center;
-          gap: 24px;
-          color: var(--muted);
-          font-size: 0.9rem;
-          font-weight: 500;
-        }
-
-        .nav-cta {
-          padding: 8px 14px;
-          border-radius: 10px;
-          background: var(--accent);
-          color: #fff;
-          font-size: 0.92rem;
-          font-weight: 600;
-        }
-
-        .hero-section,
-        .action-card,
-        .how-section,
-        .stats-banner,
-        .front-footer,
-        .loading-section {
-          width: min(1120px, calc(100vw - 32px));
-          margin: 0 auto;
-        }
-
-        .hero-section {
-          display: grid;
-          justify-items: center;
-          padding: 5rem 0 2.5rem;
-          text-align: center;
-        }
-
-        .hero-badge,
-        .section-label {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          padding: 8px 14px;
-          border-radius: 999px;
-          background: var(--accent-light);
-          color: var(--accent);
-          font-size: 0.8rem;
-          font-weight: 600;
-          letter-spacing: 0.06em;
-          text-transform: uppercase;
-        }
-
-        h1 {
-          max-width: 900px;
-          margin: 20px 0 18px;
-          font-size: clamp(2.4rem, 5vw, 3.8rem);
-          font-weight: 900;
-          line-height: 1.08;
-          letter-spacing: -1px;
-        }
-
-        h1 em {
-          color: var(--accent);
-          font-style: italic;
-        }
-
-        .hero-subtitle,
-        .section-copy {
-          max-width: 560px;
-          margin: 0;
-          color: var(--muted);
-          font-size: 1.1rem;
-          line-height: 1.7;
-        }
-
-        .trust-row {
-          display: flex;
-          flex-wrap: wrap;
-          justify-content: center;
-          gap: 12px;
-          margin-top: 28px;
-        }
-
-        .trust-item {
-          padding: 10px 14px;
-          border: 1px solid var(--border);
-          border-radius: 999px;
-          background: rgba(255, 255, 255, 0.7);
-          color: var(--muted);
-          font-size: 0.92rem;
-        }
-
-        .action-card {
-          padding: 28px;
-          border: 1px solid var(--border);
-          border-radius: var(--radius-card);
-          background: var(--surface);
-          box-shadow: var(--shadow-soft);
-        }
-
-        .tab-switcher {
-          display: inline-flex;
-          gap: 8px;
-          padding: 6px;
-          border-radius: 999px;
-          background: var(--surface-secondary);
-        }
-
-        .tab-button {
-          padding: 10px 16px;
-          border: none;
-          border-radius: 999px;
-          background: transparent;
-          color: var(--muted);
-          font-weight: 600;
-          cursor: pointer;
-        }
-
-        .tab-button.active {
-          background: #fff;
-          color: var(--text);
-          box-shadow: 0 6px 20px rgba(26, 22, 18, 0.1);
-        }
-
-        .tab-panel {
-          margin-top: 22px;
-        }
-
-        .drop-zone,
-        .notes-card {
-          display: grid;
-          justify-items: center;
-          gap: 10px;
-          padding: 34px 24px;
-          border: 2px dashed var(--border);
-          border-radius: 18px;
-          background: linear-gradient(180deg, rgba(240, 236, 228, 0.45), rgba(255, 255, 255, 0.8));
-          text-align: center;
-          transition:
-            border-color 160ms ease,
-            transform 160ms ease,
-            background 160ms ease;
-          cursor: pointer;
-        }
-
-        .drop-zone:hover,
-        .drop-zone.drag-active {
-          border-color: var(--accent);
-          background: linear-gradient(180deg, rgba(232, 242, 239, 0.8), rgba(255, 255, 255, 0.92));
-          transform: translateY(-2px);
-        }
-
-        .upload-icon {
-          display: grid;
-          place-items: center;
-          width: 56px;
-          height: 56px;
-          border-radius: 18px;
-          background: var(--accent-light);
-          color: var(--accent);
-          font-size: 1.35rem;
-          font-weight: 700;
-        }
-
-        .drop-zone h2,
-        .how-section h2 {
-          margin: 0;
-          font-size: 2rem;
-        }
-
-        .drop-zone p,
-        .notes-card p,
-        .how-card p,
-        .finding-card p,
-        .front-footer p {
-          margin: 0;
-          color: var(--muted);
-          line-height: 1.65;
-        }
-
-        .drop-zone-link {
-          color: var(--accent);
-          font-weight: 700;
-        }
-
-        .hidden-file-input {
-          display: none;
-        }
-
-        .notes-card {
-          justify-items: stretch;
-          text-align: left;
-          cursor: default;
-        }
-
-        .notes-label {
-          font-weight: 700;
-        }
-
-        .notes-card textarea {
-          resize: vertical;
-          min-height: 170px;
-          padding: 16px;
-          border: 1px solid var(--border);
-          border-radius: var(--radius-input);
-          background: #fff;
-          color: var(--text);
-        }
-
-        .file-preview-bar {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 16px;
-          margin-top: 18px;
-          padding: 16px 18px;
-          border: 1px solid #cfe1db;
-          border-radius: 16px;
-          background: var(--accent-light);
-        }
-
-        .file-preview-bar strong,
-        .how-card h3 {
-          display: block;
-          margin: 0 0 4px;
-          color: var(--text);
-        }
-
-        .file-preview-bar p {
-          margin: 0;
-          color: var(--muted);
-          font-size: 0.95rem;
-        }
-
-        .remove-file,
-        .action-outline {
-          padding: 11px 16px;
-          border: 1px solid var(--border);
-          border-radius: var(--radius-button);
-          background: transparent;
-          color: var(--text);
-          font-weight: 600;
-          cursor: pointer;
-        }
-
-        .main-cta {
-          width: 100%;
-          margin-top: 18px;
-          padding: 16px;
-          border: none;
-          border-radius: var(--radius-button);
-          background: var(--accent);
-          color: #fff;
-          font-weight: 600;
-          cursor: pointer;
-          box-shadow: 0 10px 26px rgba(30, 92, 79, 0.18);
-          transition:
-            transform 180ms ease,
-            box-shadow 180ms ease;
-        }
-
-        .main-cta:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 16px 36px rgba(30, 92, 79, 0.22);
-        }
-
-        .form-error,
-        .hidden-helper {
-          margin: 14px 2px 0;
-          color: var(--warning);
-          font-size: 0.95rem;
-        }
-
-        .hidden-helper {
-          color: var(--muted);
-        }
-
-        .loading-section {
-          display: none;
-          margin-top: 24px;
-        }
-
-        .loading-section.visible {
-          display: grid;
-        }
-
-        .loading-section {
-          justify-items: center;
-          gap: 20px;
-          padding: 26px 0 8px;
-        }
-
-        .spinner {
-          width: 46px;
-          height: 46px;
-          border: 4px solid rgba(30, 92, 79, 0.16);
-          border-top-color: var(--accent);
-          border-radius: 50%;
-          animation: spin 0.8s linear infinite;
-        }
-
-        .progress-list {
-          display: grid;
-          gap: 12px;
-          width: min(480px, 100%);
-        }
-
-        .progress-step {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          color: var(--muted);
-          opacity: 0.42;
-          transition: opacity 220ms ease;
-        }
-
-        .progress-step.active {
-          opacity: 1;
-        }
-
-        .progress-dot {
-          width: 10px;
-          height: 10px;
-          border-radius: 999px;
-          background: rgba(30, 92, 79, 0.22);
-          animation: pulse 1.4s ease-in-out infinite;
-        }
-
-        .progress-step.active .progress-dot {
-          background: var(--accent);
-        }
-
-        .how-section {
-          padding: 90px 0 48px;
-          text-align: center;
-        }
-
-        .how-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-          gap: 18px;
-          margin-top: 34px;
-        }
-
-        .how-card {
-          position: relative;
-          padding: 1.8rem;
-          border: 1px solid var(--border);
-          border-radius: 16px;
-          background: var(--surface);
-          text-align: left;
-        }
-
-        .how-number {
-          display: inline-block;
-          margin-bottom: 22px;
-          color: var(--border);
-          font-family: "Playfair Display", serif;
-          font-size: 3rem;
-          font-weight: 800;
-          line-height: 1;
-        }
-
-        .stats-banner {
-          margin-top: 24px;
-          padding: 32px 20px;
-          border-radius: 24px;
-          background: var(--accent);
-        }
-
-        .stats-banner-grid {
-          display: grid;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-          gap: 18px;
-          max-width: 800px;
-          margin: 0 auto;
-          text-align: center;
-        }
-
-        .stats-banner strong {
-          display: block;
-          color: #a8d5cb;
-          font-size: 2.2rem;
-        }
-
-        .stats-banner span {
-          display: block;
-          margin-top: 6px;
-          color: rgba(255, 255, 255, 0.85);
-          line-height: 1.5;
-        }
-
-        .front-footer {
-          margin-top: 28px;
-          padding: 36px 0 48px;
-          border-radius: 24px 24px 0 0;
-          background: #1a1612;
-          text-align: center;
-        }
-
-        .footer-links {
-          display: flex;
-          justify-content: center;
-          gap: 18px;
-          margin-bottom: 14px;
-          color: rgba(255, 255, 255, 0.9);
-        }
-
-        .front-footer p {
-          color: rgba(255, 255, 255, 0.72);
-        }
-
-        .footer-disclaimer {
-          max-width: 640px;
-          margin: 14px auto 0;
-          color: rgba(255, 255, 255, 0.5);
-        }
-
-        @keyframes spin {
-          to {
-            transform: rotate(360deg);
-          }
-        }
-
-        @keyframes pulse {
-          0%,
-          100% {
-            opacity: 0.4;
-          }
-          50% {
-            opacity: 1;
-          }
-        }
-
-        @media (max-width: 900px) {
-          .stats-banner-grid {
-            grid-template-columns: 1fr;
-          }
-        }
-
-        @media (max-width: 600px) {
-          .front-nav {
-            padding: 0 16px;
-          }
-
-          .nav-links {
-            display: none;
-          }
-
-          .hero-section {
-            padding-top: 4rem;
-          }
-
-          .action-card {
-            padding: 20px;
-          }
-
-          .tab-switcher {
-            width: 100%;
-          }
-
-          .tab-button {
-            flex: 1;
-          }
-
-          .file-preview-bar {
-            flex-direction: column;
-            align-items: stretch;
-          }
-        }
-      `}</style>
-    </>
+      </section>
+
+      <section className="benefits-section" id="how-it-works">
+        <div className="section-heading">
+          <span className="section-pill">How It Works</span>
+          <h2>A straightforward review flow for patients</h2>
+          <p>Designed to feel more like a financial audit than a generic AI upload form.</p>
+        </div>
+
+        <div className="benefits-grid">
+          <article>
+            <span className="benefit-number">01</span>
+            <h3>Upload your document</h3>
+            <p>Bring in a bill, EOB, lab statement, or notes from a provider call.</p>
+          </article>
+          <article>
+            <span className="benefit-number">02</span>
+            <h3>Surface likely red flags</h3>
+            <p>Spot duplicate charges, vague descriptions, and coverage mismatches more quickly.</p>
+          </article>
+          <article>
+            <span className="benefit-number">03</span>
+            <h3>Understand what you likely owe</h3>
+            <p>Get a simpler view of the amount billed, insurer role, and patient responsibility.</p>
+          </article>
+          <article>
+            <span className="benefit-number">04</span>
+            <h3>Prepare your next call</h3>
+            <p>Use sharper questions and a calm script when you contact billing or insurance.</p>
+          </article>
+        </div>
+      </section>
+
+      <section className="proof-banner" id="faq">
+        <div className="proof-banner-inner">
+          <article>
+            <strong>Plain English</strong>
+            <span>No billing jargon wall</span>
+          </article>
+          <article>
+            <strong>Action Steps</strong>
+            <span>Built for your next phone call</span>
+          </article>
+          <article>
+            <strong>In-Memory</strong>
+            <span>No file storage in this MVP</span>
+          </article>
+        </div>
+      </section>
+    </main>
   );
 }
