@@ -6,6 +6,21 @@ import { ReportView } from "@/components/report-view";
 import { BILL_STORAGE_KEY, FILE_NAME_STORAGE_KEY } from "@/lib/bill";
 import type { AnalysisReport } from "@/lib/types";
 
+async function readJsonResponse<T>(response: Response): Promise<T> {
+  const contentType = response.headers.get("content-type") || "";
+  const bodyText = await response.text();
+
+  if (!contentType.includes("application/json")) {
+    throw new Error(
+      response.ok
+        ? "The server returned an unexpected response."
+        : `Server error (${response.status}). Please redeploy and try again.`,
+    );
+  }
+
+  return JSON.parse(bodyText) as T;
+}
+
 type ResultClientProps = {
   isPaid: boolean;
   sessionId: string;
@@ -52,10 +67,10 @@ export function ResultClient({ isPaid, sessionId }: ResultClientProps) {
         }),
       });
 
-      const payload = (await response.json()) as {
+      const payload = await readJsonResponse<{
         report?: AnalysisReport;
         error?: string;
-      };
+      }>(response);
 
       if (!response.ok || !payload.report) {
         throw new Error(payload.error || "Unable to generate analysis.");

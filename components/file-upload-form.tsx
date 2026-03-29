@@ -7,6 +7,21 @@ import {
   isAcceptedBillFile,
 } from "@/lib/bill";
 
+async function readJsonResponse<T>(response: Response): Promise<T> {
+  const contentType = response.headers.get("content-type") || "";
+  const bodyText = await response.text();
+
+  if (!contentType.includes("application/json")) {
+    throw new Error(
+      response.ok
+        ? "The server returned an unexpected response."
+        : `Server error (${response.status}). Please redeploy and try again.`,
+    );
+  }
+
+  return JSON.parse(bodyText) as T;
+}
+
 async function extractTextFromImage(file: File) {
   const { createWorker } = await import("tesseract.js");
   const worker = await createWorker("eng");
@@ -65,11 +80,11 @@ export function FileUploadForm() {
           body: extractForm,
         });
 
-        const extractPayload = (await extractResponse.json()) as {
+        const extractPayload = await readJsonResponse<{
           extractedText?: string;
           error?: string;
           fileName?: string;
-        };
+        }>(extractResponse);
 
         if (!extractResponse.ok || !extractPayload.extractedText) {
           throw new Error(extractPayload.error || "Unable to extract bill text.");
@@ -97,7 +112,7 @@ export function FileUploadForm() {
         }),
       });
 
-      const payload = (await response.json()) as { url?: string; error?: string };
+      const payload = await readJsonResponse<{ url?: string; error?: string }>(response);
 
       if (!response.ok || !payload.url) {
         throw new Error(payload.error || "Unable to start checkout.");
