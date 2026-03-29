@@ -1,6 +1,8 @@
 "use client";
 
-import { ChangeEvent, DragEvent, useEffect, useMemo, useRef, useState } from "react";
+import { ChangeEvent, DragEvent, useMemo, useState } from "react";
+
+import { BILL_STORAGE_KEY, FILE_NAME_STORAGE_KEY, isAcceptedBillFile } from "@/lib/bill";
 
 const loadingSteps = [
   "Reading your statement",
@@ -9,26 +11,32 @@ const loadingSteps = [
   "Preparing your action plan",
 ];
 
-const findings = [
-  {
-    tone: "critical",
-    icon: "🚨",
-    title: "Duplicate facility fee detected",
-    description: "Two nearly identical emergency department charges appear to reference the same visit window.",
-  },
-  {
-    tone: "warning",
-    icon: "⚠️",
-    title: "Out-of-network rate may be misapplied",
-    description: "Your explanation of benefits suggests negotiated pricing should apply to at least one imaging line item.",
-  },
-  {
-    tone: "info",
-    icon: "🩺",
-    title: "Provider billing notes need clarification",
-    description: "The physician fee description is too broad to verify whether professional and facility charges overlap.",
-  },
-];
+async function readJsonResponse<T>(response: Response): Promise<T> {
+  const contentType = response.headers.get("content-type") || "";
+  const bodyText = await response.text();
+
+  if (!contentType.includes("application/json")) {
+    throw new Error(
+      response.ok
+        ? "The server returned an unexpected response."
+        : `Server error (${response.status}). Please check deployment protection and environment variables.`,
+    );
+  }
+
+  return JSON.parse(bodyText) as T;
+}
+
+async function extractTextFromImage(file: File) {
+  const { createWorker } = await import("tesseract.js");
+  const worker = await createWorker("eng");
+
+  try {
+    const result = await worker.recognize(file);
+    return result.data.text.trim();
+  } finally {
+    await worker.terminate();
+  }
+}
 
 export default function HomePage() {
   const [activeTab, setActiveTab] = useState<"upload" | "notes">("upload");
@@ -38,9 +46,7 @@ export default function HomePage() {
   const [notesText, setNotesText] = useState("");
   const [loading, setLoading] = useState(false);
   const [visibleStep, setVisibleStep] = useState(0);
-  const [showResults, setShowResults] = useState(false);
   const [error, setError] = useState("");
-  const resultsRef = useRef<HTMLElement | null>(null);
 
   const fileSummary = useMemo(() => {
     if (!selectedFile) {
@@ -50,37 +56,6 @@ export default function HomePage() {
     const sizeInMb = (selectedFile.size / (1024 * 1024)).toFixed(2);
     return `${selectedFile.name} • ${sizeInMb} MB`;
   }, [selectedFile]);
-
-  useEffect(() => {
-    if (!loading) {
-      return;
-    }
-
-    setVisibleStep(0);
-    const interval = window.setInterval(() => {
-      setVisibleStep((current) => {
-        if (current >= loadingSteps.length - 1) {
-          window.clearInterval(interval);
-          return current;
-        }
-
-        return current + 1;
-      });
-    }, 850);
-
-    const completeTimer = window.setTimeout(() => {
-      setLoading(false);
-      setShowResults(true);
-      window.setTimeout(() => {
-        resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 120);
-    }, 3800);
-
-    return () => {
-      window.clearInterval(interval);
-      window.clearTimeout(completeTimer);
-    };
-  }, [loading]);
 
   const readFileAsDataUrl = (file: File) =>
     new Promise<string>((resolve, reject) => {
@@ -92,7 +67,6 @@ export default function HomePage() {
 
   const handleSelectedFile = async (file: File | null) => {
     setError("");
-    setShowResults(false);
 
     if (!file) {
       setSelectedFile(null);
@@ -123,7 +97,7 @@ export default function HomePage() {
     await handleSelectedFile(file);
   };
 
-  const handleAnalyze = () => {
+  const handleAnalyze = async () => {
     setError("");
 
     if (activeTab === "upload" && !selectedFile) {
@@ -136,8 +110,77 @@ export default function HomePage() {
       return;
     }
 
-    setShowResults(false);
     setLoading(true);
+    setVisibleStep(0);
+
+    try {
+      let extractedText = "";
+
+      if (activeTab === "upload" && selectedFile) {
+        if (!isAcceptedBillFile(selectedFile)) {
+          throw new Error("Unsupported file type. Please upload a PDF, image, or text file.");
+        }
+
+        setVisibleStep(1);
+
+        if (selectedFile.type.startsWith("image/")) {
+          extractedText = await extractTextFromImage(selectedFile);
+        } else {
+          const extractForm = new FormData();
+          extractForm.set("file", selectedFile);
+
+          const extractResponse = await fetch("/api/extract", {
+            method: "POST",
+            body: extractForm,
+          });
+
+          const extractPayload = await readJsonResponse<{
+            extractedText?: string;
+            error?: string;
+          }>(extractResponse);
+
+          if (!extractResponse.ok || !extractPayload.extractedText) {
+            throw new Error(extractPayload.error || "Unable to extract bill text.");
+          }
+
+          extractedText = extractPayload.extractedText;
+        }
+      } else {
+        extractedText = notesText.trim();
+      }
+
+      if (!extractedText.trim()) {
+        throw new Error("We could not extract readable bill text from that input.");
+      }
+
+      window.sessionStorage.setItem(BILL_STORAGE_KEY, extractedText);
+      window.sessionStorage.setItem(FILE_NAME_STORAGE_KEY, selectedFile?.name || "billing-notes.txt");
+
+      setVisibleStep(2);
+
+      const checkoutResponse = await fetch("/api/checkout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          fileName: selectedFile?.name || "billing-notes.txt",
+        }),
+      });
+
+      const checkoutPayload = await readJsonResponse<{ url?: string; error?: string }>(checkoutResponse);
+
+      if (!checkoutResponse.ok || !checkoutPayload.url) {
+        throw new Error(checkoutPayload.error || "Unable to start checkout.");
+      }
+
+      setVisibleStep(3);
+      window.location.href = checkoutPayload.url;
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : "Unable to start your review.");
+      setLoading(false);
+      setVisibleStep(0);
+    }
   };
 
   const removeFile = () => {
@@ -207,7 +250,7 @@ export default function HomePage() {
 
           <div className="nav-links">
             <a href="#how-it-works">How It Works</a>
-            <a href="#results">Results</a>
+            <a href="#action-card">Review</a>
             <a href="#trust">Trust</a>
           </div>
 
@@ -301,10 +344,13 @@ export default function HomePage() {
 
           {error ? <p className="form-error">{error}</p> : null}
           <button className="main-cta" onClick={handleAnalyze} type="button">
-            Analyze My Bill
+            Continue to Secure Checkout
           </button>
 
-          {selectedFileData ? <p className="hidden-helper">File encoded locally via FileReader for in-browser handling.</p> : null}
+          {selectedFileData ? (
+            <p className="hidden-helper">File encoded locally via FileReader for in-browser handling.</p>
+          ) : null}
+          <p className="hidden-helper">You’ll review payment first. The full AI analysis happens after checkout.</p>
         </section>
 
         <section className={loading ? "loading-section visible" : "loading-section"} aria-hidden={!loading}>
@@ -316,64 +362,6 @@ export default function HomePage() {
                 <span>{step}</span>
               </div>
             ))}
-          </div>
-        </section>
-
-        <section className={showResults ? "results-section visible" : "results-section"} id="results" ref={resultsRef}>
-          <div className="results-header">
-            <div>
-              <p className="section-label">Review Snapshot</p>
-              <h2>What deserves your attention now</h2>
-            </div>
-            <span className="results-badge">Action-ready summary</span>
-          </div>
-
-          <div className="stats-grid">
-            <article className="stat-card stat-red">
-              <strong>3</strong>
-              <span>Potential Issues</span>
-            </article>
-            <article className="stat-card stat-amber">
-              <strong>Moderate</strong>
-              <span>Negotiation Risk</span>
-            </article>
-            <article className="stat-card stat-green">
-              <strong>$482</strong>
-              <span>Possible Savings</span>
-            </article>
-          </div>
-
-          <div className="findings-list">
-            {findings.map((finding) => (
-              <article className={`finding-card ${finding.tone}`} key={finding.title}>
-                <div className="finding-icon">{finding.icon}</div>
-                <div>
-                  <h3>{finding.title}</h3>
-                  <p>{finding.description}</p>
-                </div>
-              </article>
-            ))}
-          </div>
-
-          <div className="summary-box">
-            <span className="summary-label">AI Summary</span>
-            <div className="summary-content">
-              The bill appears to combine one legitimate emergency visit with at least one charge that should be
-              clarified or disputed. The fastest path is to request an itemized statement, confirm network status
-              for imaging, and ask whether the physician fee overlaps with the facility charge.
-            </div>
-          </div>
-
-          <div className="results-actions">
-            <button className="action-outline" type="button">
-              Download Notes
-            </button>
-            <button className="action-outline" type="button">
-              Email Summary
-            </button>
-            <button className="action-filled" type="button">
-              Start Another Review
-            </button>
           </div>
         </section>
 
@@ -421,7 +409,7 @@ export default function HomePage() {
           <div className="footer-links">
             <a href="#top">Home</a>
             <a href="#how-it-works">How It Works</a>
-            <a href="#results">Results</a>
+            <a href="#action-card">Review</a>
           </div>
           <p>© 2026 Inbill. Built for clearer billing conversations.</p>
           <p className="footer-disclaimer">
@@ -501,7 +489,6 @@ export default function HomePage() {
         .how-section,
         .stats-banner,
         .front-footer,
-        .results-section,
         .loading-section {
           width: min(1120px, calc(100vw - 32px));
           margin: 0 auto;
@@ -515,7 +502,6 @@ export default function HomePage() {
         }
 
         .hero-badge,
-        .results-badge,
         .section-label {
           display: inline-flex;
           align-items: center;
@@ -643,8 +629,7 @@ export default function HomePage() {
         }
 
         .drop-zone h2,
-        .how-section h2,
-        .results-header h2 {
+        .how-section h2 {
           margin: 0;
           font-size: 2rem;
         }
@@ -701,7 +686,6 @@ export default function HomePage() {
         }
 
         .file-preview-bar strong,
-        .finding-card h3,
         .how-card h3 {
           display: block;
           margin: 0 0 4px;
@@ -725,8 +709,7 @@ export default function HomePage() {
           cursor: pointer;
         }
 
-        .main-cta,
-        .action-filled {
+        .main-cta {
           width: 100%;
           margin-top: 18px;
           padding: 16px;
@@ -742,8 +725,7 @@ export default function HomePage() {
             box-shadow 180ms ease;
         }
 
-        .main-cta:hover,
-        .action-filled:hover {
+        .main-cta:hover {
           transform: translateY(-2px);
           box-shadow: 0 16px 36px rgba(30, 92, 79, 0.22);
         }
@@ -759,14 +741,12 @@ export default function HomePage() {
           color: var(--muted);
         }
 
-        .loading-section,
-        .results-section {
+        .loading-section {
           display: none;
           margin-top: 24px;
         }
 
-        .loading-section.visible,
-        .results-section.visible {
+        .loading-section.visible {
           display: grid;
         }
 
@@ -814,126 +794,6 @@ export default function HomePage() {
 
         .progress-step.active .progress-dot {
           background: var(--accent);
-        }
-
-        .results-section {
-          gap: 24px;
-          padding-top: 24px;
-        }
-
-        .results-header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 16px;
-        }
-
-        .stats-grid {
-          display: grid;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-          gap: 18px;
-        }
-
-        .stat-card {
-          padding: 22px;
-          border-radius: 18px;
-          border: 1px solid transparent;
-        }
-
-        .stat-card strong {
-          display: block;
-          font-size: 2rem;
-        }
-
-        .stat-card span {
-          display: block;
-          margin-top: 8px;
-          font-size: 0.78rem;
-          font-weight: 700;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
-        }
-
-        .stat-red {
-          background: #faece8;
-          color: #8f3416;
-        }
-
-        .stat-amber {
-          background: #fbf3df;
-          color: #8c6720;
-        }
-
-        .stat-green {
-          background: #e8f2ef;
-          color: var(--accent);
-        }
-
-        .findings-list {
-          display: grid;
-          gap: 14px;
-        }
-
-        .finding-card {
-          display: grid;
-          grid-template-columns: 42px 1fr;
-          gap: 14px;
-          padding: 18px;
-          border-radius: 16px;
-          border: 1px solid var(--border);
-        }
-
-        .finding-card.critical {
-          background: #fbefea;
-        }
-
-        .finding-card.warning {
-          background: #fbf5e5;
-        }
-
-        .finding-card.info {
-          background: #edf6f3;
-        }
-
-        .finding-icon {
-          font-size: 1.35rem;
-          line-height: 1;
-        }
-
-        .summary-box {
-          padding: 20px;
-          border: 1px solid var(--border);
-          border-radius: 18px;
-          background: var(--surface-secondary);
-        }
-
-        .summary-label {
-          display: inline-block;
-          margin-bottom: 12px;
-          color: var(--muted);
-          font-size: 0.74rem;
-          font-weight: 700;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
-        }
-
-        .summary-content {
-          padding: 16px;
-          border-radius: 14px;
-          background: rgba(255, 255, 255, 0.72);
-          color: var(--text);
-          font-family: "Courier New", monospace;
-          line-height: 1.75;
-        }
-
-        .results-actions {
-          display: flex;
-          gap: 12px;
-        }
-
-        .action-filled {
-          width: auto;
-          margin-top: 0;
         }
 
         .how-section {
@@ -1039,13 +899,6 @@ export default function HomePage() {
         }
 
         @media (max-width: 900px) {
-          .results-header,
-          .results-actions {
-            flex-direction: column;
-            align-items: flex-start;
-          }
-
-          .stats-grid,
           .stats-banner-grid {
             grid-template-columns: 1fr;
           }
@@ -1076,8 +929,7 @@ export default function HomePage() {
             flex: 1;
           }
 
-          .file-preview-bar,
-          .results-actions {
+          .file-preview-bar {
             flex-direction: column;
             align-items: stretch;
           }
