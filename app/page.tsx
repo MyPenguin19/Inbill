@@ -7,8 +7,8 @@ import { BILL_STORAGE_KEY, FILE_NAME_STORAGE_KEY, isAcceptedBillFile } from "@/l
 const loadingSteps = [
   "Reading your statement",
   "Cross-checking line items",
-  "Reviewing possible billing errors",
-  "Preparing your action plan",
+  "Preparing your analysis",
+  "Opening your results",
 ];
 
 async function readJsonResponse<T>(response: Response): Promise<T> {
@@ -158,24 +158,8 @@ export default function HomePage() {
 
       setVisibleStep(2);
 
-      const checkoutResponse = await fetch("/api/checkout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          fileName: selectedFile?.name || "billing-notes.txt",
-        }),
-      });
-
-      const checkoutPayload = await readJsonResponse<{ url?: string; error?: string }>(checkoutResponse);
-
-      if (!checkoutResponse.ok || !checkoutPayload.url) {
-        throw new Error(checkoutPayload.error || "Unable to start checkout.");
-      }
-
       setVisibleStep(3);
-      window.location.href = checkoutPayload.url;
+      window.location.href = "/result";
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : "Unable to start your review.");
       setLoading(false);
@@ -344,13 +328,13 @@ export default function HomePage() {
 
           {error ? <p className="form-error">{error}</p> : null}
           <button className="main-cta" onClick={handleAnalyze} type="button">
-            Continue to Secure Checkout
+            Analyze My Bill
           </button>
 
           {selectedFileData ? (
             <p className="hidden-helper">File encoded locally via FileReader for in-browser handling.</p>
           ) : null}
-          <p className="hidden-helper">You’ll review payment first. The full AI analysis happens after checkout.</p>
+          <p className="hidden-helper">No payment required for this version. You’ll go straight to analysis.</p>
         </section>
 
         <section className={loading ? "loading-section visible" : "loading-section"} aria-hidden={!loading}>

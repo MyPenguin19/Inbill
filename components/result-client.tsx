@@ -22,11 +22,11 @@ async function readJsonResponse<T>(response: Response): Promise<T> {
 }
 
 type ResultClientProps = {
-  isPaid: boolean;
-  sessionId: string;
+  isPaid?: boolean;
+  sessionId?: string;
 };
 
-export function ResultClient({ isPaid, sessionId }: ResultClientProps) {
+export function ResultClient({ isPaid = true, sessionId }: ResultClientProps = {}) {
   const [billText, setBillText] = useState("");
   const [fileName, setFileName] = useState("medical bill");
   const [report, setReport] = useState<AnalysisReport | null>(null);
@@ -42,11 +42,6 @@ export function ResultClient({ isPaid, sessionId }: ResultClientProps) {
   }, []);
 
   const handleGenerateAnalysis = async () => {
-    if (!isPaid) {
-      setError("Payment is required before analysis can begin.");
-      return;
-    }
-
     if (!billText.trim()) {
       setError("We could not find uploaded bill text for this session. Please upload your file again.");
       return;
@@ -91,14 +86,10 @@ export function ResultClient({ isPaid, sessionId }: ResultClientProps) {
   return (
     <div className="result-shell">
       <div className="status-card">
-        <p className="eyebrow">Payment status</p>
-        <h1>{isPaid ? "Ready to analyze your bill" : "Payment required"}</h1>
-        <p>
-          {isPaid
-            ? `Stripe payment verified for ${fileName}. Generate the report when you are ready.`
-            : "We could not verify a completed payment for this session. Please return to checkout."}
-        </p>
-        <button className="primary-button" type="button" onClick={handleGenerateAnalysis} disabled={!isPaid || isLoading}>
+        <p className="eyebrow">Analysis workspace</p>
+        <h1>Ready to analyze your bill</h1>
+        <p>Reviewing {fileName}. Generate the report when you are ready.</p>
+        <button className="primary-button" type="button" onClick={handleGenerateAnalysis} disabled={isLoading}>
           {isLoading ? "Generating..." : "Generate Analysis"}
         </button>
         {error ? <p className="error-text">{error}</p> : null}
