@@ -14,84 +14,50 @@ IMPORTANT RULES:
 - Be specific, not generic.
 - Avoid fluff.
 
-OUTPUT FORMAT (STRICT — FOLLOW EXACTLY):
+Return valid JSON only with exactly these keys:
+- summary: string
+- owed: string[]
+- issues: string[]
+- questions: string[]
+- steps: string[]
+- script: string[]
 
-### 1. Summary (Plain English)
-Explain in simple terms:
-- What this bill is for
-- What services were provided (if identifiable)
-- Why the total cost might be high
-
-Keep it short and clear.
-
----
-
-### 2. What You Likely Owe
-Break down:
-- Total billed amount
-- Insurance paid (if visible)
-- Patient responsibility (estimate if unclear)
-
-If unclear, explain why.
-
----
-
-### 3. Potential Issues or Red Flags
-List 3–6 specific items such as:
-- Duplicate charges
-- Unclear or vague descriptions
-- High-cost line items
-- Out-of-network indicators
-- Billing codes that commonly cause confusion
-
-For each:
-- Explain WHY it may be an issue
-- Keep it practical, not theoretical
-
----
-
-### 4. Questions You Should Ask
-Provide 5–7 VERY SPECIFIC questions the user can ask their provider or insurer.
-
----
-
-### 5. Suggested Next Steps
-Give 3–5 clear actions:
-- Request documents
-- Call billing department
-- Verify insurance coverage
-- Ask for discounts or payment plans
-
----
-
-### 6. Call Script (HIGH VALUE — THIS IS CRITICAL)
-Write a short, confident script the user can read when calling.
-
-Structure:
-- Opening line
-- Key questions to ask
-- Pushback line if needed
-- Closing
-
-Tone:
-- Calm
-- Assertive
-- Not aggressive
-
----
-
-### 7. Important Note
-Add a short disclaimer:
-"This analysis is for informational purposes only and does not constitute medical or legal advice. Please verify all details with your provider or insurance company."
-
----
-
-STYLE:
-- Clean formatting
-- Bullet points where helpful
-- No long paragraphs
-- No jargon unless explained
+Field rules:
+- summary should be a short plain-English paragraph
+- owed should contain 3-4 short lines about total billed, insurance paid, and patient responsibility
+- issues should contain 3-6 practical red flags
+- questions should contain 5-7 specific questions
+- steps should contain 3-5 clear next actions
+- script should contain 4-6 short lines for a call script
+- Do not wrap the JSON in markdown
 `;
+
+function normalizeReport(data: unknown): AnalysisReport {
+  if (!data || typeof data !== "object") {
+    throw new Error("OpenAI response did not include a valid analysis object.");
+  }
+
+  const record = data as Record<string, unknown>;
+  const toStringArray = (value: unknown) =>
+    Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
+
+  return {
+    summary: typeof record.summary === "string" ? record.summary : "",
+    owed: toStringArray(record.owed),
+    issues: toStringArray(record.issues),
+    questions: toStringArray(record.questions),
+    steps: toStringArray(record.steps),
+    script: toStringArray(record.script),
+  };
+}
+
+function parseReportJson(output: string): AnalysisReport {
+  try {
+    return normalizeReport(JSON.parse(output));
+  } catch {
+    throw new Error("OpenAI response was not valid JSON.");
+  }
+}
 
 export async function analyzeMedicalBillFromText(
   extractedText: string,
@@ -110,6 +76,7 @@ export async function analyzeMedicalBillFromText(
         content: `INPUT:\nThe following is a medical bill or EOB:\n\n${extractedText}`,
       },
     ],
+    response_format: { type: "json_object" },
   });
 
   const output = response.choices[0]?.message.content;
@@ -118,7 +85,7 @@ export async function analyzeMedicalBillFromText(
     throw new Error("OpenAI response did not include analysis output.");
   }
 
-  return output;
+  return parseReportJson(output);
 }
 
 export async function analyzeMedicalBillFromImage(
@@ -149,6 +116,7 @@ export async function analyzeMedicalBillFromImage(
         ],
       },
     ],
+    response_format: { type: "json_object" },
   });
 
   const output = response.choices[0]?.message.content;
@@ -157,5 +125,5 @@ export async function analyzeMedicalBillFromImage(
     throw new Error("OpenAI response did not include analysis output.");
   }
 
-  return output;
+  return parseReportJson(output);
 }
