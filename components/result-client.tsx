@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { ReportView } from "@/components/report-view";
 import {
@@ -38,6 +38,8 @@ export function ResultClient({ isPaid = true, sessionId }: ResultClientProps = {
   const [report, setReport] = useState<AnalysisReport | null>(null);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [hasHydratedInput, setHasHydratedInput] = useState(false);
+  const hasAutoTriggered = useRef(false);
 
   useEffect(() => {
     const pendingPayload = getPendingBillPayload();
@@ -47,6 +49,7 @@ export function ResultClient({ isPaid = true, sessionId }: ResultClientProps = {
       setBillImageData(pendingPayload.billImageData);
       setFileName(pendingPayload.fileName || "uploaded-medical-bill");
       clearPendingBillPayload();
+      setHasHydratedInput(true);
       return;
     }
 
@@ -57,10 +60,11 @@ export function ResultClient({ isPaid = true, sessionId }: ResultClientProps = {
     setBillText(savedBill || "");
     setBillImageData(savedImage || "");
     setFileName(savedFileName || "uploaded-medical-bill");
+    setHasHydratedInput(true);
   }, []);
 
-  const handleGenerateAnalysis = async () => {
-    if (!billText.trim() && !billImageData.trim()) {
+  const handleGenerateAnalysis = async (nextBillText = billText, nextBillImageData = billImageData) => {
+    if (!nextBillText.trim() && !nextBillImageData.trim()) {
       setError("We could not find uploaded bill data for this session. Please upload your file again.");
       return;
     }
@@ -79,8 +83,8 @@ export function ResultClient({ isPaid = true, sessionId }: ResultClientProps = {
         },
         signal: controller.signal,
         body: JSON.stringify({
-          extractedText: billText,
-          imageDataUrl: billImageData,
+          extractedText: nextBillText,
+          imageDataUrl: nextBillImageData,
           sessionId,
         }),
       });
@@ -111,10 +115,17 @@ export function ResultClient({ isPaid = true, sessionId }: ResultClientProps = {
   };
 
   useEffect(() => {
-    if (!report && !isLoading && (billText.trim() || billImageData.trim())) {
-      void handleGenerateAnalysis();
+    if (
+      hasHydratedInput &&
+      !hasAutoTriggered.current &&
+      !report &&
+      !isLoading &&
+      (billText.trim() || billImageData.trim())
+    ) {
+      hasAutoTriggered.current = true;
+      void handleGenerateAnalysis(billText, billImageData);
     }
-  }, [billImageData, billText, isLoading, report]);
+  }, [billImageData, billText, hasHydratedInput, isLoading, report]);
 
   return (
     <div className="result-shell">
@@ -146,7 +157,12 @@ export function ResultClient({ isPaid = true, sessionId }: ResultClientProps = {
         <div className="status-card">
           <p className="eyebrow">Actions</p>
           <p>Use this if you update the file or want to retry once your API setup is fixed.</p>
-          <button className="primary-button" type="button" onClick={handleGenerateAnalysis} disabled={isLoading}>
+          <button
+            className="primary-button"
+            type="button"
+            onClick={() => void handleGenerateAnalysis()}
+            disabled={isLoading}
+          >
             {isLoading ? "Generating..." : "Generate Analysis Again"}
           </button>
           {error ? <p className="error-text">{error}</p> : null}
