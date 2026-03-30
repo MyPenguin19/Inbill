@@ -61,6 +61,36 @@ export default function HomePage() {
       reader.readAsDataURL(file);
     });
 
+  const compressImageDataUrl = (dataUrl: string) =>
+    new Promise<string>((resolve, reject) => {
+      const image = new Image();
+      image.onload = () => {
+        const maxDimension = 1600;
+        const scale = Math.min(maxDimension / image.width, maxDimension / image.height, 1);
+        const width = Math.max(1, Math.round(image.width * scale));
+        const height = Math.max(1, Math.round(image.height * scale));
+        const canvas = document.createElement("canvas");
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const context = canvas.getContext("2d");
+
+        if (!context) {
+          reject(new Error("Unable to prepare the uploaded image."));
+          return;
+        }
+
+        context.fillStyle = "#ffffff";
+        context.fillRect(0, 0, width, height);
+        context.drawImage(image, 0, 0, width, height);
+
+        resolve(canvas.toDataURL("image/jpeg", 0.82));
+      };
+      image.onerror = () => reject(new Error("Unable to process the uploaded image."));
+      image.src = dataUrl;
+    });
+
   const handleSelectedFile = async (file: File | null) => {
     setError("");
 
@@ -73,7 +103,10 @@ export default function HomePage() {
     setSelectedFile(file);
 
     try {
-      const dataUrl = await readFileAsDataUrl(file);
+      const rawDataUrl = await readFileAsDataUrl(file);
+      const dataUrl = file.type.startsWith("image/")
+        ? await compressImageDataUrl(rawDataUrl)
+        : rawDataUrl;
       setSelectedFileData(dataUrl);
     } catch (fileError) {
       setError(fileError instanceof Error ? fileError.message : "Unable to read the selected file.");

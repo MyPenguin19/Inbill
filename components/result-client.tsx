@@ -69,17 +69,23 @@ export function ResultClient({ isPaid = true, sessionId }: ResultClientProps = {
     setIsLoading(true);
 
     try {
+      const controller = new AbortController();
+      const timeoutId = window.setTimeout(() => controller.abort(), 45000);
+
       const response = await fetch("/api/analyze", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+        signal: controller.signal,
         body: JSON.stringify({
           extractedText: billText,
           imageDataUrl: billImageData,
           sessionId,
         }),
       });
+
+      window.clearTimeout(timeoutId);
 
       const payload = await readJsonResponse<{
         report?: AnalysisReport;
@@ -94,7 +100,9 @@ export function ResultClient({ isPaid = true, sessionId }: ResultClientProps = {
     } catch (analysisError) {
       setError(
         analysisError instanceof Error
-          ? analysisError.message
+          ? analysisError.name === "AbortError"
+            ? "Analysis timed out. Please try a smaller or clearer image."
+            : analysisError.message
           : "Something went wrong while generating the analysis.",
       );
     } finally {
