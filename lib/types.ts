@@ -1,14 +1,19 @@
 export type AnalysisReport = {
   summary: string;
-  concern: {
+  concern_level: {
     level: "HIGH" | "MEDIUM" | "LOW";
-    explanation: string;
+    reason: string;
   };
-  savings: string;
-  owed: string[];
-  issues: string[];
-  questions: string[];
-  steps: string[];
-  script: string[];
-  ifPayNow: string[];
+  potential_savings: {
+    range: string;
+    reason: string;
+  };
+  key_findings: Array<{
+    title: string;
+    impact: string;
+    action: string;
+  }>;
+  priority_actions: string[];
+  call_script: string;
+  risk_if_ignored: string;
 };

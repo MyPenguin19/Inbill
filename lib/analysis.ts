@@ -2,40 +2,69 @@ import { getOpenAIClient } from "@/lib/openai";
 import type { AnalysisReport } from "@/lib/types";
 
 const analysisPrompt = `
-You are an expert medical billing analyst.
+You are a senior medical billing auditor.
 
-Your job is to analyze a medical bill or insurance EOB (Explanation of Benefits) and produce a clear, structured, actionable report for a patient with no medical or billing knowledge.
+Your job is to analyze a medical bill or insurance EOB and produce a HIGH-VALUE report that helps a patient identify potential overcharges and take action BEFORE paying.
 
-IMPORTANT RULES:
-- Do NOT provide medical or legal advice.
-- Do NOT guarantee errors or outcomes.
-- Use cautious language like "may", "potential", "commonly seen".
-- Focus on helping the user understand and take action.
-- Be specific, not generic.
-- Avoid fluff.
+Your tone:
+- Direct
+- Practical
+- Slightly assertive
+- Focused on saving money
 
-Return valid JSON only with exactly these keys:
-- summary: string
-- concern: { level: "HIGH" | "MEDIUM" | "LOW", explanation: string }
-- savings: string
-- owed: string[]
-- issues: string[]
-- questions: string[]
-- steps: string[]
-- script: string[]
-- ifPayNow: string[]
+DO NOT:
+- Be vague
+- Give generic advice
+- Sound like a chatbot
 
-Field rules:
-- summary should be a short plain-English paragraph
-- concern should clearly say whether the user should be concerned and why
-- savings should provide an estimated savings range like "$50-$200" or explain why unclear
-- owed should contain 3-4 short lines about total billed, insurance paid, and patient responsibility
-- issues should contain 3-5 practical red flags written in stronger language and explain why each one matters
-- questions should contain 5-7 specific questions
-- steps should contain exactly 3 short, action-focused next steps
-- script should contain 4-6 short, assertive lines for a call script and should reference the billing amount and request a review or adjustment where appropriate
-- ifPayNow should contain 2-3 short warnings about losing dispute leverage if the user pays first
+Assume common billing issues such as:
+- Duplicate charges
+- Upcoding with higher-level CPT codes
+- Insurance denial errors
+- Missing adjustments
+
+Be specific:
+- BAD: "This might be incorrect"
+- GOOD: "Denied claims are one of the most common reasons patients overpay"
+
+Make the output feel like:
+"This could actually save me money"
+
+OUTPUT (STRICT JSON ONLY):
+{
+  "summary": "Clear explanation of what this bill is and why it exists",
+  "concern_level": {
+    "level": "HIGH | MEDIUM | LOW",
+    "reason": "Specific reason based on patterns like denial, duplicate billing, unusual pricing"
+  },
+  "potential_savings": {
+    "range": "$X - $X",
+    "reason": "Estimate based on common billing errors like duplicate charges, upcoding, or denial issues"
+  },
+  "key_findings": [
+    {
+      "title": "Short issue title",
+      "impact": "Why this could cost the patient money",
+      "action": "What to verify or challenge"
+    }
+  ],
+  "priority_actions": [
+    "Most important step first",
+    "Second action",
+    "Third action"
+  ],
+  "call_script": "A strong, confident script including the bill amount, asking for review, adjustments, or reprocessing. Should feel like the user knows what they're doing.",
+  "risk_if_ignored": "Explain what happens if they just pay (loss of dispute rights, overpaying, etc.)"
+}
+
+Rules:
+- Return valid JSON only
 - Do not wrap the JSON in markdown
+- concern_level.level must be HIGH, MEDIUM, or LOW
+- priority_actions should contain exactly 3 action-focused steps
+- key_findings should contain 3 to 5 findings
+- call_script should mention the bill amount when visible
+- potential_savings.range should be a realistic savings range or a cautious estimate if exact savings are unclear
 `;
 
 function normalizeReport(data: unknown): AnalysisReport {
@@ -44,33 +73,41 @@ function normalizeReport(data: unknown): AnalysisReport {
   }
 
   const record = data as Record<string, unknown>;
-  const toStringArray = (value: unknown) =>
-    Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
+  const toString = (value: unknown) => (typeof value === "string" ? value.trim() : "");
+  const concernLevel = record.concern_level as Record<string, unknown> | undefined;
+  const potentialSavings = record.potential_savings as Record<string, unknown> | undefined;
+
+  const findings = Array.isArray(record.key_findings)
+    ? record.key_findings
+        .filter((item): item is Record<string, unknown> => typeof item === "object" && item !== null)
+        .map((item) => ({
+          title: toString(item.title),
+          impact: toString(item.impact),
+          action: toString(item.action),
+        }))
+        .filter((item) => item.title && item.impact && item.action)
+    : [];
+
+  const priorityActions = Array.isArray(record.priority_actions)
+    ? record.priority_actions.filter((item): item is string => typeof item === "string" && item.trim().length > 0)
+    : [];
+
+  const level = concernLevel?.level;
 
   return {
-    summary: typeof record.summary === "string" ? record.summary : "",
-    concern:
-      record.concern && typeof record.concern === "object"
-        ? {
-            level:
-              (record.concern as Record<string, unknown>).level === "HIGH" ||
-              (record.concern as Record<string, unknown>).level === "MEDIUM" ||
-              (record.concern as Record<string, unknown>).level === "LOW"
-                ? ((record.concern as Record<string, unknown>).level as "HIGH" | "MEDIUM" | "LOW")
-                : "MEDIUM",
-            explanation:
-              typeof (record.concern as Record<string, unknown>).explanation === "string"
-                ? ((record.concern as Record<string, unknown>).explanation as string)
-                : "",
-          }
-        : { level: "MEDIUM", explanation: "" },
-    savings: typeof record.savings === "string" ? record.savings : "",
-    owed: toStringArray(record.owed),
-    issues: toStringArray(record.issues),
-    questions: toStringArray(record.questions),
-    steps: toStringArray(record.steps),
-    script: toStringArray(record.script),
-    ifPayNow: toStringArray(record.ifPayNow),
+    summary: toString(record.summary),
+    concern_level: {
+      level: level === "HIGH" || level === "MEDIUM" || level === "LOW" ? level : "MEDIUM",
+      reason: toString(concernLevel?.reason),
+    },
+    potential_savings: {
+      range: toString(potentialSavings?.range),
+      reason: toString(potentialSavings?.reason),
+    },
+    key_findings: findings,
+    priority_actions: priorityActions.slice(0, 3),
+    call_script: toString(record.call_script),
+    risk_if_ignored: toString(record.risk_if_ignored),
   };
 }
 
@@ -82,9 +119,7 @@ function parseReportJson(output: string): AnalysisReport {
   }
 }
 
-export async function analyzeMedicalBillFromText(
-  extractedText: string,
-): Promise<AnalysisReport> {
+export async function analyzeMedicalBillFromText(extractedText: string): Promise<AnalysisReport> {
   const client = getOpenAIClient();
 
   const response = await client.chat.completions.create({
@@ -96,7 +131,7 @@ export async function analyzeMedicalBillFromText(
       },
       {
         role: "user",
-        content: `INPUT:\nThe following is a medical bill or EOB:\n\n${extractedText}`,
+        content: `INPUT:\n${extractedText}`,
       },
     ],
     response_format: { type: "json_object" },
@@ -111,9 +146,7 @@ export async function analyzeMedicalBillFromText(
   return parseReportJson(output);
 }
 
-export async function analyzeMedicalBillFromImage(
-  imageDataUrl: string,
-): Promise<AnalysisReport> {
+export async function analyzeMedicalBillFromImage(imageDataUrl: string): Promise<AnalysisReport> {
   const client = getOpenAIClient();
 
   const response = await client.chat.completions.create({
@@ -128,7 +161,7 @@ export async function analyzeMedicalBillFromImage(
         content: [
           {
             type: "text",
-            text: "INPUT: Analyze the medical bill or EOB shown in this image. If some text is unclear, say that clearly in the report.",
+            text: "INPUT: Analyze the medical bill or insurance EOB shown in this image. If part of the text is unclear, say that clearly in the JSON.",
           },
           {
             type: "image_url",

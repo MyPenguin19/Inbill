@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { type CSSProperties, useEffect, useMemo, useRef, useState } from "react";
+import { type CSSProperties, useEffect, useRef, useState } from "react";
 
 import {
   BILL_IMAGE_STORAGE_KEY,
@@ -13,6 +13,13 @@ import type { AnalysisReport } from "@/lib/types";
 
 function readJsonResponse<T>(response: Response): Promise<T> {
   return response.json() as Promise<T>;
+}
+
+function splitScript(script: string) {
+  return script
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean);
 }
 
 export default function ResultPage() {
@@ -102,23 +109,14 @@ export default function ResultPage() {
     void generateAnalysis(billText, billImageData);
   }, [billImageData, billText, hasHydrated]);
 
-  const reportCards = useMemo(
-    () =>
-      report
-        ? [
-            { title: "Summary", type: "summary" as const, content: report.summary },
-            { title: "Should You Be Concerned?", type: "concern" as const, content: report.concern },
-            { title: "Potential Savings", type: "savings" as const, content: report.savings },
-            { title: "What You Likely Owe", type: "owed" as const, content: report.owed },
-            { title: "Potential Issues", type: "issues" as const, content: report.issues },
-            { title: "Questions to Ask", type: "questions" as const, content: report.questions },
-            { title: "Suggested Next Steps", type: "steps" as const, content: report.steps },
-            { title: "Call Script", type: "script" as const, content: report.script },
-            { title: "If You Pay Now", type: "ifPayNow" as const, content: report.ifPayNow },
-          ]
-        : [],
-    [report],
-  );
+  const concernStyle =
+    report?.concern_level.level === "HIGH"
+      ? styles.concernHigh
+      : report?.concern_level.level === "LOW"
+        ? styles.concernLow
+        : styles.concernMedium;
+
+  const scriptLines = report ? splitScript(report.call_script) : [];
 
   return (
     <main style={styles.page}>
@@ -131,7 +129,7 @@ export default function ResultPage() {
 
         .report-shell {
           width: 100%;
-          max-width: 800px;
+          max-width: 820px;
           margin: 0 auto;
         }
 
@@ -153,7 +151,7 @@ export default function ResultPage() {
 
         .report-card:hover {
           transform: translateY(-2px);
-          box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+          box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
         }
 
         @media (max-width: 640px) {
@@ -170,10 +168,11 @@ export default function ResultPage() {
           }
         }
       `}</style>
+
       <div className="report-shell" style={styles.container}>
         <div className="report-topbar" style={styles.topbar}>
           <Link href="/" style={styles.backLink}>
-            Back to home
+            Back to Home
           </Link>
           <a href="mailto:support@inbill.co" style={styles.topLink}>
             Support
@@ -184,11 +183,11 @@ export default function ResultPage() {
         </div>
 
         <section className="report-card" style={styles.heroCard}>
-          <div style={styles.heroBadge}>✨ Premium Report</div>
-          <h1 style={styles.heroTitle}>Your medical bill review</h1>
+          <div style={styles.heroBadge}>Premium Report</div>
+          <h1 style={styles.heroTitle}>Your bill analysis</h1>
           <p style={styles.heroText}>
-            Reviewing <strong>{fileName}</strong>. This report is structured to feel like a professional patient
-            audit with clean sections instead of raw AI text.
+            Reviewing <strong>{fileName}</strong>. This report is designed to help you spot money-losing billing
+            issues before you pay.
           </p>
         </section>
 
@@ -200,7 +199,7 @@ export default function ResultPage() {
             <div>
               <h2 style={styles.loadingTitle}>Analysis workspace</h2>
               <p style={styles.loadingText}>
-                {isLoading ? "Building your report now..." : "Waiting for bill data to start analysis."}
+                {isLoading ? "Reviewing your uploaded bill and building your action plan..." : "Waiting for bill data to start analysis."}
               </p>
             </div>
           </section>
@@ -208,145 +207,78 @@ export default function ResultPage() {
 
         {report ? (
           <section style={styles.reportGrid}>
-            {reportCards.map((section) => {
-              if (section.type === "summary") {
-                return (
-                  <article className="report-card" key={section.title} style={styles.card}>
-                    <h2 style={styles.cardTitle}>📝 {section.title}</h2>
-                    <div style={styles.summaryBody}>
-                      <p style={styles.paragraph}>{section.content}</p>
-                    </div>
-                  </article>
-                );
-              }
+            <article className="report-card" style={styles.card}>
+              <h2 style={styles.cardTitle}>📝 Summary</h2>
+              <p style={styles.paragraph}>{report.summary}</p>
+            </article>
 
-              if (section.type === "concern") {
-                const concern = section.content;
-                const concernStyle =
-                  concern.level === "HIGH"
-                    ? styles.concernHigh
-                    : concern.level === "LOW"
-                      ? styles.concernLow
-                      : styles.concernMedium;
+            <article className="report-card" style={styles.card}>
+              <h2 style={styles.cardTitle}>⏰ Should You Be Concerned?</h2>
+              <div style={{ ...styles.concernBox, ...concernStyle }}>
+                <div style={styles.concernLevel}>{report.concern_level.level}</div>
+                <p style={styles.concernText}>{report.concern_level.reason}</p>
+              </div>
+            </article>
 
-                return (
-                  <article className="report-card" key={section.title} style={styles.card}>
-                    <h2 style={styles.cardTitle}>⏰ {section.title}</h2>
-                    <div style={{ ...styles.concernBox, ...concernStyle }}>
-                      <div style={styles.concernLevel}>{concern.level}</div>
-                      <p style={styles.concernText}>{concern.explanation}</p>
-                    </div>
-                  </article>
-                );
-              }
+            <article className="report-card" style={styles.card}>
+              <h2 style={styles.cardTitle}>💸 Potential Savings</h2>
+              <div style={styles.savingsBox}>
+                <div style={styles.savingsRange}>{report.potential_savings.range}</div>
+                <p style={styles.savingsReason}>{report.potential_savings.reason}</p>
+              </div>
+            </article>
 
-              if (section.type === "savings") {
-                return (
-                  <article className="report-card" key={section.title} style={styles.card}>
-                    <h2 style={styles.cardTitle}>💸 {section.title}</h2>
-                    <div style={styles.savingsBox}>{section.content}</div>
-                  </article>
-                );
-              }
+            <article className="report-card" style={styles.issueCard}>
+              <h2 style={styles.cardTitle}>🚨 Key Findings</h2>
+              <div style={styles.findingsList}>
+                {report.key_findings.map((finding) => (
+                  <div key={finding.title} style={styles.findingItem}>
+                    <h3 style={styles.findingTitle}>{finding.title}</h3>
+                    <p style={styles.findingLabel}>Why it matters</p>
+                    <p style={styles.findingText}>{finding.impact}</p>
+                    <p style={styles.findingLabel}>What to do</p>
+                    <p style={styles.findingAction}>{finding.action}</p>
+                  </div>
+                ))}
+              </div>
+            </article>
 
-              if (section.type === "owed") {
-                return (
-                  <article className="report-card" key={section.title} style={styles.card}>
-                    <h2 style={styles.cardTitle}>💵 {section.title}</h2>
-                    <div style={styles.owePanel}>
-                      {section.content.map((line) => (
-                        <div key={line} style={styles.oweRow}>
-                          <span style={styles.oweLabel}>{line.split(":")[0]}</span>
-                          <strong style={styles.oweValue}>{line.split(":").slice(1).join(":").trim()}</strong>
-                        </div>
-                      ))}
-                    </div>
-                  </article>
-                );
-              }
+            <article className="report-card" style={styles.card}>
+              <h2 style={styles.cardTitle}>✅ Priority Actions</h2>
+              <div style={styles.checklist}>
+                {report.priority_actions.map((item) => (
+                  <div key={item} style={styles.checkItem}>
+                    <span style={styles.checkIcon}>✔️</span>
+                    <span style={styles.checkText}>{item}</span>
+                  </div>
+                ))}
+              </div>
+            </article>
 
-              if (section.type === "issues") {
-                return (
-                  <article className="report-card" key={section.title} style={styles.issueCard}>
-                    <h2 style={styles.cardTitle}>🚨 {section.title}</h2>
-                    <div style={styles.issueList}>
-                      {section.content.map((line) => (
-                        <div key={line} style={styles.issueItem}>
-                          <span style={styles.issueIcon}>⚠️</span>
-                          <span style={styles.issueText}>{line}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </article>
-                );
-              }
+            <article className="report-card" style={styles.card}>
+              <h2 style={styles.cardTitle}>📞 Call Script</h2>
+              <div style={styles.scriptBox}>
+                {scriptLines.length > 0 ? (
+                  scriptLines.map((line) => (
+                    <p key={line} style={styles.scriptLine}>
+                      {line}
+                    </p>
+                  ))
+                ) : (
+                  <p style={styles.scriptLine}>{report.call_script}</p>
+                )}
+              </div>
+            </article>
 
-              if (section.type === "questions") {
-                return (
-                  <article className="report-card" key={section.title} style={styles.card}>
-                    <h2 style={styles.cardTitle}>❓ {section.title}</h2>
-                    <ul style={styles.bulletList}>
-                      {section.content.map((line) => (
-                        <li key={line} style={styles.bulletItem}>
-                          {line}
-                        </li>
-                      ))}
-                    </ul>
-                  </article>
-                );
-              }
-
-              if (section.type === "steps") {
-                return (
-                  <article className="report-card" key={section.title} style={styles.card}>
-                    <h2 style={styles.cardTitle}>✅ {section.title}</h2>
-                    <div style={styles.checklist}>
-                      {section.content.map((line) => (
-                        <div key={line} style={styles.checkItem}>
-                          <span style={styles.checkIcon}>✔️</span>
-                          <span style={styles.checkText}>{line}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </article>
-                );
-              }
-
-              if (section.type === "script") {
-                return (
-                  <article className="report-card" key={section.title} style={styles.card}>
-                    <h2 style={styles.cardTitle}>📞 {section.title}</h2>
-                    <div style={styles.scriptBox}>
-                      {section.content.map((line) => (
-                        <p key={line} style={styles.scriptLine}>
-                          {line}
-                        </p>
-                      ))}
-                    </div>
-                  </article>
-                );
-              }
-
-              if (section.type === "ifPayNow") {
-                return (
-                  <article className="report-card" key={section.title} style={styles.payNowCard}>
-                    <h2 style={styles.cardTitle}>🛑 {section.title}</h2>
-                    <div style={styles.checklist}>
-                      {section.content.map((line) => (
-                        <div key={line} style={styles.payNowItem}>
-                          <span style={styles.payNowIcon}>!</span>
-                          <span style={styles.checkText}>{line}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </article>
-                );
-              }
-            })}
+            <article className="report-card" style={styles.payNowCard}>
+              <h2 style={styles.cardTitle}>🛑 If You Pay Now</h2>
+              <p style={styles.payNowText}>{report.risk_if_ignored}</p>
+            </article>
           </section>
         ) : null}
+
         <section id="privacy" style={styles.privacyFooter}>
-          This report is informational only and does not replace medical, legal, or insurance advice.
+          Your uploaded document is processed for analysis and is not intended to be stored long-term by the app.
         </section>
       </div>
     </main>
@@ -361,7 +293,7 @@ const styles: Record<string, CSSProperties> = {
   },
   container: {
     width: "100%",
-    maxWidth: 800,
+    maxWidth: 820,
     margin: "0 auto",
   },
   topbar: {
@@ -383,10 +315,6 @@ const styles: Record<string, CSSProperties> = {
     fontWeight: 600,
     textDecoration: "none",
     fontSize: 14,
-  },
-  buttonDisabled: {
-    opacity: 0.7,
-    cursor: "wait",
   },
   heroCard: {
     background: "#ffffff",
@@ -463,7 +391,6 @@ const styles: Record<string, CSSProperties> = {
     padding: "22px 24px",
     borderRadius: 12,
     boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
-    marginBottom: 0,
   },
   issueCard: {
     background: "#fffafa",
@@ -472,15 +399,18 @@ const styles: Record<string, CSSProperties> = {
     boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
     borderLeft: "4px solid #ef4444",
   },
+  payNowCard: {
+    background: "#fff7ed",
+    padding: "22px 24px",
+    borderRadius: 12,
+    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+    borderLeft: "4px solid #f97316",
+  },
   cardTitle: {
     margin: "0 0 16px",
     fontSize: 22,
     lineHeight: 1.2,
     letterSpacing: "-0.03em",
-  },
-  summaryBody: {
-    display: "grid",
-    gap: 12,
   },
   paragraph: {
     margin: 0,
@@ -518,67 +448,56 @@ const styles: Record<string, CSSProperties> = {
   savingsBox: {
     padding: 18,
     borderRadius: 16,
-    background: "#ecfdf5",
-    color: "#065f46",
-    fontSize: 28,
-    lineHeight: 1.2,
+    background: "#f0fdfa",
+    border: "1px solid #99f6e4",
+  },
+  savingsRange: {
+    fontSize: 32,
+    lineHeight: 1,
     fontWeight: 800,
+    color: "#0f766e",
+    marginBottom: 10,
   },
-  owePanel: {
-    display: "grid",
-    gap: 12,
-    background: "#f8fafc",
-    borderRadius: 12,
-    padding: 18,
-  },
-  oweRow: {
-    display: "flex",
-    justifyContent: "space-between",
-    gap: 12,
-    alignItems: "baseline",
-    flexWrap: "wrap",
-  },
-  oweLabel: {
-    color: "#64748b",
-    fontWeight: 600,
-  },
-  oweValue: {
-    fontSize: 22,
-    color: "#0f172a",
-    fontWeight: 800,
-  },
-  issueList: {
-    display: "grid",
-    gap: 12,
-  },
-  issueItem: {
-    display: "flex",
-    gap: 12,
-    alignItems: "flex-start",
-    background: "#fff5f5",
-    borderRadius: 12,
-    padding: 14,
-  },
-  issueIcon: {
-    fontSize: 16,
-    lineHeight: 1.6,
-    display: "inline-flex",
-    flexShrink: 0,
-  },
-  issueText: {
-    color: "#991b1b",
-    lineHeight: 1.7,
-  },
-  bulletList: {
+  savingsReason: {
     margin: 0,
-    paddingLeft: 22,
+    color: "#334155",
+    lineHeight: 1.75,
+  },
+  findingsList: {
     display: "grid",
-    gap: 12,
+    gap: 16,
+  },
+  findingItem: {
+    background: "#ffffff",
+    borderRadius: 12,
+    padding: 16,
+    border: "1px solid #fecaca",
+  },
+  findingTitle: {
+    margin: "0 0 10px",
+    fontSize: 18,
+    lineHeight: 1.3,
+    fontWeight: 800,
+    color: "#991b1b",
+  },
+  findingLabel: {
+    margin: "0 0 4px",
+    fontSize: 12,
+    fontWeight: 800,
+    letterSpacing: "0.06em",
+    textTransform: "uppercase",
+    color: "#64748b",
+  },
+  findingText: {
+    margin: "0 0 12px",
     color: "#334155",
     lineHeight: 1.7,
   },
-  bulletItem: {
-    paddingLeft: 4,
+  findingAction: {
+    margin: 0,
+    color: "#0f172a",
+    lineHeight: 1.7,
+    fontWeight: 600,
   },
   checklist: {
     display: "grid",
@@ -589,12 +508,19 @@ const styles: Record<string, CSSProperties> = {
     gap: 12,
     alignItems: "flex-start",
     background: "#f8fafc",
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 14,
   },
   checkIcon: {
-    fontSize: 16,
-    lineHeight: 1.6,
+    width: 24,
+    height: 24,
+    borderRadius: "50%",
+    background: "#dcfce7",
+    color: "#166534",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontWeight: 800,
     flexShrink: 0,
   },
   checkText: {
@@ -602,9 +528,9 @@ const styles: Record<string, CSSProperties> = {
     lineHeight: 1.7,
   },
   scriptBox: {
-    background: "#f3f4f6",
+    background: "#f8fafc",
     border: "1px solid #e2e8f0",
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 18,
     display: "grid",
     gap: 12,
@@ -614,38 +540,17 @@ const styles: Record<string, CSSProperties> = {
     color: "#1e293b",
     lineHeight: 1.8,
   },
-  payNowCard: {
-    background: "#fff7ed",
-    padding: "22px 24px",
-    borderRadius: 12,
-    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
-    borderLeft: "4px solid #f97316",
-  },
-  payNowItem: {
-    display: "flex",
-    gap: 12,
-    alignItems: "flex-start",
-    background: "rgba(255,255,255,0.65)",
-    borderRadius: 12,
-    padding: 14,
-  },
-  payNowIcon: {
-    width: 22,
-    height: 22,
-    borderRadius: "50%",
-    background: "#f97316",
-    color: "#fff",
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontWeight: 800,
-    flexShrink: 0,
+  payNowText: {
+    margin: 0,
+    color: "#7c2d12",
+    lineHeight: 1.8,
+    fontWeight: 600,
   },
   privacyFooter: {
-    marginTop: 20,
-    color: "#94a3b8",
+    marginTop: 28,
+    color: "#64748b",
     fontSize: 13,
-    lineHeight: 1.6,
+    lineHeight: 1.7,
     textAlign: "center",
   },
 };
