@@ -2,50 +2,18 @@
 
 import type { CSSProperties } from "react";
 
-const policySections = [
-  {
-    title: "Overview",
-    body: "We take your privacy seriously. This service is designed to process your medical bill securely without storing your documents.",
-  },
-  {
-    title: "What We Collect",
-    bullets: ["Uploaded files (temporary)", "Basic technical data"],
-  },
-  {
-    title: "How We Use Data",
-    bullets: ["Generate analysis", "Improve service"],
-  },
-  {
-    title: "Data Storage",
-    body: "We do not store uploaded medical documents after processing. Files are processed temporarily and not retained.",
-  },
-  {
-    title: "Third-Party Services",
-    body: "We use secure third-party services to process analysis requests.",
-  },
-  {
-    title: "Data Sharing",
-    body: "We do not sell or share your data.",
-  },
-  {
-    title: "Security",
-    body: "We use secure transmission methods.",
-  },
-  {
-    title: "Disclaimer",
-    body: "This service is for informational purposes only and does not constitute medical, legal, or financial advice.",
-  },
-  {
-    title: "Contact",
-    body: "support@inbill.com",
-  },
+const disclaimerItems = [
+  "This service provides informational analysis only and does not constitute medical, legal, or financial advice.",
+  "We are not healthcare providers, legal advisors, or billing authorities.",
+  "Results may not be accurate or complete and should always be verified.",
+  "Use of this service is at your own risk.",
 ] as const;
 
-export default function PrivacyPage() {
+export default function DisclaimerPage() {
   return (
     <main style={styles.page}>
       <style jsx global>{`
-        .policy-nav {
+        .disclaimer-nav {
           position: sticky;
           top: 0;
           z-index: 30;
@@ -62,7 +30,7 @@ export default function PrivacyPage() {
           backdrop-filter: blur(10px);
         }
 
-        .policy-nav-links {
+        .disclaimer-nav-links {
           display: flex;
           align-items: center;
           gap: 22px;
@@ -72,13 +40,13 @@ export default function PrivacyPage() {
           flex-wrap: wrap;
         }
 
-        .policy-nav-link {
+        .disclaimer-nav-link {
           color: inherit;
           text-decoration: none;
         }
 
         @media (max-width: 760px) {
-          .policy-nav {
+          .disclaimer-nav {
             align-items: flex-start;
             flex-direction: column;
           }
@@ -87,28 +55,14 @@ export default function PrivacyPage() {
 
       <div style={styles.container}>
         <section style={styles.heroCard}>
-          <div style={styles.eyebrow}>Trust & Privacy</div>
-          <h1 style={styles.title}>Privacy Policy</h1>
-          <p style={styles.subtitle}>
-            This page explains how InBill handles uploaded medical bill information and related technical
-            data so you can use the service with more confidence.
-          </p>
+          <div style={styles.eyebrow}>Legal</div>
+          <h1 style={styles.title}>Disclaimer</h1>
         </section>
 
         <section style={styles.contentCard}>
-          {policySections.map((section) => (
-            <article key={section.title} style={styles.sectionBlock}>
-              <h2 style={styles.sectionTitle}>{section.title}</h2>
-              {"body" in section ? <p style={styles.bodyText}>{section.body}</p> : null}
-              {"bullets" in section ? (
-                <ul style={styles.list}>
-                  {section.bullets.map((item) => (
-                    <li key={item} style={styles.listItem}>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
+          {disclaimerItems.map((item) => (
+            <article key={item} style={styles.sectionBlock}>
+              <p style={styles.bodyText}>{item}</p>
             </article>
           ))}
         </section>
@@ -152,17 +106,11 @@ const styles: Record<string, CSSProperties> = {
     marginBottom: 14,
   },
   title: {
-    margin: "0 0 12px",
+    margin: 0,
     fontSize: "clamp(2rem, 5vw, 3rem)",
     lineHeight: 1.05,
     letterSpacing: "-0.04em",
     fontWeight: 800,
-  },
-  subtitle: {
-    margin: 0,
-    fontSize: 16,
-    lineHeight: 1.75,
-    color: "#475569",
   },
   contentCard: {
     background: "#ffffff",
@@ -176,26 +124,8 @@ const styles: Record<string, CSSProperties> = {
     marginBottom: 22,
     borderBottom: "1px solid #e2e8f0",
   },
-  sectionTitle: {
-    margin: "0 0 10px",
-    fontSize: 22,
-    lineHeight: 1.2,
-    fontWeight: 800,
-    color: "#111827",
-  },
   bodyText: {
     margin: 0,
-    color: "#475569",
-    fontSize: 15,
-    lineHeight: 1.8,
-  },
-  list: {
-    margin: 0,
-    paddingLeft: 22,
-    display: "grid",
-    gap: 8,
-  },
-  listItem: {
     color: "#475569",
     fontSize: 15,
     lineHeight: 1.8,

@@ -65,6 +65,19 @@ Rules:
 - key_findings should contain 3 to 5 findings
 - call_script should mention the bill amount when visible
 - potential_savings.range should be a realistic savings range or a cautious estimate if exact savings are unclear
+
+CONSISTENCY RULES:
+- Base all conclusions ONLY on visible document data
+- Do NOT guess missing values
+- If unclear, return "Not clearly stated"
+- Use consistent reasoning for identical patterns
+- Avoid rewording the same conclusions differently
+- Use fixed phrasing when possible
+
+RULE-BASED LOGIC:
+- If insurance_paid = 0 or the claim is explicitly denied, set concern_level.level = HIGH
+- If duplicate wording or repeated charge language is detected, include a duplicate charge finding
+- If total > $100 and there is no visible coverage, mention overpayment risk
 `;
 
 function normalizeReport(data: unknown): AnalysisReport {
@@ -95,19 +108,19 @@ function normalizeReport(data: unknown): AnalysisReport {
   const level = concernLevel?.level;
 
   return {
-    summary: toString(record.summary),
+    summary: toString(record.summary) || "Not clearly stated",
     concern_level: {
       level: level === "HIGH" || level === "MEDIUM" || level === "LOW" ? level : "MEDIUM",
-      reason: toString(concernLevel?.reason),
+      reason: toString(concernLevel?.reason) || "Not clearly stated",
     },
     potential_savings: {
-      range: toString(potentialSavings?.range),
-      reason: toString(potentialSavings?.reason),
+      range: toString(potentialSavings?.range) || "Not clearly stated",
+      reason: toString(potentialSavings?.reason) || "Not clearly stated",
     },
     key_findings: findings,
     priority_actions: priorityActions.slice(0, 3),
-    call_script: toString(record.call_script),
-    risk_if_ignored: toString(record.risk_if_ignored),
+    call_script: toString(record.call_script) || "Not clearly stated",
+    risk_if_ignored: toString(record.risk_if_ignored) || "Not clearly stated",
   };
 }
 
@@ -124,6 +137,8 @@ export async function analyzeMedicalBillFromText(extractedText: string): Promise
 
   const response = await client.chat.completions.create({
     model: "gpt-4o-mini",
+    temperature: 0,
+    top_p: 1,
     messages: [
       {
         role: "system",
@@ -151,6 +166,8 @@ export async function analyzeMedicalBillFromImage(imageDataUrl: string): Promise
 
   const response = await client.chat.completions.create({
     model: "gpt-4o-mini",
+    temperature: 0,
+    top_p: 1,
     messages: [
       {
         role: "system",

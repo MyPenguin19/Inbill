@@ -2,38 +2,34 @@
 
 import type { CSSProperties } from "react";
 
-const policySections = [
+const termsSections = [
   {
     title: "Overview",
-    body: "We take your privacy seriously. This service is designed to process your medical bill securely without storing your documents.",
+    body: "By using this service, you agree to these terms.",
   },
   {
-    title: "What We Collect",
-    bullets: ["Uploaded files (temporary)", "Basic technical data"],
+    title: "Service Description",
+    body: "InBill provides AI-generated analysis of medical bills for informational purposes only.",
   },
   {
-    title: "How We Use Data",
-    bullets: ["Generate analysis", "Improve service"],
+    title: "No Professional Advice",
+    body: "This service does not provide medical, legal, or financial advice.",
   },
   {
-    title: "Data Storage",
-    body: "We do not store uploaded medical documents after processing. Files are processed temporarily and not retained.",
+    title: "User Responsibility",
+    body: "You are responsible for verifying all information before taking action.",
   },
   {
-    title: "Third-Party Services",
-    body: "We use secure third-party services to process analysis requests.",
+    title: "Payments",
+    body: "All payments are one-time and non-refundable once analysis is generated.",
   },
   {
-    title: "Data Sharing",
-    body: "We do not sell or share your data.",
+    title: "Limitation of Liability",
+    body: "We are not liable for any decisions made based on this analysis.",
   },
   {
-    title: "Security",
-    body: "We use secure transmission methods.",
-  },
-  {
-    title: "Disclaimer",
-    body: "This service is for informational purposes only and does not constitute medical, legal, or financial advice.",
+    title: "Availability",
+    body: "Service may change or be discontinued at any time.",
   },
   {
     title: "Contact",
@@ -41,11 +37,11 @@ const policySections = [
   },
 ] as const;
 
-export default function PrivacyPage() {
+export default function TermsPage() {
   return (
     <main style={styles.page}>
       <style jsx global>{`
-        .policy-nav {
+        .legal-nav {
           position: sticky;
           top: 0;
           z-index: 30;
@@ -62,7 +58,7 @@ export default function PrivacyPage() {
           backdrop-filter: blur(10px);
         }
 
-        .policy-nav-links {
+        .legal-nav-links {
           display: flex;
           align-items: center;
           gap: 22px;
@@ -72,13 +68,13 @@ export default function PrivacyPage() {
           flex-wrap: wrap;
         }
 
-        .policy-nav-link {
+        .legal-nav-link {
           color: inherit;
           text-decoration: none;
         }
 
         @media (max-width: 760px) {
-          .policy-nav {
+          .legal-nav {
             align-items: flex-start;
             flex-direction: column;
           }
@@ -87,28 +83,19 @@ export default function PrivacyPage() {
 
       <div style={styles.container}>
         <section style={styles.heroCard}>
-          <div style={styles.eyebrow}>Trust & Privacy</div>
-          <h1 style={styles.title}>Privacy Policy</h1>
+          <div style={styles.eyebrow}>Legal</div>
+          <h1 style={styles.title}>Terms of Service</h1>
           <p style={styles.subtitle}>
-            This page explains how InBill handles uploaded medical bill information and related technical
-            data so you can use the service with more confidence.
+            Please review these terms before using InBill. They explain the service and your
+            responsibilities when relying on the analysis.
           </p>
         </section>
 
         <section style={styles.contentCard}>
-          {policySections.map((section) => (
+          {termsSections.map((section) => (
             <article key={section.title} style={styles.sectionBlock}>
               <h2 style={styles.sectionTitle}>{section.title}</h2>
-              {"body" in section ? <p style={styles.bodyText}>{section.body}</p> : null}
-              {"bullets" in section ? (
-                <ul style={styles.list}>
-                  {section.bullets.map((item) => (
-                    <li key={item} style={styles.listItem}>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
+              <p style={styles.bodyText}>{section.body}</p>
             </article>
           ))}
         </section>
@@ -185,17 +172,6 @@ const styles: Record<string, CSSProperties> = {
   },
   bodyText: {
     margin: 0,
-    color: "#475569",
-    fontSize: 15,
-    lineHeight: 1.8,
-  },
-  list: {
-    margin: 0,
-    paddingLeft: 22,
-    display: "grid",
-    gap: 8,
-  },
-  listItem: {
     color: "#475569",
     fontSize: 15,
     lineHeight: 1.8,

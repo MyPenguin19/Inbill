@@ -125,25 +125,6 @@ export default function SamplePage() {
         }
       `}</style>
 
-      <header style={styles.navbar}>
-        <div className="sample-nav-inner">
-          <Link href="/" style={styles.logo}>
-            InBill
-          </Link>
-          <nav className="sample-nav-links">
-            <Link href="/" style={styles.navLink}>
-              Back to Home
-            </Link>
-            <Link href="/privacy" style={styles.navLink}>
-              Privacy
-            </Link>
-            <a href="mailto:support@inbill.com" style={styles.navLink}>
-              Support
-            </a>
-          </nav>
-        </div>
-      </header>
-
       <div className="sample-shell" style={styles.container}>
         <section className="sample-card" style={styles.heroCard}>
           <div style={styles.heroMetaRow}>
@@ -250,34 +231,10 @@ const styles: Record<string, CSSProperties> = {
     background: "#f9fafb",
     padding: "96px 16px 64px",
   },
-  navbar: {
-    position: "sticky",
-    top: 0,
-    zIndex: 20,
-    background: "rgba(255,255,255,0.96)",
-    backdropFilter: "blur(10px)",
-    borderBottom: "1px solid #e5e7eb",
-    boxShadow: "0 2px 10px rgba(15, 23, 42, 0.04)",
-    padding: "16px",
-    marginBottom: 24,
-  },
   container: {
     width: "100%",
     maxWidth: 900,
     margin: "0 auto",
-  },
-  logo: {
-    color: "#111827",
-    fontSize: 22,
-    fontWeight: 800,
-    letterSpacing: "-0.03em",
-    textDecoration: "none",
-  },
-  navLink: {
-    color: "#4b5563",
-    textDecoration: "none",
-    fontSize: 14,
-    fontWeight: 600,
   },
   heroCard: {
     background: "#ffffff",

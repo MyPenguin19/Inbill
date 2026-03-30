@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type CSSProperties, useEffect, useRef, useState } from "react";
 
@@ -50,6 +49,7 @@ export default function ResultPage() {
   useEffect(() => {
     const pendingPayload = getPendingBillPayload();
     const hasStoredUploadState = window.sessionStorage.getItem(BILL_UPLOAD_STATE_KEY) === "ready";
+    const hasFile = window.sessionStorage.getItem("hasFile");
 
     if (pendingPayload) {
       setBillText(pendingPayload.billText);
@@ -64,7 +64,7 @@ export default function ResultPage() {
     const storedBillImageData = window.sessionStorage.getItem(BILL_IMAGE_STORAGE_KEY) || "";
     const storedFileName = window.sessionStorage.getItem(FILE_NAME_STORAGE_KEY) || "uploaded-medical-bill";
 
-    if (!hasStoredUploadState || (!storedBillText.trim() && !storedBillImageData.trim())) {
+    if (!hasFile || !hasStoredUploadState || (!storedBillText.trim() && !storedBillImageData.trim())) {
       router.replace("/");
       return;
     }
@@ -200,25 +200,6 @@ export default function ResultPage() {
         }
       `}</style>
 
-      <header style={styles.navbar}>
-        <div className="result-nav-inner">
-          <Link href="/" style={styles.logo}>
-            InBill
-          </Link>
-          <nav className="result-nav-links">
-            <Link href="/" style={styles.navLink}>
-              Back to Home
-            </Link>
-            <Link href="/privacy" style={styles.navLink}>
-              Privacy
-            </Link>
-            <a href="mailto:support@inbill.co" style={styles.navLink}>
-              Support
-            </a>
-          </nav>
-        </div>
-      </header>
-
       <div className="result-shell" style={styles.container}>
         <section className="result-card" style={styles.heroCard}>
           <div style={styles.heroMetaRow}>
@@ -324,10 +305,6 @@ export default function ResultPage() {
             </article>
           </section>
         ) : null}
-
-        <section id="privacy" style={styles.privacyFooter}>
-          Your uploaded document is processed for analysis and is not intended to be stored long-term by the app.
-        </section>
       </div>
     </main>
   );
@@ -339,34 +316,10 @@ const styles: Record<string, CSSProperties> = {
     background: "#f9fafb",
     padding: "96px 16px 64px",
   },
-  navbar: {
-    position: "sticky",
-    top: 0,
-    zIndex: 20,
-    background: "rgba(255,255,255,0.96)",
-    backdropFilter: "blur(10px)",
-    borderBottom: "1px solid #e5e7eb",
-    boxShadow: "0 2px 10px rgba(15, 23, 42, 0.04)",
-    padding: "16px",
-    marginBottom: 24,
-  },
   container: {
     width: "100%",
     maxWidth: 900,
     margin: "0 auto",
-  },
-  logo: {
-    color: "#111827",
-    fontSize: 22,
-    fontWeight: 800,
-    letterSpacing: "-0.03em",
-    textDecoration: "none",
-  },
-  navLink: {
-    color: "#4b5563",
-    textDecoration: "none",
-    fontSize: 14,
-    fontWeight: 600,
   },
   heroCard: {
     background: "#ffffff",
@@ -628,12 +581,5 @@ const styles: Record<string, CSSProperties> = {
     fontSize: 15,
     lineHeight: 1.8,
     fontWeight: 600,
-  },
-  privacyFooter: {
-    marginTop: 24,
-    color: "#6b7280",
-    fontSize: 13,
-    lineHeight: 1.7,
-    textAlign: "center",
   },
 };
