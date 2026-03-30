@@ -22,6 +22,18 @@ function splitScript(script: string) {
     .filter(Boolean);
 }
 
+function getConcernLabel(level: AnalysisReport["concern_level"]["level"]) {
+  if (level === "HIGH") {
+    return "High Risk of Overpayment";
+  }
+
+  if (level === "LOW") {
+    return "Low Immediate Risk";
+  }
+
+  return "Medium Risk of Overpayment";
+}
+
 export default function ResultPage() {
   const [billText, setBillText] = useState("");
   const [billImageData, setBillImageData] = useState("");
@@ -127,79 +139,99 @@ export default function ResultPage() {
           }
         }
 
-        .report-shell {
+        .result-shell {
           width: 100%;
-          max-width: 820px;
+          max-width: 900px;
           margin: 0 auto;
         }
 
-        .report-topbar {
-          display: flex;
-          justify-content: flex-start;
-          align-items: center;
-          gap: 12px;
-          margin-bottom: 24px;
-          flex-wrap: wrap;
-        }
-
-        .report-card {
+        .result-card {
           transition:
             transform 180ms ease,
             box-shadow 180ms ease,
             border-color 180ms ease;
         }
 
-        .report-card:hover {
+        .result-card:hover {
           transform: translateY(-2px);
-          box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+          box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
         }
 
-        @media (max-width: 640px) {
-          .report-shell {
-            max-width: 100%;
+        .result-nav-inner {
+          width: 100%;
+          max-width: 900px;
+          margin: 0 auto;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 16px;
+        }
+
+        .result-nav-links {
+          display: flex;
+          align-items: center;
+          gap: 18px;
+          flex-wrap: wrap;
+        }
+
+        @media (max-width: 720px) {
+          .result-nav-inner {
+            flex-direction: column;
+            align-items: flex-start;
           }
 
-          .report-topbar {
-            align-items: stretch;
-          }
-
-          .report-topbar > * {
+          .result-nav-links {
             width: 100%;
+            gap: 12px;
           }
         }
       `}</style>
 
-      <div className="report-shell" style={styles.container}>
-        <div className="report-topbar" style={styles.topbar}>
-          <Link href="/" style={styles.backLink}>
-            Back to Home
+      <header style={styles.navbar}>
+        <div className="result-nav-inner">
+          <Link href="/" style={styles.logo}>
+            InBill
           </Link>
-          <a href="mailto:support@inbill.co" style={styles.topLink}>
-            Support
-          </a>
-          <a href="#privacy" style={styles.topLink}>
-            Privacy
-          </a>
+          <nav className="result-nav-links">
+            <Link href="/" style={styles.navLink}>
+              Back to Home
+            </Link>
+            <a href="#privacy" style={styles.navLink}>
+              Privacy
+            </a>
+            <a href="mailto:support@inbill.co" style={styles.navLink}>
+              Support
+            </a>
+          </nav>
         </div>
+      </header>
 
-        <section className="report-card" style={styles.heroCard}>
-          <div style={styles.heroBadge}>Premium Report</div>
-          <h1 style={styles.heroTitle}>Your bill analysis</h1>
-          <p style={styles.heroText}>
-            Reviewing <strong>{fileName}</strong>. This report is designed to help you spot money-losing billing
-            issues before you pay.
+      <div className="result-shell" style={styles.container}>
+        <section className="result-card" style={styles.heroCard}>
+          <div style={styles.heroMetaRow}>
+            <div>
+              <div style={styles.eyebrow}>Professional audit</div>
+              <h1 style={styles.heroTitle}>Your Bill Review</h1>
+            </div>
+            <div style={styles.fileChip}>{fileName}</div>
+          </div>
+          <p style={styles.heroSummary}>
+            {report?.summary ||
+              "We’re reviewing your bill for overcharges, denial issues, and billing mistakes that could cost you money if you pay too quickly."}
           </p>
         </section>
 
         {error ? <div style={styles.errorCard}>{error}</div> : null}
 
         {!report ? (
-          <section className="report-card" style={styles.loadingCard}>
+          <section className="result-card" style={styles.loadingCard}>
             <div style={styles.spinner} />
             <div>
-              <h2 style={styles.loadingTitle}>Analysis workspace</h2>
+              <h2 style={styles.loadingTitle}>Building your audit</h2>
               <p style={styles.loadingText}>
-                {isLoading ? "Reviewing your uploaded bill and building your action plan..." : "Waiting for bill data to start analysis."}
+                {isLoading
+                  ? "Reviewing charges, looking for billing mistakes, and preparing your action plan..."
+                  : "Waiting for bill data to start analysis."}
               </p>
             </div>
           </section>
@@ -207,56 +239,59 @@ export default function ResultPage() {
 
         {report ? (
           <section style={styles.reportGrid}>
-            <article className="report-card" style={styles.card}>
-              <h2 style={styles.cardTitle}>📝 Summary</h2>
-              <p style={styles.paragraph}>{report.summary}</p>
-            </article>
-
-            <article className="report-card" style={styles.card}>
-              <h2 style={styles.cardTitle}>⏰ Should You Be Concerned?</h2>
+            <article className="result-card" style={styles.card}>
+              <h2 style={styles.sectionTitle}>Concern Level</h2>
               <div style={{ ...styles.concernBox, ...concernStyle }}>
-                <div style={styles.concernLevel}>{report.concern_level.level}</div>
-                <p style={styles.concernText}>{report.concern_level.reason}</p>
+                <div style={styles.concernPill}>{report.concern_level.level}</div>
+                <div style={styles.concernHeadline}>{getConcernLabel(report.concern_level.level)}</div>
+                <p style={styles.concernReason}>{report.concern_level.reason}</p>
               </div>
             </article>
 
-            <article className="report-card" style={styles.card}>
-              <h2 style={styles.cardTitle}>💸 Potential Savings</h2>
+            <article className="result-card" style={styles.card}>
+              <h2 style={styles.sectionTitle}>Potential Savings</h2>
               <div style={styles.savingsBox}>
-                <div style={styles.savingsRange}>{report.potential_savings.range}</div>
+                <div style={styles.savingsAmount}>{report.potential_savings.range}</div>
                 <p style={styles.savingsReason}>{report.potential_savings.reason}</p>
               </div>
             </article>
 
-            <article className="report-card" style={styles.issueCard}>
-              <h2 style={styles.cardTitle}>🚨 Key Findings</h2>
+            <article className="result-card" style={styles.card}>
+              <h2 style={styles.sectionTitle}>Key Findings</h2>
               <div style={styles.findingsList}>
                 {report.key_findings.map((finding) => (
-                  <div key={finding.title} style={styles.findingItem}>
-                    <h3 style={styles.findingTitle}>{finding.title}</h3>
-                    <p style={styles.findingLabel}>Why it matters</p>
-                    <p style={styles.findingText}>{finding.impact}</p>
-                    <p style={styles.findingLabel}>What to do</p>
-                    <p style={styles.findingAction}>{finding.action}</p>
+                  <div key={finding.title} style={styles.findingCard}>
+                    <div style={styles.findingHeader}>
+                      <span style={styles.findingIcon}>⚠️</span>
+                      <h3 style={styles.findingTitle}>{finding.title}</h3>
+                    </div>
+                    <div style={styles.findingBlock}>
+                      <div style={styles.findingLabel}>Impact</div>
+                      <p style={styles.findingText}>{finding.impact}</p>
+                    </div>
+                    <div style={styles.findingBlock}>
+                      <div style={styles.findingLabel}>Action</div>
+                      <p style={styles.findingAction}>{finding.action}</p>
+                    </div>
                   </div>
                 ))}
               </div>
             </article>
 
-            <article className="report-card" style={styles.card}>
-              <h2 style={styles.cardTitle}>✅ Priority Actions</h2>
-              <div style={styles.checklist}>
-                {report.priority_actions.map((item) => (
-                  <div key={item} style={styles.checkItem}>
-                    <span style={styles.checkIcon}>✔️</span>
-                    <span style={styles.checkText}>{item}</span>
+            <article className="result-card" style={styles.card}>
+              <h2 style={styles.sectionTitle}>Priority Actions</h2>
+              <div style={styles.actionList}>
+                {report.priority_actions.slice(0, 3).map((item) => (
+                  <div key={item} style={styles.actionItem}>
+                    <span style={styles.actionIcon}>✔️</span>
+                    <span style={styles.actionText}>{item}</span>
                   </div>
                 ))}
               </div>
             </article>
 
-            <article className="report-card" style={styles.card}>
-              <h2 style={styles.cardTitle}>📞 Call Script</h2>
+            <article className="result-card" style={styles.card}>
+              <h2 style={styles.sectionTitle}>Call Script</h2>
               <div style={styles.scriptBox}>
                 {scriptLines.length > 0 ? (
                   scriptLines.map((line) => (
@@ -270,9 +305,9 @@ export default function ResultPage() {
               </div>
             </article>
 
-            <article className="report-card" style={styles.payNowCard}>
-              <h2 style={styles.cardTitle}>🛑 If You Pay Now</h2>
-              <p style={styles.payNowText}>{report.risk_if_ignored}</p>
+            <article className="result-card" style={styles.riskCard}>
+              <h2 style={styles.sectionTitle}>Before You Pay</h2>
+              <p style={styles.riskText}>{report.risk_if_ignored}</p>
             </article>
           </section>
         ) : null}
@@ -288,64 +323,81 @@ export default function ResultPage() {
 const styles: Record<string, CSSProperties> = {
   page: {
     minHeight: "100vh",
-    background: "linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%)",
-    padding: "40px 16px 72px",
+    background: "#f9fafb",
+    padding: "96px 16px 64px",
+  },
+  navbar: {
+    position: "sticky",
+    top: 0,
+    zIndex: 20,
+    background: "rgba(255,255,255,0.96)",
+    backdropFilter: "blur(10px)",
+    borderBottom: "1px solid #e5e7eb",
+    boxShadow: "0 2px 10px rgba(15, 23, 42, 0.04)",
+    padding: "16px",
+    marginBottom: 24,
   },
   container: {
     width: "100%",
-    maxWidth: 820,
+    maxWidth: 900,
     margin: "0 auto",
   },
-  topbar: {
-    display: "flex",
-    justifyContent: "flex-start",
-    alignItems: "center",
-    gap: 12,
-    marginBottom: 24,
-    flexWrap: "wrap",
+  logo: {
+    color: "#111827",
+    fontSize: 22,
+    fontWeight: 800,
+    letterSpacing: "-0.03em",
+    textDecoration: "none",
   },
-  backLink: {
-    color: "#475569",
-    fontWeight: 700,
+  navLink: {
+    color: "#4b5563",
     textDecoration: "none",
     fontSize: 14,
-  },
-  topLink: {
-    color: "#64748b",
     fontWeight: 600,
-    textDecoration: "none",
-    fontSize: 14,
   },
   heroCard: {
     background: "#ffffff",
-    borderRadius: 16,
-    padding: "28px 24px",
+    borderRadius: 12,
+    padding: "24px",
     boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
     marginBottom: 24,
   },
-  heroBadge: {
-    display: "inline-block",
-    background: "#e6fffb",
-    color: "#0f766e",
-    padding: "6px 10px",
-    borderRadius: 999,
+  heroMetaRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    gap: 16,
+    flexWrap: "wrap",
+    marginBottom: 14,
+  },
+  eyebrow: {
+    color: "#059669",
     fontSize: 12,
     fontWeight: 800,
     letterSpacing: "0.08em",
     textTransform: "uppercase",
-    marginBottom: 12,
+    marginBottom: 8,
   },
   heroTitle: {
-    margin: "0 0 10px",
-    fontSize: "clamp(2rem, 5vw, 3rem)",
-    lineHeight: 1,
-    letterSpacing: "-0.04em",
-  },
-  heroText: {
     margin: 0,
-    color: "#475569",
-    lineHeight: 1.7,
+    fontSize: "clamp(2rem, 5vw, 2.6rem)",
+    lineHeight: 1.05,
+    letterSpacing: "-0.04em",
+    color: "#111827",
+  },
+  fileChip: {
+    background: "#f3f4f6",
+    color: "#374151",
+    padding: "10px 14px",
+    borderRadius: 999,
+    fontSize: 13,
+    fontWeight: 700,
+  },
+  heroSummary: {
+    margin: 0,
     fontSize: 16,
+    lineHeight: 1.75,
+    color: "#4b5563",
   },
   errorCard: {
     background: "#fff1f2",
@@ -369,58 +421,49 @@ const styles: Record<string, CSSProperties> = {
     width: 28,
     height: 28,
     borderRadius: "50%",
-    border: "3px solid #ccfbf1",
-    borderTopColor: "#0f766e",
+    border: "3px solid #d1fae5",
+    borderTopColor: "#059669",
     animation: "spin 0.8s linear infinite",
+    flexShrink: 0,
   },
   loadingTitle: {
     margin: "0 0 6px",
     fontSize: 22,
+    color: "#111827",
   },
   loadingText: {
     margin: 0,
-    color: "#64748b",
-    lineHeight: 1.6,
+    color: "#6b7280",
+    lineHeight: 1.7,
   },
   reportGrid: {
     display: "grid",
-    gap: 22,
+    gap: 20,
   },
   card: {
     background: "#ffffff",
-    padding: "22px 24px",
     borderRadius: 12,
+    padding: "24px",
     boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
   },
-  issueCard: {
-    background: "#fffafa",
-    padding: "22px 24px",
-    borderRadius: 12,
-    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
-    borderLeft: "4px solid #ef4444",
-  },
-  payNowCard: {
+  riskCard: {
     background: "#fff7ed",
-    padding: "22px 24px",
     borderRadius: 12,
+    padding: "24px",
     boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
     borderLeft: "4px solid #f97316",
   },
-  cardTitle: {
+  sectionTitle: {
     margin: "0 0 16px",
-    fontSize: 22,
+    fontSize: 24,
     lineHeight: 1.2,
-    letterSpacing: "-0.03em",
-  },
-  paragraph: {
-    margin: 0,
-    color: "#334155",
-    lineHeight: 1.75,
+    fontWeight: 800,
+    color: "#111827",
   },
   concernBox: {
-    borderRadius: 16,
-    padding: 18,
-    border: "1px solid #e2e8f0",
+    borderRadius: 12,
+    padding: 20,
+    border: "1px solid #e5e7eb",
   },
   concernHigh: {
     background: "#fef2f2",
@@ -434,121 +477,148 @@ const styles: Record<string, CSSProperties> = {
     background: "#f0fdf4",
     borderColor: "#bbf7d0",
   },
-  concernLevel: {
-    fontSize: 28,
-    lineHeight: 1,
+  concernPill: {
+    display: "inline-block",
+    padding: "6px 10px",
+    borderRadius: 999,
+    background: "rgba(255,255,255,0.8)",
+    fontSize: 12,
     fontWeight: 800,
+    letterSpacing: "0.08em",
+    textTransform: "uppercase",
+    marginBottom: 12,
+  },
+  concernHeadline: {
+    fontSize: 34,
+    lineHeight: 1.05,
+    fontWeight: 800,
+    letterSpacing: "-0.04em",
+    color: "#111827",
     marginBottom: 10,
   },
-  concernText: {
+  concernReason: {
     margin: 0,
-    color: "#334155",
+    color: "#374151",
     lineHeight: 1.75,
+    fontSize: 15,
   },
   savingsBox: {
-    padding: 18,
-    borderRadius: 16,
-    background: "#f0fdfa",
-    border: "1px solid #99f6e4",
+    background: "#ecfdf5",
+    border: "1px solid #a7f3d0",
+    borderRadius: 12,
+    padding: 20,
   },
-  savingsRange: {
-    fontSize: 32,
+  savingsAmount: {
+    fontSize: 40,
     lineHeight: 1,
-    fontWeight: 800,
-    color: "#0f766e",
-    marginBottom: 10,
+    fontWeight: 900,
+    color: "#047857",
+    letterSpacing: "-0.05em",
+    marginBottom: 12,
   },
   savingsReason: {
     margin: 0,
-    color: "#334155",
+    color: "#374151",
     lineHeight: 1.75,
+    fontSize: 15,
   },
   findingsList: {
     display: "grid",
-    gap: 16,
+    gap: 14,
   },
-  findingItem: {
-    background: "#ffffff",
-    borderRadius: 12,
-    padding: 16,
+  findingCard: {
+    background: "#fffafa",
     border: "1px solid #fecaca",
+    borderRadius: 12,
+    padding: 18,
+  },
+  findingHeader: {
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+    marginBottom: 12,
+  },
+  findingIcon: {
+    fontSize: 18,
+    lineHeight: 1,
   },
   findingTitle: {
-    margin: "0 0 10px",
+    margin: 0,
     fontSize: 18,
     lineHeight: 1.3,
     fontWeight: 800,
     color: "#991b1b",
   },
+  findingBlock: {
+    marginTop: 10,
+  },
   findingLabel: {
-    margin: "0 0 4px",
+    marginBottom: 4,
     fontSize: 12,
     fontWeight: 800,
     letterSpacing: "0.06em",
     textTransform: "uppercase",
-    color: "#64748b",
+    color: "#6b7280",
   },
   findingText: {
-    margin: "0 0 12px",
-    color: "#334155",
-    lineHeight: 1.7,
+    margin: 0,
+    color: "#374151",
+    lineHeight: 1.75,
+    fontSize: 15,
   },
   findingAction: {
     margin: 0,
-    color: "#0f172a",
-    lineHeight: 1.7,
+    color: "#111827",
+    lineHeight: 1.75,
+    fontSize: 15,
     fontWeight: 600,
   },
-  checklist: {
+  actionList: {
     display: "grid",
     gap: 12,
   },
-  checkItem: {
+  actionItem: {
     display: "flex",
-    gap: 12,
     alignItems: "flex-start",
-    background: "#f8fafc",
-    borderRadius: 16,
-    padding: 14,
+    gap: 12,
+    background: "#f9fafb",
+    borderRadius: 12,
+    padding: "14px 16px",
   },
-  checkIcon: {
-    width: 24,
-    height: 24,
-    borderRadius: "50%",
-    background: "#dcfce7",
-    color: "#166534",
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontWeight: 800,
+  actionIcon: {
     flexShrink: 0,
+    lineHeight: 1.5,
   },
-  checkText: {
-    color: "#334155",
+  actionText: {
+    color: "#374151",
     lineHeight: 1.7,
+    fontSize: 15,
+    fontWeight: 600,
   },
   scriptBox: {
-    background: "#f8fafc",
-    border: "1px solid #e2e8f0",
-    borderRadius: 16,
+    background: "#f3f4f6",
+    borderRadius: 12,
     padding: 18,
-    display: "grid",
-    gap: 12,
+    border: "1px solid #e5e7eb",
   },
   scriptLine: {
-    margin: 0,
-    color: "#1e293b",
-    lineHeight: 1.8,
+    margin: "0 0 10px",
+    color: "#111827",
+    fontFamily:
+      'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+    fontSize: 14,
+    lineHeight: 1.85,
   },
-  payNowText: {
+  riskText: {
     margin: 0,
     color: "#7c2d12",
+    fontSize: 15,
     lineHeight: 1.8,
     fontWeight: 600,
   },
   privacyFooter: {
-    marginTop: 28,
-    color: "#64748b",
+    marginTop: 24,
+    color: "#6b7280",
     fontSize: 13,
     lineHeight: 1.7,
     textAlign: "center",
