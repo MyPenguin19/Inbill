@@ -464,13 +464,17 @@ export default function HomePage() {
 
             <div className="landing-card" id="pricing" style={styles.pricingCard}>
               <div style={styles.pricingLabel}>Simple pricing</div>
-              <div style={styles.price}>$9.99</div>
+              <div style={styles.price}>$4.99</div>
               <p style={styles.pricingText}>One-time payment. No subscription. No recurring charges.</p>
+              <div style={styles.priceAnchor}>
+                <strong style={styles.priceAnchorLead}>A single billing mistake can cost hundreds.</strong>
+                <span style={styles.priceAnchorText}>This costs $4.99.</span>
+              </div>
             </div>
           </div>
         </section>
 
-        <section id="how-it-works" style={styles.section}>
+        <section id="what-we-find" style={styles.section}>
           <div style={styles.sectionHeader}>
             <h2 style={styles.sectionTitle}>What we typically find</h2>
           </div>
@@ -616,9 +620,9 @@ export default function HomePage() {
 
         <section style={styles.finalCtaSection}>
           <div className="landing-card" style={styles.finalCtaCard}>
-            <h2 style={styles.finalCtaTitle}>Catch errors before you pay</h2>
+            <h2 style={styles.finalCtaTitle}>Don’t pay your bill until you check it</h2>
             <p style={styles.finalCtaText}>
-              Upload your bill, get your report, and know exactly what to question before sending money.
+              Takes less than 60 seconds • One-time $4.99
             </p>
             <button
               disabled={loading}
@@ -905,6 +909,25 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 15,
     lineHeight: 1.7,
   },
+  priceAnchor: {
+    marginTop: 14,
+    paddingTop: 14,
+    borderTop: "1px solid #e2e8f0",
+    display: "grid",
+    gap: 6,
+  },
+  priceAnchorLead: {
+    fontSize: 16,
+    lineHeight: 1.6,
+    color: "#0f172a",
+    fontWeight: 800,
+  },
+  priceAnchorText: {
+    fontSize: 15,
+    lineHeight: 1.6,
+    color: "#0f766e",
+    fontWeight: 700,
+  },
   sectionHeader: {
     marginBottom: 14,
   },
@@ -1105,6 +1128,7 @@ const styles: Record<string, React.CSSProperties> = {
     color: "#475569",
     fontSize: 16,
     lineHeight: 1.7,
+    fontWeight: 600,
   },
   finalCtaButton: {
     border: "none",
