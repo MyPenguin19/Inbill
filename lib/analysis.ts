@@ -16,19 +16,25 @@ IMPORTANT RULES:
 
 Return valid JSON only with exactly these keys:
 - summary: string
+- concern: { level: "HIGH" | "MEDIUM" | "LOW", explanation: string }
+- savings: string
 - owed: string[]
 - issues: string[]
 - questions: string[]
 - steps: string[]
 - script: string[]
+- ifPayNow: string[]
 
 Field rules:
 - summary should be a short plain-English paragraph
+- concern should clearly say whether the user should be concerned and why
+- savings should provide an estimated savings range like "$50-$200" or explain why unclear
 - owed should contain 3-4 short lines about total billed, insurance paid, and patient responsibility
-- issues should contain 3-6 practical red flags
+- issues should contain 3-5 practical red flags written in stronger language and explain why each one matters
 - questions should contain 5-7 specific questions
-- steps should contain 3-5 clear next actions
-- script should contain 4-6 short lines for a call script
+- steps should contain exactly 3 short, action-focused next steps
+- script should contain 4-6 short, assertive lines for a call script and should reference the billing amount and request a review or adjustment where appropriate
+- ifPayNow should contain 2-3 short warnings about losing dispute leverage if the user pays first
 - Do not wrap the JSON in markdown
 `;
 
@@ -43,11 +49,28 @@ function normalizeReport(data: unknown): AnalysisReport {
 
   return {
     summary: typeof record.summary === "string" ? record.summary : "",
+    concern:
+      record.concern && typeof record.concern === "object"
+        ? {
+            level:
+              (record.concern as Record<string, unknown>).level === "HIGH" ||
+              (record.concern as Record<string, unknown>).level === "MEDIUM" ||
+              (record.concern as Record<string, unknown>).level === "LOW"
+                ? ((record.concern as Record<string, unknown>).level as "HIGH" | "MEDIUM" | "LOW")
+                : "MEDIUM",
+            explanation:
+              typeof (record.concern as Record<string, unknown>).explanation === "string"
+                ? ((record.concern as Record<string, unknown>).explanation as string)
+                : "",
+          }
+        : { level: "MEDIUM", explanation: "" },
+    savings: typeof record.savings === "string" ? record.savings : "",
     owed: toStringArray(record.owed),
     issues: toStringArray(record.issues),
     questions: toStringArray(record.questions),
     steps: toStringArray(record.steps),
     script: toStringArray(record.script),
+    ifPayNow: toStringArray(record.ifPayNow),
   };
 }
 

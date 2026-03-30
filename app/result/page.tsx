@@ -107,11 +107,14 @@ export default function ResultPage() {
       report
         ? [
             { title: "Summary", type: "summary" as const, content: report.summary },
+            { title: "Should You Be Concerned?", type: "concern" as const, content: report.concern },
+            { title: "Potential Savings", type: "savings" as const, content: report.savings },
             { title: "What You Likely Owe", type: "owed" as const, content: report.owed },
             { title: "Potential Issues", type: "issues" as const, content: report.issues },
             { title: "Questions to Ask", type: "questions" as const, content: report.questions },
             { title: "Suggested Next Steps", type: "steps" as const, content: report.steps },
             { title: "Call Script", type: "script" as const, content: report.script },
+            { title: "If You Pay Now", type: "ifPayNow" as const, content: report.ifPayNow },
           ]
         : [],
     [report],
@@ -134,7 +137,7 @@ export default function ResultPage() {
 
         .report-topbar {
           display: flex;
-          justify-content: space-between;
+          justify-content: flex-start;
           align-items: center;
           gap: 12px;
           margin-bottom: 24px;
@@ -172,17 +175,12 @@ export default function ResultPage() {
           <Link href="/" style={styles.backLink}>
             Back to home
           </Link>
-          <button
-            type="button"
-            onClick={() => void generateAnalysis()}
-            disabled={isLoading}
-            style={{
-              ...styles.regenerateButton,
-              ...(isLoading ? styles.buttonDisabled : {}),
-            }}
-          >
-            {isLoading ? "Generating..." : "Generate Again"}
-          </button>
+          <a href="mailto:support@inbill.co" style={styles.topLink}>
+            Support
+          </a>
+          <a href="#privacy" style={styles.topLink}>
+            Privacy
+          </a>
         </div>
 
         <section className="report-card" style={styles.heroCard}>
@@ -218,6 +216,35 @@ export default function ResultPage() {
                     <div style={styles.summaryBody}>
                       <p style={styles.paragraph}>{section.content}</p>
                     </div>
+                  </article>
+                );
+              }
+
+              if (section.type === "concern") {
+                const concern = section.content;
+                const concernStyle =
+                  concern.level === "HIGH"
+                    ? styles.concernHigh
+                    : concern.level === "LOW"
+                      ? styles.concernLow
+                      : styles.concernMedium;
+
+                return (
+                  <article className="report-card" key={section.title} style={styles.card}>
+                    <h2 style={styles.cardTitle}>⏰ {section.title}</h2>
+                    <div style={{ ...styles.concernBox, ...concernStyle }}>
+                      <div style={styles.concernLevel}>{concern.level}</div>
+                      <p style={styles.concernText}>{concern.explanation}</p>
+                    </div>
+                  </article>
+                );
+              }
+
+              if (section.type === "savings") {
+                return (
+                  <article className="report-card" key={section.title} style={styles.card}>
+                    <h2 style={styles.cardTitle}>💸 {section.title}</h2>
+                    <div style={styles.savingsBox}>{section.content}</div>
                   </article>
                 );
               }
@@ -299,9 +326,28 @@ export default function ResultPage() {
                   </article>
                 );
               }
+
+              if (section.type === "ifPayNow") {
+                return (
+                  <article className="report-card" key={section.title} style={styles.payNowCard}>
+                    <h2 style={styles.cardTitle}>🛑 {section.title}</h2>
+                    <div style={styles.checklist}>
+                      {section.content.map((line) => (
+                        <div key={line} style={styles.payNowItem}>
+                          <span style={styles.payNowIcon}>!</span>
+                          <span style={styles.checkText}>{line}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </article>
+                );
+              }
             })}
           </section>
         ) : null}
+        <section id="privacy" style={styles.privacyFooter}>
+          This report is informational only and does not replace medical, legal, or insurance advice.
+        </section>
       </div>
     </main>
   );
@@ -320,7 +366,7 @@ const styles: Record<string, CSSProperties> = {
   },
   topbar: {
     display: "flex",
-    justifyContent: "space-between",
+    justifyContent: "flex-start",
     alignItems: "center",
     gap: 12,
     marginBottom: 24,
@@ -332,15 +378,11 @@ const styles: Record<string, CSSProperties> = {
     textDecoration: "none",
     fontSize: 14,
   },
-  regenerateButton: {
-    border: "none",
-    background: "#0f766e",
-    color: "#fff",
-    padding: "12px 18px",
-    borderRadius: 12,
-    fontWeight: 700,
-    cursor: "pointer",
-    boxShadow: "0 6px 18px rgba(15, 118, 110, 0.16)",
+  topLink: {
+    color: "#64748b",
+    fontWeight: 600,
+    textDecoration: "none",
+    fontSize: 14,
   },
   buttonDisabled: {
     opacity: 0.7,
@@ -445,6 +487,43 @@ const styles: Record<string, CSSProperties> = {
     color: "#334155",
     lineHeight: 1.75,
   },
+  concernBox: {
+    borderRadius: 16,
+    padding: 18,
+    border: "1px solid #e2e8f0",
+  },
+  concernHigh: {
+    background: "#fef2f2",
+    borderColor: "#fecaca",
+  },
+  concernMedium: {
+    background: "#fff7ed",
+    borderColor: "#fed7aa",
+  },
+  concernLow: {
+    background: "#f0fdf4",
+    borderColor: "#bbf7d0",
+  },
+  concernLevel: {
+    fontSize: 28,
+    lineHeight: 1,
+    fontWeight: 800,
+    marginBottom: 10,
+  },
+  concernText: {
+    margin: 0,
+    color: "#334155",
+    lineHeight: 1.75,
+  },
+  savingsBox: {
+    padding: 18,
+    borderRadius: 16,
+    background: "#ecfdf5",
+    color: "#065f46",
+    fontSize: 28,
+    lineHeight: 1.2,
+    fontWeight: 800,
+  },
   owePanel: {
     display: "grid",
     gap: 12,
@@ -534,5 +613,39 @@ const styles: Record<string, CSSProperties> = {
     margin: 0,
     color: "#1e293b",
     lineHeight: 1.8,
+  },
+  payNowCard: {
+    background: "#fff7ed",
+    padding: "22px 24px",
+    borderRadius: 12,
+    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+    borderLeft: "4px solid #f97316",
+  },
+  payNowItem: {
+    display: "flex",
+    gap: 12,
+    alignItems: "flex-start",
+    background: "rgba(255,255,255,0.65)",
+    borderRadius: 12,
+    padding: 14,
+  },
+  payNowIcon: {
+    width: 22,
+    height: 22,
+    borderRadius: "50%",
+    background: "#f97316",
+    color: "#fff",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontWeight: 800,
+    flexShrink: 0,
+  },
+  privacyFooter: {
+    marginTop: 20,
+    color: "#94a3b8",
+    fontSize: 13,
+    lineHeight: 1.6,
+    textAlign: "center",
   },
 };
