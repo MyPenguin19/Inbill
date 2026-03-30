@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { type CSSProperties, useEffect, useRef, useState } from "react";
 
 import {
   BILL_IMAGE_STORAGE_KEY,
   BILL_STORAGE_KEY,
   FILE_NAME_STORAGE_KEY,
+  BILL_UPLOAD_STATE_KEY,
 } from "@/lib/bill";
 import { clearPendingBillPayload, getPendingBillPayload } from "@/lib/client-bill-session";
 import type { AnalysisReport } from "@/lib/types";
@@ -35,6 +37,7 @@ function getConcernLabel(level: AnalysisReport["concern_level"]["level"]) {
 }
 
 export default function ResultPage() {
+  const router = useRouter();
   const [billText, setBillText] = useState("");
   const [billImageData, setBillImageData] = useState("");
   const [fileName, setFileName] = useState("medical-bill");
@@ -46,6 +49,7 @@ export default function ResultPage() {
 
   useEffect(() => {
     const pendingPayload = getPendingBillPayload();
+    const hasStoredUploadState = window.sessionStorage.getItem(BILL_UPLOAD_STATE_KEY) === "ready";
 
     if (pendingPayload) {
       setBillText(pendingPayload.billText);
@@ -56,11 +60,20 @@ export default function ResultPage() {
       return;
     }
 
-    setBillText(window.sessionStorage.getItem(BILL_STORAGE_KEY) || "");
-    setBillImageData(window.sessionStorage.getItem(BILL_IMAGE_STORAGE_KEY) || "");
-    setFileName(window.sessionStorage.getItem(FILE_NAME_STORAGE_KEY) || "uploaded-medical-bill");
+    const storedBillText = window.sessionStorage.getItem(BILL_STORAGE_KEY) || "";
+    const storedBillImageData = window.sessionStorage.getItem(BILL_IMAGE_STORAGE_KEY) || "";
+    const storedFileName = window.sessionStorage.getItem(FILE_NAME_STORAGE_KEY) || "uploaded-medical-bill";
+
+    if (!hasStoredUploadState || (!storedBillText.trim() && !storedBillImageData.trim())) {
+      router.replace("/");
+      return;
+    }
+
+    setBillText(storedBillText);
+    setBillImageData(storedBillImageData);
+    setFileName(storedFileName);
     setHasHydrated(true);
-  }, []);
+  }, [router]);
 
   async function generateAnalysis(nextBillText = billText, nextBillImageData = billImageData) {
     if (!nextBillText.trim() && !nextBillImageData.trim()) {
@@ -196,9 +209,9 @@ export default function ResultPage() {
             <Link href="/" style={styles.navLink}>
               Back to Home
             </Link>
-            <a href="#privacy" style={styles.navLink}>
+            <Link href="/privacy" style={styles.navLink}>
               Privacy
-            </a>
+            </Link>
             <a href="mailto:support@inbill.co" style={styles.navLink}>
               Support
             </a>
