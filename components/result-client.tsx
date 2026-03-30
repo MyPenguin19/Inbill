@@ -8,6 +8,7 @@ import {
   BILL_STORAGE_KEY,
   FILE_NAME_STORAGE_KEY,
 } from "@/lib/bill";
+import { clearPendingBillPayload, getPendingBillPayload } from "@/lib/client-bill-session";
 import type { AnalysisReport } from "@/lib/types";
 
 async function readJsonResponse<T>(response: Response): Promise<T> {
@@ -39,6 +40,16 @@ export function ResultClient({ isPaid = true, sessionId }: ResultClientProps = {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    const pendingPayload = getPendingBillPayload();
+
+    if (pendingPayload) {
+      setBillText(pendingPayload.billText);
+      setBillImageData(pendingPayload.billImageData);
+      setFileName(pendingPayload.fileName || "uploaded-medical-bill");
+      clearPendingBillPayload();
+      return;
+    }
+
     const savedBill = window.sessionStorage.getItem(BILL_STORAGE_KEY);
     const savedImage = window.sessionStorage.getItem(BILL_IMAGE_STORAGE_KEY);
     const savedFileName = window.sessionStorage.getItem(FILE_NAME_STORAGE_KEY);

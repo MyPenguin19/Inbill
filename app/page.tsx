@@ -1,6 +1,7 @@
 "use client";
 
 import { ChangeEvent, DragEvent, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import {
   BILL_IMAGE_STORAGE_KEY,
@@ -8,6 +9,7 @@ import {
   FILE_NAME_STORAGE_KEY,
   isAcceptedBillFile,
 } from "@/lib/bill";
+import { clearPendingBillPayload, setPendingBillPayload } from "@/lib/client-bill-session";
 
 const loadingSteps = [
   "Reading your file",
@@ -32,6 +34,7 @@ async function readJsonResponse<T>(response: Response): Promise<T> {
 }
 
 export default function HomePage() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<"upload" | "notes">("upload");
   const [dragActive, setDragActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -117,8 +120,7 @@ export default function HomePage() {
         setVisibleStep(1);
 
         if (selectedFile.type.startsWith("image/")) {
-          window.sessionStorage.setItem(BILL_STORAGE_KEY, "");
-          window.sessionStorage.setItem(BILL_IMAGE_STORAGE_KEY, selectedFileData);
+          extractedText = "";
         } else {
           const extractForm = new FormData();
           extractForm.set("file", selectedFile);
@@ -153,13 +155,21 @@ export default function HomePage() {
       } else if (activeTab !== "upload") {
         window.sessionStorage.setItem(BILL_STORAGE_KEY, extractedText);
         window.sessionStorage.removeItem(BILL_IMAGE_STORAGE_KEY);
+      } else {
+        window.sessionStorage.removeItem(BILL_STORAGE_KEY);
+        window.sessionStorage.removeItem(BILL_IMAGE_STORAGE_KEY);
       }
 
       window.sessionStorage.setItem(FILE_NAME_STORAGE_KEY, selectedFile?.name || "billing-notes.txt");
+      setPendingBillPayload({
+        billText: extractedText,
+        billImageData: activeTab === "upload" && selectedFile?.type.startsWith("image/") ? selectedFileData : "",
+        fileName: selectedFile?.name || "billing-notes.txt",
+      });
 
       setVisibleStep(2);
       setVisibleStep(3);
-      window.location.href = "/result";
+      router.push("/result");
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : "Unable to start your review.");
       setLoading(false);
@@ -170,6 +180,7 @@ export default function HomePage() {
   const removeFile = () => {
     setSelectedFile(null);
     setSelectedFileData("");
+    clearPendingBillPayload();
     window.sessionStorage.removeItem(BILL_STORAGE_KEY);
     window.sessionStorage.removeItem(BILL_IMAGE_STORAGE_KEY);
     setError("");
