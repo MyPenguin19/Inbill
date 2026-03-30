@@ -3,6 +3,17 @@
 import Link from "next/link";
 import { ChangeEvent, DragEvent, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import {
+  AlertTriangle,
+  ArrowRight,
+  BadgeDollarSign,
+  ClipboardCheck,
+  FileText,
+  Receipt,
+  ShieldAlert,
+  Sparkles,
+  Stethoscope,
+} from "lucide-react";
 
 import {
   BILL_IMAGE_STORAGE_KEY,
@@ -30,22 +41,22 @@ async function readJsonResponse<T>(response: Response): Promise<T> {
 
 const findings = [
   {
-    icon: "🧾",
+    icon: Receipt,
     title: "Duplicate charges",
     description: "Catch repeated line items that may appear more than once on the same bill.",
   },
   {
-    icon: "🛡️",
+    icon: ShieldAlert,
     title: "Insurance denials",
     description: "Spot denied or misapplied claims before the full balance lands on you.",
   },
   {
-    icon: "💵",
+    icon: BadgeDollarSign,
     title: "Overpriced items",
     description: "Flag charges that look unusually high for routine services or lab work.",
   },
   {
-    icon: "➖",
+    icon: AlertTriangle,
     title: "Missing adjustments",
     description: "Find cases where discounts or insurance adjustments may not have been applied.",
   },
@@ -53,17 +64,17 @@ const findings = [
 
 const steps = [
   {
-    number: "1",
+    icon: FileText,
     title: "Upload your bill",
     description: "Add a PDF, screenshot, or medical bill image.",
   },
   {
-    number: "2",
+    icon: Sparkles,
     title: "AI analyzes it",
     description: "We review the bill for costly mistakes and confusing charges.",
   },
   {
-    number: "3",
+    icon: ClipboardCheck,
     title: "Get report + action steps",
     description: "See what looks wrong and what to do next before paying.",
   },
@@ -239,6 +250,13 @@ export default function HomePage() {
   return (
     <main style={styles.page}>
       <style jsx global>{`
+        .home-hero-grid {
+          display: grid;
+          grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+          gap: 24px;
+          align-items: center;
+        }
+
         .home-grid-2 {
           display: grid;
           grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -275,6 +293,7 @@ export default function HomePage() {
         }
 
         @media (max-width: 760px) {
+          .home-hero-grid,
           .home-grid-2,
           .home-grid-3,
           .home-grid-4 {
@@ -285,19 +304,63 @@ export default function HomePage() {
 
       <div style={styles.container}>
         <section style={styles.heroSection}>
-          <div style={styles.kicker}>Medical Bill Review</div>
-          <h1 style={styles.headline}>You Might Be Overpaying Your Medical Bill</h1>
-          <p style={styles.subheadline}>
-            Upload your bill. Get a clear breakdown, hidden issues, and what to do next — in under 60 seconds.
-          </p>
-          <p style={styles.trustLine}>No account required • Secure • No storage</p>
+          <div className="home-hero-grid">
+            <div style={styles.heroCopy}>
+              <div style={styles.kicker}>Medical Bill Review</div>
+              <h1 style={styles.headline}>You Might Be Overpaying Your Medical Bill</h1>
+              <p style={styles.subheadline}>
+                Upload your bill. Get a clear breakdown, hidden issues, and what to do next — in under 60 seconds.
+              </p>
+
+              <div style={styles.heroActions}>
+                <button
+                  disabled={loading}
+                  onClick={handleAnalyze}
+                  style={{
+                    ...styles.heroButton,
+                    ...(loading ? styles.buttonDisabled : {}),
+                  }}
+                  type="button"
+                >
+                  {loading ? "Preparing..." : "Analyze My Bill — $4.99"}
+                </button>
+                <p style={styles.trustLine}>No account required • Secure • No storage</p>
+              </div>
+            </div>
+
+            <div className="home-card" style={styles.reportMockCard}>
+              <div style={styles.mockBadge}>Audit preview</div>
+              <div style={styles.mockHeader}>
+                <div>
+                  <div style={styles.mockTitle}>Potential savings</div>
+                  <div style={styles.mockAmount}>$320</div>
+                </div>
+                <div style={styles.mockStatus}>High concern</div>
+              </div>
+              <div style={styles.mockFindingCard}>
+                <div style={styles.mockFindingIcon}>
+                  <AlertTriangle size={18} />
+                </div>
+                <div>
+                  <div style={styles.mockFindingTitle}>Duplicate charge detected</div>
+                  <div style={styles.mockFindingText}>
+                    The same lab service appears more than once for the same visit date.
+                  </div>
+                </div>
+              </div>
+              <div style={styles.mockCallout}>
+                <Stethoscope size={18} />
+                <span>Action plan included before you call billing.</span>
+              </div>
+            </div>
+          </div>
         </section>
 
         <section id="analyze" style={styles.section}>
           <div className="home-card" style={styles.uploadCard}>
             <div style={styles.cardHeader}>
               <h2 style={styles.cardTitle}>Upload your bill</h2>
-              <p style={styles.cardText}>PDF, image, or screenshot. We keep the flow simple and fast.</p>
+              <p style={styles.cardText}>PDF, image, or screenshot. We keep the flow simple, fast, and private.</p>
             </div>
 
             <label
@@ -353,7 +416,9 @@ export default function HomePage() {
           <div className="home-grid-4">
             {findings.map((item) => (
               <article className="home-card" key={item.title} style={styles.infoCard}>
-                <div style={styles.infoIcon}>{item.icon}</div>
+                <div style={styles.infoIcon}>
+                  <item.icon size={22} />
+                </div>
                 <h3 style={styles.infoTitle}>{item.title}</h3>
                 <p style={styles.infoText}>{item.description}</p>
               </article>
@@ -367,8 +432,10 @@ export default function HomePage() {
           </div>
           <div className="home-grid-3">
             {steps.map((item) => (
-              <article className="home-card" key={item.number} style={styles.infoCard}>
-                <div style={styles.stepNumber}>{item.number}</div>
+              <article className="home-card" key={item.title} style={styles.infoCard}>
+                <div style={styles.stepIcon}>
+                  <item.icon size={22} />
+                </div>
                 <h3 style={styles.infoTitle}>{item.title}</h3>
                 <p style={styles.infoText}>{item.description}</p>
               </article>
@@ -404,6 +471,7 @@ export default function HomePage() {
             <div style={styles.previewCtaRow}>
               <Link href="/sample" style={styles.secondaryButton}>
                 See Full Example
+                <ArrowRight size={16} />
               </Link>
             </div>
           </div>
@@ -447,11 +515,15 @@ const styles: Record<string, React.CSSProperties> = {
     margin: "0 auto",
   },
   heroSection: {
-    textAlign: "center",
-    paddingTop: 12,
+    paddingTop: 20,
+  },
+  heroCopy: {
+    paddingTop: 10,
   },
   kicker: {
-    display: "inline-block",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
     padding: "8px 12px",
     borderRadius: 999,
     background: "#ecfeff",
@@ -463,41 +535,149 @@ const styles: Record<string, React.CSSProperties> = {
     marginBottom: 14,
   },
   headline: {
-    margin: "0 auto 12px",
-    maxWidth: 760,
-    fontSize: "clamp(2.4rem, 5vw, 4rem)",
-    lineHeight: 1.02,
+    margin: "0 0 14px",
+    maxWidth: 560,
+    fontSize: "clamp(2.7rem, 5vw, 4.4rem)",
+    lineHeight: 0.98,
     letterSpacing: "-0.05em",
     fontWeight: 800,
     color: "#0f172a",
   },
   subheadline: {
-    margin: "0 auto 14px",
-    maxWidth: 680,
-    fontSize: 19,
-    lineHeight: 1.65,
+    margin: "0 0 18px",
+    maxWidth: 560,
+    fontSize: 18,
+    lineHeight: 1.75,
     color: "#475569",
+  },
+  heroActions: {
+    display: "grid",
+    gap: 14,
+    justifyItems: "flex-start",
+  },
+  heroButton: {
+    border: "none",
+    borderRadius: 12,
+    background: "linear-gradient(135deg, #16946d, #0f7757)",
+    color: "#ffffff",
+    padding: "16px 22px",
+    fontSize: 17,
+    fontWeight: 800,
+    cursor: "pointer",
+    boxShadow: "0 14px 28px rgba(15, 119, 87, 0.18)",
   },
   trustLine: {
     margin: 0,
-    color: "#0f766e",
+    color: "#64748b",
     fontSize: 14,
     lineHeight: 1.6,
-    fontWeight: 700,
+    fontWeight: 600,
   },
   section: {
-    marginTop: 28,
+    marginTop: 60,
   },
   finalSection: {
-    marginTop: 28,
+    marginTop: 60,
     marginBottom: 8,
+  },
+  reportMockCard: {
+    background: "linear-gradient(180deg, #ffffff 0%, #f8fbfd 100%)",
+    border: "1px solid #e5e7eb",
+    borderRadius: 18,
+    padding: 24,
+    boxShadow: "0 18px 40px rgba(15,23,42,0.08)",
+    display: "grid",
+    gap: 18,
+  },
+  mockBadge: {
+    display: "inline-flex",
+    width: "fit-content",
+    alignItems: "center",
+    padding: "7px 10px",
+    borderRadius: 999,
+    background: "#eefbf5",
+    color: "#0f7757",
+    fontSize: 12,
+    fontWeight: 800,
+    letterSpacing: "0.08em",
+    textTransform: "uppercase",
+  },
+  mockHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    gap: 14,
+    flexWrap: "wrap",
+  },
+  mockTitle: {
+    color: "#64748b",
+    fontSize: 14,
+    fontWeight: 700,
+    marginBottom: 6,
+  },
+  mockAmount: {
+    color: "#0f172a",
+    fontSize: 40,
+    lineHeight: 1,
+    letterSpacing: "-0.05em",
+    fontWeight: 900,
+  },
+  mockStatus: {
+    padding: "8px 10px",
+    borderRadius: 999,
+    background: "#fff7ed",
+    color: "#b45309",
+    fontSize: 13,
+    fontWeight: 800,
+  },
+  mockFindingCard: {
+    display: "flex",
+    gap: 14,
+    alignItems: "flex-start",
+    padding: 16,
+    borderRadius: 14,
+    background: "#fff7f7",
+    border: "1px solid #fecaca",
+  },
+  mockFindingIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    display: "grid",
+    placeItems: "center",
+    background: "#fee2e2",
+    color: "#b91c1c",
+    flexShrink: 0,
+  },
+  mockFindingTitle: {
+    color: "#991b1b",
+    fontSize: 15,
+    fontWeight: 800,
+    marginBottom: 4,
+  },
+  mockFindingText: {
+    color: "#475569",
+    fontSize: 14,
+    lineHeight: 1.7,
+  },
+  mockCallout: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 10,
+    color: "#334155",
+    fontSize: 14,
+    fontWeight: 600,
+    padding: "14px 16px",
+    borderRadius: 14,
+    background: "#f8fafc",
+    border: "1px solid #e5e7eb",
   },
   uploadCard: {
     background: "#ffffff",
     border: "1px solid #e5e7eb",
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 24,
-    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+    boxShadow: "0 16px 36px rgba(15,23,42,0.06)",
   },
   cardHeader: {
     marginBottom: 16,
@@ -594,24 +774,24 @@ const styles: Record<string, React.CSSProperties> = {
     marginTop: 16,
     border: "none",
     borderRadius: 12,
-    background: "#0f766e",
+    background: "linear-gradient(135deg, #16946d, #0f7757)",
     color: "#ffffff",
     padding: "16px 18px",
     fontSize: 17,
     fontWeight: 800,
     cursor: "pointer",
-    boxShadow: "0 8px 18px rgba(15, 118, 110, 0.18)",
+    boxShadow: "0 12px 24px rgba(15, 118, 110, 0.18)",
   },
   buttonDisabled: {
     opacity: 0.7,
     cursor: "wait",
   },
   sectionHeader: {
-    marginBottom: 14,
+    marginBottom: 18,
   },
   sectionTitle: {
     margin: 0,
-    fontSize: 28,
+    fontSize: 30,
     lineHeight: 1.15,
     fontWeight: 800,
     letterSpacing: "-0.03em",
@@ -622,11 +802,17 @@ const styles: Record<string, React.CSSProperties> = {
     border: "1px solid #e5e7eb",
     borderRadius: 12,
     padding: 20,
-    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+    boxShadow: "0 12px 28px rgba(15,23,42,0.05)",
   },
   infoIcon: {
-    fontSize: 24,
-    marginBottom: 12,
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    marginBottom: 14,
+    display: "grid",
+    placeItems: "center",
+    background: "#eff7f3",
+    color: "#0f7757",
   },
   infoTitle: {
     margin: "0 0 8px",
@@ -638,27 +824,25 @@ const styles: Record<string, React.CSSProperties> = {
   infoText: {
     margin: 0,
     color: "#475569",
-    lineHeight: 1.7,
-    fontSize: 15,
+    lineHeight: 1.75,
+    fontSize: 14,
   },
-  stepNumber: {
-    width: 32,
-    height: 32,
-    borderRadius: 999,
-    background: "#ecfeff",
-    color: "#0f766e",
+  stepIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    background: "#eff7f3",
+    color: "#0f7757",
     display: "grid",
     placeItems: "center",
-    fontSize: 15,
-    fontWeight: 800,
-    marginBottom: 12,
+    marginBottom: 14,
   },
   samplePreviewCard: {
     background: "#ffffff",
     border: "1px solid #e5e7eb",
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 24,
-    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+    boxShadow: "0 12px 28px rgba(15,23,42,0.05)",
   },
   previewBlock: {
     background: "#f8fafc",
@@ -687,6 +871,7 @@ const styles: Record<string, React.CSSProperties> = {
     display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
+    gap: 8,
     padding: "12px 16px",
     borderRadius: 12,
     border: "1px solid #cbd5e1",
@@ -699,9 +884,9 @@ const styles: Record<string, React.CSSProperties> = {
   savingsCard: {
     background: "#ffffff",
     border: "1px solid #d1fae5",
-    borderRadius: 12,
+    borderRadius: 16,
     padding: "28px 24px",
-    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+    boxShadow: "0 12px 28px rgba(15,23,42,0.05)",
     textAlign: "center",
   },
   savingsValue: {
@@ -722,9 +907,9 @@ const styles: Record<string, React.CSSProperties> = {
   finalCard: {
     background: "#ffffff",
     border: "1px solid #e5e7eb",
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 24,
-    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+    boxShadow: "0 12px 28px rgba(15,23,42,0.05)",
     textAlign: "center",
   },
   finalTitle: {
@@ -737,12 +922,12 @@ const styles: Record<string, React.CSSProperties> = {
   finalButton: {
     border: "none",
     borderRadius: 12,
-    background: "#0f766e",
+    background: "linear-gradient(135deg, #16946d, #0f7757)",
     color: "#ffffff",
     padding: "16px 20px",
     fontSize: 17,
     fontWeight: 800,
     cursor: "pointer",
-    boxShadow: "0 8px 18px rgba(15, 118, 110, 0.18)",
+    boxShadow: "0 12px 24px rgba(15, 118, 110, 0.18)",
   },
 };

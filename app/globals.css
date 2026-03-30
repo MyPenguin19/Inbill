@@ -76,9 +76,18 @@ textarea {
   gap: 16px;
 }
 
+.app-footer__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
 .app-footer__brand {
   display: grid;
   gap: 8px;
+  max-width: 360px;
 }
 
 .app-footer__logo {
@@ -100,6 +109,7 @@ textarea {
   display: flex;
   gap: 16px;
   flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .app-footer__links a {
@@ -114,6 +124,16 @@ textarea {
   color: #64748b;
   font-size: 13px;
   line-height: 1.7;
+}
+
+@media (max-width: 760px) {
+  .app-footer__top {
+    flex-direction: column;
+  }
+
+  .app-footer__links {
+    justify-content: flex-start;
+  }
 }
 
 .marketing-shell,

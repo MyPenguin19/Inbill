@@ -1,13 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const navLinks = [
   { href: "/", label: "Home" },
   { href: "/sample", label: "Sample" },
   { href: "/pricing", label: "Pricing" },
-  { href: "/privacy", label: "Privacy" },
+  { href: "/#what-we-find", label: "Features" },
+  { href: "/about", label: "About Us" },
 ] as const;
 
 export default function Navbar() {
@@ -28,60 +30,75 @@ export default function Navbar() {
           position: sticky;
           top: 0;
           z-index: 60;
-          padding: 16px;
-          background: rgba(249, 250, 251, 0.92);
+          height: 64px;
+          background: rgba(255, 255, 255, 0.96);
           backdrop-filter: blur(12px);
+          border-bottom: 1px solid #e5e7eb;
         }
 
         .nav-bar {
-          width: min(900px, 100%);
+          width: min(900px, calc(100vw - 32px));
+          height: 100%;
           margin: 0 auto;
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: 16px;
-          padding: 14px 18px;
-          background: #ffffff;
-          border: 1px solid #e5e7eb;
-          border-radius: 14px;
-          box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+          gap: 20px;
         }
 
         .brand {
-          font-size: 22px;
+          font-size: 1.3rem;
           line-height: 1;
           font-weight: 800;
-          letter-spacing: -0.03em;
-          color: #111827;
+          letter-spacing: -0.04em;
+          color: #0f172a;
           text-decoration: none;
         }
 
-        .links {
+        .desktopNav {
           display: flex;
           align-items: center;
-          gap: 22px;
-          flex-wrap: wrap;
+          gap: 26px;
+          margin-left: auto;
         }
 
         .link {
           color: #475569;
-          font-size: 14px;
+          font-size: 0.95rem;
           font-weight: 600;
           text-decoration: none;
+          transition: color 160ms ease;
+        }
+
+        .link:hover {
+          color: #0f172a;
+        }
+
+        .cta {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          min-height: 44px;
+          padding: 0 18px;
+          border-radius: 12px;
+          background: linear-gradient(135deg, #16946d, #0f7757);
+          color: #ffffff;
+          font-size: 0.94rem;
+          font-weight: 800;
+          text-decoration: none;
+          box-shadow: 0 10px 24px rgba(15, 119, 87, 0.18);
         }
 
         .burger {
           display: none;
           align-items: center;
           justify-content: center;
-          width: 44px;
-          height: 44px;
+          width: 42px;
+          height: 42px;
           border: 1px solid #e5e7eb;
           border-radius: 12px;
           background: #ffffff;
-          color: #111827;
-          font-size: 20px;
-          font-weight: 800;
+          color: #0f172a;
           cursor: pointer;
         }
 
@@ -91,7 +108,7 @@ export default function Navbar() {
           z-index: 100;
           display: flex;
           justify-content: flex-end;
-          background: rgba(15, 23, 42, 0.24);
+          background: rgba(15, 23, 42, 0.28);
           opacity: 0;
           pointer-events: none;
           transition: opacity 180ms ease;
@@ -110,7 +127,7 @@ export default function Navbar() {
           display: grid;
           align-content: start;
           gap: 18px;
-          box-shadow: -12px 0 30px rgba(15, 23, 42, 0.12);
+          box-shadow: -16px 0 36px rgba(15, 23, 42, 0.12);
           transform: translateX(100%);
           transition: transform 220ms ease;
         }
@@ -123,50 +140,64 @@ export default function Navbar() {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          margin-bottom: 8px;
+          margin-bottom: 4px;
         }
 
         .panelTitle {
-          font-size: 22px;
+          font-size: 1.3rem;
           line-height: 1;
           font-weight: 800;
-          letter-spacing: -0.03em;
-          color: #111827;
+          letter-spacing: -0.04em;
+          color: #0f172a;
         }
 
         .close {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          width: 44px;
-          height: 44px;
+          width: 42px;
+          height: 42px;
           border: 1px solid #e5e7eb;
           border-radius: 12px;
           background: #ffffff;
-          color: #111827;
-          font-size: 22px;
-          font-weight: 700;
+          color: #0f172a;
           cursor: pointer;
         }
 
         .mobileLink {
-          color: #111827;
+          color: #0f172a;
           text-decoration: none;
-          font-size: 24px;
+          font-size: 1.5rem;
           line-height: 1.2;
           font-weight: 800;
           padding: 8px 0;
         }
 
-        .mobileSubtext {
+        .mobileCta {
           margin-top: 8px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          min-height: 48px;
+          width: 100%;
+          border-radius: 12px;
+          background: linear-gradient(135deg, #16946d, #0f7757);
+          color: #ffffff;
+          font-size: 1rem;
+          font-weight: 800;
+          text-decoration: none;
+          box-shadow: 0 10px 24px rgba(15, 119, 87, 0.18);
+        }
+
+        .mobileSubtext {
           color: #64748b;
-          font-size: 14px;
+          font-size: 0.92rem;
           line-height: 1.7;
         }
 
-        @media (max-width: 760px) {
-          .links {
+        @media (max-width: 860px) {
+          .desktopNav,
+          .cta {
             display: none;
           }
 
@@ -182,13 +213,17 @@ export default function Navbar() {
             InBill
           </Link>
 
-          <nav className="links" aria-label="Primary">
+          <nav className="desktopNav" aria-label="Primary">
             {navLinks.map((item) => (
               <Link key={item.href} href={item.href} className="link">
                 {item.label}
               </Link>
             ))}
           </nav>
+
+          <Link href="/#analyze" className="cta">
+            Analyze Bill — $4.99
+          </Link>
 
           <button
             type="button"
@@ -197,7 +232,7 @@ export default function Navbar() {
             aria-expanded={mobileOpen}
             onClick={() => setMobileOpen(true)}
           >
-            ☰
+            <Menu size={20} />
           </button>
         </div>
       </header>
@@ -213,20 +248,19 @@ export default function Navbar() {
           <div className="panelHeader">
             <div className="panelTitle">Menu</div>
             <button type="button" className="close" aria-label="Close navigation menu" onClick={() => setMobileOpen(false)}>
-              ×
+              <X size={20} />
             </button>
           </div>
 
           {navLinks.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="mobileLink"
-              onClick={() => setMobileOpen(false)}
-            >
+            <Link key={item.href} href={item.href} className="mobileLink" onClick={() => setMobileOpen(false)}>
               {item.label}
             </Link>
           ))}
+
+          <Link href="/#analyze" className="mobileCta" onClick={() => setMobileOpen(false)}>
+            Analyze Bill — $4.99
+          </Link>
 
           <div className="mobileSubtext">
             AI-powered medical bill review to help patients avoid overpaying. No account required.
