@@ -345,7 +345,7 @@ export default function HomePage() {
               Pricing
             </a>
             <a className="nav-cta" href="#analyze">
-              Analyze Bill — $4.99
+              Check My Bill Now — $4.99
             </a>
           </nav>
 
@@ -371,7 +371,7 @@ export default function HomePage() {
             Pricing
           </a>
           <a className="mobile-cta" href="#analyze" onClick={() => setMobileMenuOpen(false)}>
-            Analyze Bill — $4.99
+            Check My Bill Now — $4.99
           </a>
         </div>
 
@@ -381,6 +381,10 @@ export default function HomePage() {
           <p style={styles.subheadline}>
             Upload your bill and instantly find errors, overcharges, and how to dispute them.
           </p>
+          <div style={styles.heroAlertCard}>
+            <p style={styles.heroAlertLine}>Most patients overpay their medical bills — and don’t realize it.</p>
+            <p style={styles.heroAlertSubline}>This checks your bill before you lose money.</p>
+          </div>
 
           <div style={styles.heroStats}>
             <div style={styles.statCard}>
@@ -443,7 +447,7 @@ export default function HomePage() {
               }}
               type="button"
             >
-              {loading ? "Preparing..." : "Analyze My Bill — $9.99"}
+              {loading ? "Preparing..." : "Check My Bill Now — $4.99"}
             </button>
           </div>
 
@@ -462,6 +466,45 @@ export default function HomePage() {
               <div style={styles.pricingLabel}>Simple pricing</div>
               <div style={styles.price}>$9.99</div>
               <p style={styles.pricingText}>One-time payment. No subscription. No recurring charges.</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="how-it-works" style={styles.section}>
+          <div style={styles.sectionHeader}>
+            <h2 style={styles.sectionTitle}>What we typically find</h2>
+          </div>
+          <div className="landing-grid-2">
+            <article className="landing-card" style={styles.infoCard}>
+              <div style={styles.infoIcon}>🧾</div>
+              <h3 style={styles.infoTitle}>Duplicate charges</h3>
+              <p style={styles.infoText}>The same service may show up more than once on the bill.</p>
+            </article>
+            <article className="landing-card" style={styles.infoCard}>
+              <div style={styles.infoIcon}>🏷️</div>
+              <h3 style={styles.infoTitle}>Incorrect billing codes</h3>
+              <p style={styles.infoText}>Coding mistakes can change what insurance covers and what you owe.</p>
+            </article>
+            <article className="landing-card" style={styles.infoCard}>
+              <div style={styles.infoIcon}>❌</div>
+              <h3 style={styles.infoTitle}>Services not received</h3>
+              <p style={styles.infoText}>Some patients are billed for items they do not recognize.</p>
+            </article>
+            <article className="landing-card" style={styles.infoCard}>
+              <div style={styles.infoIcon}>🛡️</div>
+              <h3 style={styles.infoTitle}>Insurance errors</h3>
+              <p style={styles.infoText}>Claims can be denied or misapplied because of insurance mistakes.</p>
+            </article>
+          </div>
+        </section>
+
+        <section style={styles.section}>
+          <div className="landing-card" style={styles.trustDataCard}>
+            <h2 style={styles.sectionTitle}>Your data is safe</h2>
+            <div style={styles.trustDataList}>
+              <div style={styles.trustDataItem}>• Not stored</div>
+              <div style={styles.trustDataItem}>• Not shared</div>
+              <div style={styles.trustDataItem}>• Secure processing</div>
             </div>
           </div>
         </section>
@@ -586,7 +629,7 @@ export default function HomePage() {
               }}
               type="button"
             >
-              {loading ? "Preparing..." : "Analyze My Bill — $9.99"}
+              {loading ? "Preparing..." : "Check My Bill Now — $4.99"}
             </button>
           </div>
         </section>
@@ -650,6 +693,29 @@ const styles: Record<string, React.CSSProperties> = {
   heroStats: {
     display: "flex",
     justifyContent: "center",
+  },
+  heroAlertCard: {
+    margin: "0 auto 18px",
+    maxWidth: 620,
+    background: "#ffffff",
+    border: "1px solid #e2e8f0",
+    borderRadius: 12,
+    padding: "16px 18px",
+    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+  },
+  heroAlertLine: {
+    margin: "0 0 6px",
+    color: "#0f172a",
+    fontSize: 18,
+    lineHeight: 1.6,
+    fontWeight: 700,
+  },
+  heroAlertSubline: {
+    margin: 0,
+    color: "#0f766e",
+    fontSize: 16,
+    lineHeight: 1.6,
+    fontWeight: 700,
   },
   statCard: {
     background: "#ffffff",
@@ -886,6 +952,24 @@ const styles: Record<string, React.CSSProperties> = {
   },
   secondaryGrid: {
     marginTop: 18,
+  },
+  trustDataCard: {
+    background: "#ffffff",
+    border: "1px solid #e2e8f0",
+    borderRadius: 12,
+    padding: 22,
+    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+  },
+  trustDataList: {
+    display: "grid",
+    gap: 10,
+    marginTop: 14,
+  },
+  trustDataItem: {
+    color: "#334155",
+    fontSize: 16,
+    lineHeight: 1.7,
+    fontWeight: 600,
   },
   highlightCard: {
     background: "#ecfeff",
