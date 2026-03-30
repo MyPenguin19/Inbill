@@ -11,13 +11,6 @@ import {
 } from "@/lib/bill";
 import { clearPendingBillPayload, setPendingBillPayload } from "@/lib/client-bill-session";
 
-const loadingSteps = [
-  "Reading your file",
-  "Extracting bill details",
-  "Preparing your review workspace",
-  "Opening analysis",
-];
-
 async function readJsonResponse<T>(response: Response): Promise<T> {
   const contentType = response.headers.get("content-type") || "";
   const bodyText = await response.text();
@@ -35,13 +28,10 @@ async function readJsonResponse<T>(response: Response): Promise<T> {
 
 export default function HomePage() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"upload" | "notes">("upload");
   const [dragActive, setDragActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedFileData, setSelectedFileData] = useState("");
-  const [notesText, setNotesText] = useState("");
   const [loading, setLoading] = useState(false);
-  const [visibleStep, setVisibleStep] = useState(0);
   const [error, setError] = useState("");
 
   const fileSummary = useMemo(() => {
@@ -129,63 +119,46 @@ export default function HomePage() {
   const handleAnalyze = async () => {
     setError("");
 
-    if (activeTab === "upload" && !selectedFile) {
-      setError("Choose a bill file before starting the review.");
-      return;
-    }
-
-    if (activeTab === "notes" && !notesText.trim()) {
-      setError("Paste a few bill details first so the analysis has something to review.");
+    if (!selectedFile) {
+      setError("Upload your medical bill to start the analysis.");
       return;
     }
 
     setLoading(true);
-    setVisibleStep(0);
 
     try {
+      if (!isAcceptedBillFile(selectedFile)) {
+        throw new Error("Unsupported file type. Please upload a PDF, image, or text file.");
+      }
+
       let extractedText = "";
 
-      if (activeTab === "upload" && selectedFile) {
-        if (!isAcceptedBillFile(selectedFile)) {
-          throw new Error("Unsupported file type. Please upload a PDF, image, or text file.");
+      if (!selectedFile.type.startsWith("image/")) {
+        const extractForm = new FormData();
+        extractForm.set("file", selectedFile);
+
+        const extractResponse = await fetch("/api/extract", {
+          method: "POST",
+          body: extractForm,
+        });
+
+        const extractPayload = await readJsonResponse<{
+          extractedText?: string;
+          error?: string;
+        }>(extractResponse);
+
+        if (!extractResponse.ok || !extractPayload.extractedText) {
+          throw new Error(extractPayload.error || "Unable to extract bill text.");
         }
 
-        setVisibleStep(1);
-
-        if (selectedFile.type.startsWith("image/")) {
-          extractedText = "";
-        } else {
-          const extractForm = new FormData();
-          extractForm.set("file", selectedFile);
-
-          const extractResponse = await fetch("/api/extract", {
-            method: "POST",
-            body: extractForm,
-          });
-
-          const extractPayload = await readJsonResponse<{
-            extractedText?: string;
-            error?: string;
-          }>(extractResponse);
-
-          if (!extractResponse.ok || !extractPayload.extractedText) {
-            throw new Error(extractPayload.error || "Unable to extract bill text.");
-          }
-
-          extractedText = extractPayload.extractedText;
-        }
-      } else {
-        extractedText = notesText.trim();
+        extractedText = extractPayload.extractedText;
       }
 
       if (!extractedText.trim() && !selectedFileData.trim()) {
-        throw new Error("We could not extract readable bill text from that input.");
+        throw new Error("We could not extract readable bill text from that file.");
       }
 
-      if (!selectedFile?.type.startsWith("image/")) {
-        window.sessionStorage.setItem(BILL_STORAGE_KEY, extractedText);
-        window.sessionStorage.removeItem(BILL_IMAGE_STORAGE_KEY);
-      } else if (activeTab !== "upload") {
+      if (!selectedFile.type.startsWith("image/")) {
         window.sessionStorage.setItem(BILL_STORAGE_KEY, extractedText);
         window.sessionStorage.removeItem(BILL_IMAGE_STORAGE_KEY);
       } else {
@@ -193,20 +166,17 @@ export default function HomePage() {
         window.sessionStorage.removeItem(BILL_IMAGE_STORAGE_KEY);
       }
 
-      window.sessionStorage.setItem(FILE_NAME_STORAGE_KEY, selectedFile?.name || "billing-notes.txt");
+      window.sessionStorage.setItem(FILE_NAME_STORAGE_KEY, selectedFile.name);
       setPendingBillPayload({
         billText: extractedText,
-        billImageData: activeTab === "upload" && selectedFile?.type.startsWith("image/") ? selectedFileData : "",
-        fileName: selectedFile?.name || "billing-notes.txt",
+        billImageData: selectedFile.type.startsWith("image/") ? selectedFileData : "",
+        fileName: selectedFile.name,
       });
 
-      setVisibleStep(2);
-      setVisibleStep(3);
       router.push("/result");
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : "Unable to start your review.");
       setLoading(false);
-      setVisibleStep(0);
     }
   };
 
@@ -220,231 +190,689 @@ export default function HomePage() {
   };
 
   return (
-    <main className="marketing-shell">
-      <section className="marketing-hero">
-        <header className="site-nav">
-          <a className="site-brand" href="#top">
-            <span className="site-brand-mark" />
-            <span>Inbill</span>
-          </a>
+    <main style={styles.page}>
+      <style jsx global>{`
+        .landing-grid-2 {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 18px;
+        }
 
-          <nav className="site-links" aria-label="Primary">
-            <a href="#how-it-works">How it works</a>
-            <a href="#workspace">Analyzer</a>
-            <a href="#faq">Why Inbill</a>
-          </nav>
+        .landing-grid-3 {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 18px;
+        }
 
-          <a className="site-cta" href="#workspace">
-            Analyze a Bill
-          </a>
-        </header>
+        .landing-card {
+          transition:
+            transform 180ms ease,
+            box-shadow 180ms ease;
+        }
 
-        <div className="hero-grid" id="top">
-          <div className="hero-copy-panel">
-            <span className="hero-kicker">Trusted Medical Bill Review</span>
-            <h1>
-              Spot billing mistakes, overcharges, and unclear fees before you <em>pay your medical bill</em>.
-            </h1>
-            <p>
-              Upload a bill, EOB, or screenshot and get a patient-friendly review with likely red flags,
-              estimated responsibility, and practical next steps.
-            </p>
+        .landing-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+        }
 
-            <div className="hero-trust-row">
-              <span>Private analysis workflow</span>
-              <span>No login required</span>
-              <span>Built for patients, not coders</span>
-            </div>
+        @media (max-width: 760px) {
+          .landing-grid-2,
+          .landing-grid-3 {
+            grid-template-columns: 1fr;
+          }
+        }
+      `}</style>
 
-            <div className="hero-metrics">
-              <article>
-                <strong>AI Review</strong>
-                <span>Upload PDF, image, or text</span>
-              </article>
-              <article>
-                <strong>Plain-English</strong>
-                <span>Clear report structure</span>
-              </article>
-              <article>
-                <strong>In-Memory</strong>
-                <span>Files handled in memory only</span>
-              </article>
-            </div>
-          </div>
-
-          <div className="hero-preview-panel">
-            <div className="preview-window">
-              <div className="preview-window-bar">
-                <span />
-                <span />
-                <span />
-              </div>
-              <div className="preview-summary-card">
-                <p className="preview-label">Medical Bill Snapshot</p>
-                <h2>Potential duplicate lab charge found</h2>
-                <ul>
-                  <li>Line item appears to repeat for the same service date</li>
-                  <li>Insurance denial note may point to coordination issue</li>
-                  <li>Suggested action: request an itemized bill and claim review</li>
-                </ul>
-              </div>
-              <div className="preview-mini-grid">
-                <article>
-                  <span>Estimated Balance</span>
-                  <strong>$162.72</strong>
-                </article>
-                <article>
-                  <span>Potential Issues</span>
-                  <strong>3 flags</strong>
-                </article>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="workspace-section" id="workspace">
-        <div className="workspace-header">
-          <span className="section-pill">Upload Analyzer</span>
-          <h2>Upload a medical bill and start your review</h2>
-          <p>
-            The analyzer extracts bill details, opens your review workspace, and prepares a structured report
-            with questions and next steps.
+      <div style={styles.container}>
+        <section style={styles.heroSection}>
+          <div style={styles.kicker}>Medical Bill Checker</div>
+          <h1 style={styles.headline}>You Might Be Overpaying Your Medical Bill</h1>
+          <p style={styles.subheadline}>
+            Upload your bill and instantly find errors, overcharges, and how to dispute them.
           </p>
-        </div>
 
-        <div className="workspace-card">
-          <div className="workspace-tabs" role="tablist" aria-label="Review mode">
-            <button
-              className={activeTab === "upload" ? "workspace-tab active" : "workspace-tab"}
-              onClick={() => setActiveTab("upload")}
-              type="button"
-            >
-              Upload file
-            </button>
-            <button
-              className={activeTab === "notes" ? "workspace-tab active" : "workspace-tab"}
-              onClick={() => setActiveTab("notes")}
-              type="button"
-            >
-              Paste notes
-            </button>
-          </div>
-
-          {activeTab === "upload" ? (
-            <div className="tab-panel">
-              <label
-                className={dragActive ? "upload-drop-zone drag-active" : "upload-drop-zone"}
-                onDragLeave={() => setDragActive(false)}
-                onDragOver={(event) => {
-                  event.preventDefault();
-                  setDragActive(true);
-                }}
-                onDrop={handleDrop}
-              >
-                <input accept=".pdf,image/*,.txt" className="hidden-file-input" onChange={handleFileInput} type="file" />
-                <div className="drop-zone-icon">+</div>
-                <h3>Drag and drop your medical bill</h3>
-                <p>Accepted formats: PDF, image, or text. Files are processed in memory only.</p>
-                <span className="drop-zone-trigger">Browse files</span>
-              </label>
-
-              {selectedFile ? (
-                <div className="selected-file-card">
-                  <div>
-                    <strong>{selectedFile.name}</strong>
-                    <p>{fileSummary}</p>
-                  </div>
-                  <button className="ghost-button" onClick={removeFile} type="button">
-                    Remove
-                  </button>
-                </div>
-              ) : null}
+          <div style={styles.heroStats}>
+            <div style={styles.statCard}>
+              <strong style={styles.statNumber}>80%</strong>
+              <span style={styles.statLabel}>of medical bills contain errors</span>
             </div>
-          ) : (
-            <div className="tab-panel">
-              <div className="notes-panel">
-                <label htmlFor="bill-notes">Paste billing notes or claim details</label>
-                <textarea
-                  id="bill-notes"
-                  onChange={(event) => setNotesText(event.target.value)}
-                  placeholder="Example: Lab bill says insurance denied claim because another plan is primary. Amount due is $162.72. I need help understanding whether that is correct."
-                  rows={7}
-                  value={notesText}
-                />
-              </div>
-            </div>
-          )}
-
-          {error ? <p className="inline-error">{error}</p> : null}
-
-          <button className="primary-action" onClick={handleAnalyze} type="button">
-            Analyze My Bill
-          </button>
-
-          <p className="workspace-footnote">No payment required in this version. You’ll go straight to results.</p>
-        </div>
-
-        <section className={loading ? "loading-panel visible" : "loading-panel"} aria-hidden={!loading}>
-          <div className="loading-spinner" />
-          <div className="loading-steps">
-            {loadingSteps.map((step, index) => (
-              <div className={index <= visibleStep ? "loading-step active" : "loading-step"} key={step}>
-                <span className="loading-step-dot" />
-                <span>{step}</span>
-              </div>
-            ))}
           </div>
         </section>
-      </section>
 
-      <section className="benefits-section" id="how-it-works">
-        <div className="section-heading">
-          <span className="section-pill">How It Works</span>
-          <h2>A simple process for reviewing confusing medical charges</h2>
-          <p>Focused on clarity, confidence, and practical follow-up with providers or insurance.</p>
-        </div>
+        <section className="landing-grid-2" style={styles.section}>
+          <div className="landing-card" style={styles.mainUploadCard}>
+            <h2 style={styles.cardTitle}>Analyze your bill</h2>
+            <p style={styles.cardText}>
+              Upload your statement, EOB, or screenshot and get a premium report in minutes.
+            </p>
 
-        <div className="benefits-grid">
-          <article>
-            <span className="benefit-number">01</span>
-            <h3>Upload your document</h3>
-            <p>Bring in a bill, EOB, lab statement, or notes from a provider call.</p>
-          </article>
-          <article>
-            <span className="benefit-number">02</span>
-            <h3>Surface likely red flags</h3>
-            <p>Spot duplicate charges, vague descriptions, and coverage mismatches more quickly.</p>
-          </article>
-          <article>
-            <span className="benefit-number">03</span>
-            <h3>Understand what you likely owe</h3>
-            <p>Get a simpler view of the amount billed, insurer role, and patient responsibility.</p>
-          </article>
-          <article>
-            <span className="benefit-number">04</span>
-            <h3>Prepare your next call</h3>
-            <p>Use sharper questions and a calm script when you contact billing or insurance.</p>
-          </article>
-        </div>
-      </section>
+            <label
+              style={{
+                ...styles.uploadZone,
+                ...(dragActive ? styles.uploadZoneActive : {}),
+              }}
+              onDragLeave={() => setDragActive(false)}
+              onDragOver={(event) => {
+                event.preventDefault();
+                setDragActive(true);
+              }}
+              onDrop={handleDrop}
+            >
+              <input
+                accept=".pdf,image/*,.txt"
+                onChange={handleFileInput}
+                style={styles.hiddenInput}
+                type="file"
+              />
+              <div style={styles.uploadIcon}>↑</div>
+              <div style={styles.uploadZoneTitle}>Drag and drop your bill</div>
+              <div style={styles.uploadZoneText}>PDF, image, or screenshot</div>
+            </label>
 
-      <section className="proof-banner" id="faq">
-        <div className="proof-banner-inner">
-          <article>
-            <strong>Patient-Friendly</strong>
-            <span>No billing jargon wall</span>
-          </article>
-          <article>
-            <strong>Actionable</strong>
-            <span>Built for your next phone call</span>
-          </article>
-          <article>
-            <strong>Private by Design</strong>
-            <span>No file storage in this MVP</span>
-          </article>
-        </div>
-      </section>
+            {selectedFile ? (
+              <div style={styles.fileCard}>
+                <div>
+                  <div style={styles.fileName}>{selectedFile.name}</div>
+                  <div style={styles.fileMeta}>{fileSummary}</div>
+                </div>
+                <button onClick={removeFile} style={styles.removeButton} type="button">
+                  Remove
+                </button>
+              </div>
+            ) : null}
+
+            {error ? <div style={styles.errorText}>{error}</div> : null}
+
+            <button
+              disabled={loading}
+              onClick={handleAnalyze}
+              style={{
+                ...styles.ctaButton,
+                ...(loading ? styles.buttonDisabled : {}),
+              }}
+              type="button"
+            >
+              {loading ? "Preparing..." : "Analyze My Bill — $9.99"}
+            </button>
+          </div>
+
+          <div style={styles.sideColumn}>
+            <div className="landing-card" style={styles.trustCard}>
+              <h3 style={styles.sideTitle}>Why patients trust this</h3>
+              <div style={styles.trustList}>
+                <div style={styles.trustItem}>🔒 Secure upload</div>
+                <div style={styles.trustItem}>🧼 No data stored</div>
+                <div style={styles.trustItem}>⚡ Instant analysis</div>
+                <div style={styles.trustItem}>🫶 Built for real patients</div>
+              </div>
+            </div>
+
+            <div className="landing-card" style={styles.pricingCard}>
+              <div style={styles.pricingLabel}>Simple pricing</div>
+              <div style={styles.price}>$9.99</div>
+              <p style={styles.pricingText}>One-time payment. No subscription. No recurring charges.</p>
+            </div>
+          </div>
+        </section>
+
+        <section style={styles.section}>
+          <div style={styles.sectionHeader}>
+            <h2 style={styles.sectionTitle}>How It Works</h2>
+          </div>
+          <div className="landing-grid-3">
+            <article className="landing-card" style={styles.infoCard}>
+              <div style={styles.stepNumber}>1</div>
+              <h3 style={styles.infoTitle}>Upload</h3>
+              <p style={styles.infoText}>Add your medical bill, EOB, or screenshot.</p>
+            </article>
+            <article className="landing-card" style={styles.infoCard}>
+              <div style={styles.stepNumber}>2</div>
+              <h3 style={styles.infoTitle}>Analyze</h3>
+              <p style={styles.infoText}>We review it for likely errors, unclear charges, and red flags.</p>
+            </article>
+            <article className="landing-card" style={styles.infoCard}>
+              <div style={styles.stepNumber}>3</div>
+              <h3 style={styles.infoTitle}>Save Money</h3>
+              <p style={styles.infoText}>Use the report and script to challenge costs before you pay.</p>
+            </article>
+          </div>
+        </section>
+
+        <section style={styles.section}>
+          <div style={styles.sectionHeader}>
+            <h2 style={styles.sectionTitle}>What You Get</h2>
+          </div>
+          <div className="landing-grid-3">
+            <article className="landing-card" style={styles.infoCard}>
+              <div style={styles.infoIcon}>🧾</div>
+              <h3 style={styles.infoTitle}>Plain English breakdown</h3>
+              <p style={styles.infoText}>Understand your bill without needing to know medical billing language.</p>
+            </article>
+            <article className="landing-card" style={styles.infoCard}>
+              <div style={styles.infoIcon}>🚨</div>
+              <h3 style={styles.infoTitle}>Overcharges flagged</h3>
+              <p style={styles.infoText}>Spot duplicate charges, vague fees, and likely billing mistakes.</p>
+            </article>
+            <article className="landing-card" style={styles.infoCard}>
+              <div style={styles.infoIcon}>💵</div>
+              <h3 style={styles.infoTitle}>What you owe</h3>
+              <p style={styles.infoText}>See a simpler view of what may actually be your responsibility.</p>
+            </article>
+          </div>
+          <div className="landing-grid-2" style={styles.secondaryGrid}>
+            <article className="landing-card" style={styles.infoCard}>
+              <div style={styles.infoIcon}>❓</div>
+              <h3 style={styles.infoTitle}>Questions to ask</h3>
+              <p style={styles.infoText}>Use sharper follow-up questions with billing and insurance teams.</p>
+            </article>
+            <article className="landing-card" style={styles.highlightCard}>
+              <div style={styles.infoIcon}>📞</div>
+              <h3 style={styles.infoTitle}>CALL SCRIPT</h3>
+              <p style={styles.infoText}>
+                Get the exact language to use when you call to dispute the bill or ask for corrections.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section className="landing-grid-2" style={styles.section}>
+          <div className="landing-card" style={styles.testimonialCard}>
+            <div style={styles.quoteMark}>“</div>
+            <p style={styles.testimonialText}>
+              This helped me realize I was about to pay a bill that still had insurance issues on it. The call
+              script made the conversation much easier.
+            </p>
+            <div style={styles.testimonialAuthor}>Patient report preview</div>
+          </div>
+
+          <div className="landing-card" style={styles.proofCard}>
+            <div style={styles.proofStat}>80%</div>
+            <p style={styles.proofText}>of medical bills contain errors or issues worth reviewing before payment.</p>
+          </div>
+        </section>
+
+        <section style={styles.section}>
+          <div style={styles.sectionHeader}>
+            <h2 style={styles.sectionTitle}>Sample Report</h2>
+          </div>
+          <div className="landing-card" style={styles.sampleCard}>
+            <div style={styles.sampleBadges}>
+              <span style={styles.issueBadge}>Issues Found</span>
+              <span style={styles.scriptBadge}>Call Script</span>
+            </div>
+            <div style={styles.samplePanel}>
+              <h3 style={styles.sampleTitle}>Potential Issues</h3>
+              <ul style={styles.sampleList}>
+                <li>Possible duplicate lab charge for the same service date</li>
+                <li>Insurance denial may point to incorrect primary insurance information</li>
+                <li>Patient balance may be overstated until the claim is corrected</li>
+              </ul>
+            </div>
+            <div style={styles.scriptBox}>
+              <h3 style={styles.sampleTitle}>Call Script</h3>
+              <p style={styles.scriptLine}>
+                “Hi, I&apos;m calling because I received a bill and I&apos;d like an itemized explanation of the charges.”
+              </p>
+              <p style={styles.scriptLine}>
+                “Can you confirm whether my insurance was billed correctly before I make payment?”
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section style={styles.finalCtaSection}>
+          <div className="landing-card" style={styles.finalCtaCard}>
+            <h2 style={styles.finalCtaTitle}>Catch errors before you pay</h2>
+            <p style={styles.finalCtaText}>
+              Upload your bill, get your report, and know exactly what to question before sending money.
+            </p>
+            <button
+              disabled={loading}
+              onClick={handleAnalyze}
+              style={{
+                ...styles.finalCtaButton,
+                ...(loading ? styles.buttonDisabled : {}),
+              }}
+              type="button"
+            >
+              {loading ? "Preparing..." : "Analyze My Bill — $9.99"}
+            </button>
+          </div>
+        </section>
+      </div>
     </main>
   );
 }
+
+const styles: Record<string, React.CSSProperties> = {
+  page: {
+    minHeight: "100vh",
+    background: "#f5f7fb",
+    color: "#0f172a",
+    fontFamily:
+      'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    padding: "32px 16px 64px",
+  },
+  container: {
+    width: "100%",
+    maxWidth: 800,
+    margin: "0 auto",
+  },
+  heroSection: {
+    textAlign: "center",
+    paddingTop: 12,
+  },
+  kicker: {
+    display: "inline-block",
+    padding: "8px 12px",
+    borderRadius: 999,
+    background: "#ecfeff",
+    color: "#0f766e",
+    fontSize: 12,
+    fontWeight: 800,
+    letterSpacing: "0.08em",
+    textTransform: "uppercase",
+    marginBottom: 14,
+  },
+  headline: {
+    margin: "0 auto 12px",
+    maxWidth: 760,
+    fontSize: "clamp(2.4rem, 5vw, 4rem)",
+    lineHeight: 1.02,
+    letterSpacing: "-0.05em",
+    fontWeight: 800,
+  },
+  subheadline: {
+    margin: "0 auto 16px",
+    maxWidth: 680,
+    fontSize: 19,
+    lineHeight: 1.65,
+    color: "#475569",
+  },
+  heroStats: {
+    display: "flex",
+    justifyContent: "center",
+  },
+  statCard: {
+    background: "#ffffff",
+    border: "1px solid #e2e8f0",
+    borderRadius: 12,
+    padding: "14px 18px",
+    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 10,
+  },
+  statNumber: {
+    fontSize: 28,
+    lineHeight: 1,
+    fontWeight: 800,
+    color: "#0f766e",
+  },
+  statLabel: {
+    fontSize: 14,
+    lineHeight: 1.5,
+    color: "#334155",
+    fontWeight: 600,
+  },
+  section: {
+    marginTop: 28,
+  },
+  mainUploadCard: {
+    background: "#ffffff",
+    border: "1px solid #e2e8f0",
+    borderRadius: 12,
+    padding: 24,
+    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+  },
+  cardTitle: {
+    margin: "0 0 8px",
+    fontSize: 24,
+    lineHeight: 1.2,
+    fontWeight: 800,
+  },
+  cardText: {
+    margin: "0 0 16px",
+    color: "#475569",
+    fontSize: 15,
+    lineHeight: 1.7,
+  },
+  uploadZone: {
+    display: "grid",
+    justifyItems: "center",
+    gap: 10,
+    padding: "28px 18px",
+    border: "1.5px dashed #cbd5e1",
+    borderRadius: 12,
+    background: "#f8fafc",
+    cursor: "pointer",
+  },
+  uploadZoneActive: {
+    borderColor: "#0f766e",
+    background: "#f0fdfa",
+  },
+  hiddenInput: {
+    display: "none",
+  },
+  uploadIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    background: "#ecfeff",
+    color: "#0f766e",
+    display: "grid",
+    placeItems: "center",
+    fontSize: 22,
+    fontWeight: 700,
+  },
+  uploadZoneTitle: {
+    fontSize: 18,
+    fontWeight: 700,
+  },
+  uploadZoneText: {
+    color: "#64748b",
+    fontSize: 14,
+    lineHeight: 1.6,
+  },
+  fileCard: {
+    marginTop: 14,
+    padding: 14,
+    borderRadius: 12,
+    background: "#f8fafc",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 12,
+    flexWrap: "wrap",
+  },
+  fileName: {
+    fontSize: 15,
+    fontWeight: 700,
+  },
+  fileMeta: {
+    marginTop: 4,
+    color: "#64748b",
+    fontSize: 14,
+  },
+  removeButton: {
+    border: "1px solid #cbd5e1",
+    background: "#ffffff",
+    color: "#334155",
+    borderRadius: 10,
+    padding: "10px 14px",
+    fontWeight: 600,
+    cursor: "pointer",
+  },
+  errorText: {
+    marginTop: 14,
+    color: "#b91c1c",
+    fontWeight: 600,
+    fontSize: 14,
+  },
+  ctaButton: {
+    width: "100%",
+    marginTop: 16,
+    border: "none",
+    borderRadius: 12,
+    background: "#0f766e",
+    color: "#ffffff",
+    padding: "16px 18px",
+    fontSize: 17,
+    fontWeight: 800,
+    cursor: "pointer",
+    boxShadow: "0 8px 18px rgba(15, 118, 110, 0.18)",
+  },
+  buttonDisabled: {
+    opacity: 0.7,
+    cursor: "wait",
+  },
+  sideColumn: {
+    display: "grid",
+    gap: 18,
+  },
+  trustCard: {
+    background: "#ffffff",
+    border: "1px solid #e2e8f0",
+    borderRadius: 12,
+    padding: 22,
+    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+  },
+  sideTitle: {
+    margin: "0 0 14px",
+    fontSize: 20,
+    lineHeight: 1.2,
+    fontWeight: 800,
+  },
+  trustList: {
+    display: "grid",
+    gap: 12,
+  },
+  trustItem: {
+    color: "#334155",
+    fontSize: 15,
+    lineHeight: 1.6,
+    fontWeight: 600,
+  },
+  pricingCard: {
+    background: "#ffffff",
+    border: "1px solid #e2e8f0",
+    borderRadius: 12,
+    padding: 22,
+    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+    textAlign: "left",
+  },
+  pricingLabel: {
+    fontSize: 12,
+    fontWeight: 800,
+    letterSpacing: "0.08em",
+    textTransform: "uppercase",
+    color: "#64748b",
+    marginBottom: 8,
+  },
+  price: {
+    fontSize: 40,
+    lineHeight: 1,
+    fontWeight: 800,
+    marginBottom: 10,
+  },
+  pricingText: {
+    margin: 0,
+    color: "#475569",
+    fontSize: 15,
+    lineHeight: 1.7,
+  },
+  sectionHeader: {
+    marginBottom: 14,
+  },
+  sectionTitle: {
+    margin: 0,
+    fontSize: 28,
+    lineHeight: 1.15,
+    fontWeight: 800,
+    letterSpacing: "-0.03em",
+  },
+  infoCard: {
+    background: "#ffffff",
+    border: "1px solid #e2e8f0",
+    borderRadius: 12,
+    padding: 20,
+    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+  },
+  stepNumber: {
+    width: 32,
+    height: 32,
+    borderRadius: 999,
+    background: "#ecfeff",
+    color: "#0f766e",
+    display: "grid",
+    placeItems: "center",
+    fontSize: 15,
+    fontWeight: 800,
+    marginBottom: 12,
+  },
+  infoIcon: {
+    fontSize: 24,
+    marginBottom: 12,
+  },
+  infoTitle: {
+    margin: "0 0 8px",
+    fontSize: 18,
+    lineHeight: 1.3,
+    fontWeight: 700,
+  },
+  infoText: {
+    margin: 0,
+    color: "#475569",
+    lineHeight: 1.7,
+    fontSize: 15,
+  },
+  secondaryGrid: {
+    marginTop: 18,
+  },
+  highlightCard: {
+    background: "#ecfeff",
+    border: "1px solid #99f6e4",
+    borderRadius: 12,
+    padding: 20,
+    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+  },
+  testimonialCard: {
+    background: "#ffffff",
+    border: "1px solid #e2e8f0",
+    borderRadius: 12,
+    padding: 22,
+    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+  },
+  quoteMark: {
+    fontSize: 36,
+    lineHeight: 1,
+    color: "#0f766e",
+    marginBottom: 10,
+    fontWeight: 800,
+  },
+  testimonialText: {
+    margin: 0,
+    color: "#334155",
+    fontSize: 16,
+    lineHeight: 1.8,
+  },
+  testimonialAuthor: {
+    marginTop: 12,
+    color: "#64748b",
+    fontSize: 14,
+    fontWeight: 600,
+  },
+  proofCard: {
+    background: "#ffffff",
+    border: "1px solid #e2e8f0",
+    borderRadius: 12,
+    padding: 22,
+    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+    display: "grid",
+    alignContent: "center",
+  },
+  proofStat: {
+    fontSize: 44,
+    lineHeight: 1,
+    fontWeight: 800,
+    color: "#0f766e",
+    marginBottom: 10,
+  },
+  proofText: {
+    margin: 0,
+    color: "#334155",
+    fontSize: 16,
+    lineHeight: 1.8,
+  },
+  sampleCard: {
+    background: "#ffffff",
+    border: "1px solid #e2e8f0",
+    borderRadius: 12,
+    padding: 22,
+    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+  },
+  sampleBadges: {
+    display: "flex",
+    gap: 10,
+    flexWrap: "wrap",
+    marginBottom: 16,
+  },
+  issueBadge: {
+    padding: "8px 12px",
+    borderRadius: 999,
+    background: "#fef2f2",
+    color: "#b91c1c",
+    fontSize: 12,
+    fontWeight: 700,
+  },
+  scriptBadge: {
+    padding: "8px 12px",
+    borderRadius: 999,
+    background: "#ecfeff",
+    color: "#0f766e",
+    fontSize: 12,
+    fontWeight: 700,
+  },
+  samplePanel: {
+    marginBottom: 16,
+  },
+  sampleTitle: {
+    margin: "0 0 10px",
+    fontSize: 18,
+    lineHeight: 1.3,
+    fontWeight: 700,
+  },
+  sampleList: {
+    margin: 0,
+    paddingLeft: 20,
+    color: "#334155",
+    lineHeight: 1.8,
+  },
+  scriptBox: {
+    background: "#f8fafc",
+    border: "1px solid #e2e8f0",
+    borderRadius: 12,
+    padding: 16,
+  },
+  scriptLine: {
+    margin: "0 0 10px",
+    color: "#334155",
+    lineHeight: 1.8,
+    fontSize: 14,
+  },
+  finalCtaSection: {
+    marginTop: 28,
+  },
+  finalCtaCard: {
+    background: "#ffffff",
+    border: "1px solid #e2e8f0",
+    borderRadius: 12,
+    padding: 24,
+    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+    textAlign: "center",
+  },
+  finalCtaTitle: {
+    margin: "0 0 8px",
+    fontSize: 26,
+    lineHeight: 1.15,
+    fontWeight: 800,
+  },
+  finalCtaText: {
+    margin: "0 auto 16px",
+    maxWidth: 560,
+    color: "#475569",
+    fontSize: 16,
+    lineHeight: 1.7,
+  },
+  finalCtaButton: {
+    border: "none",
+    borderRadius: 12,
+    background: "#0f766e",
+    color: "#ffffff",
+    padding: "16px 20px",
+    fontSize: 17,
+    fontWeight: 800,
+    cursor: "pointer",
+    boxShadow: "0 8px 18px rgba(15, 118, 110, 0.18)",
+  },
+};
