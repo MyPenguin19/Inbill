@@ -28,6 +28,7 @@ async function readJsonResponse<T>(response: Response): Promise<T> {
 
 export default function HomePage() {
   const router = useRouter();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedFileData, setSelectedFileData] = useState("");
@@ -192,6 +193,103 @@ export default function HomePage() {
   return (
     <main style={styles.page}>
       <style jsx global>{`
+        .site-nav {
+          position: sticky;
+          top: 0;
+          z-index: 30;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 16px;
+          padding: 14px 18px;
+          margin-bottom: 28px;
+          background: rgba(255, 255, 255, 0.96);
+          border: 1px solid #e2e8f0;
+          border-radius: 14px;
+          box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+          backdrop-filter: blur(10px);
+        }
+
+        .nav-links {
+          display: flex;
+          align-items: center;
+          gap: 22px;
+          color: #475569;
+          font-size: 14px;
+          font-weight: 600;
+        }
+
+        .nav-link {
+          color: inherit;
+          text-decoration: none;
+        }
+
+        .nav-cta {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding: 12px 16px;
+          border-radius: 12px;
+          background: #16a34a;
+          color: #ffffff;
+          font-size: 14px;
+          font-weight: 800;
+          text-decoration: none;
+          box-shadow: 0 8px 18px rgba(22, 163, 74, 0.18);
+        }
+
+        .hamburger {
+          display: none;
+          align-items: center;
+          justify-content: center;
+          width: 44px;
+          height: 44px;
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
+          background: #ffffff;
+          color: #0f172a;
+          font-size: 20px;
+          font-weight: 800;
+        }
+
+        .mobile-menu {
+          display: none;
+          margin-bottom: 18px;
+          padding: 18px;
+          background: #ffffff;
+          border: 1px solid #e2e8f0;
+          border-radius: 14px;
+          box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+        }
+
+        .mobile-menu.open {
+          display: grid;
+          gap: 14px;
+        }
+
+        .mobile-link {
+          color: #334155;
+          text-decoration: none;
+          font-size: 15px;
+          font-weight: 600;
+        }
+
+        .mobile-cta {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 100%;
+          margin-top: 6px;
+          padding: 14px 18px;
+          border-radius: 12px;
+          background: #16a34a;
+          color: #ffffff;
+          font-size: 15px;
+          font-weight: 800;
+          text-decoration: none;
+          box-shadow: 0 8px 18px rgba(22, 163, 74, 0.18);
+        }
+
         .landing-grid-2 {
           display: grid;
           grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -216,6 +314,15 @@ export default function HomePage() {
         }
 
         @media (max-width: 760px) {
+          .nav-links,
+          .nav-cta {
+            display: none;
+          }
+
+          .hamburger {
+            display: inline-flex;
+          }
+
           .landing-grid-2,
           .landing-grid-3 {
             grid-template-columns: 1fr;
@@ -224,6 +331,50 @@ export default function HomePage() {
       `}</style>
 
       <div style={styles.container}>
+        <header className="site-nav">
+          <div style={styles.logo}>InBill</div>
+
+          <nav className="nav-links" aria-label="Primary">
+            <a className="nav-link" href="#how-it-works">
+              How it works
+            </a>
+            <a className="nav-link" href="#sample-report">
+              Sample report
+            </a>
+            <a className="nav-link" href="#pricing">
+              Pricing
+            </a>
+            <a className="nav-cta" href="#analyze">
+              Analyze Bill — $4.99
+            </a>
+          </nav>
+
+          <button
+            aria-expanded={mobileMenuOpen}
+            aria-label="Toggle navigation menu"
+            className="hamburger"
+            onClick={() => setMobileMenuOpen((value) => !value)}
+            type="button"
+          >
+            ☰
+          </button>
+        </header>
+
+        <div className={mobileMenuOpen ? "mobile-menu open" : "mobile-menu"}>
+          <a className="mobile-link" href="#how-it-works" onClick={() => setMobileMenuOpen(false)}>
+            How it works
+          </a>
+          <a className="mobile-link" href="#sample-report" onClick={() => setMobileMenuOpen(false)}>
+            Sample report
+          </a>
+          <a className="mobile-link" href="#pricing" onClick={() => setMobileMenuOpen(false)}>
+            Pricing
+          </a>
+          <a className="mobile-cta" href="#analyze" onClick={() => setMobileMenuOpen(false)}>
+            Analyze Bill — $4.99
+          </a>
+        </div>
+
         <section style={styles.heroSection}>
           <div style={styles.kicker}>Medical Bill Checker</div>
           <h1 style={styles.headline}>You Might Be Overpaying Your Medical Bill</h1>
@@ -239,7 +390,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="landing-grid-2" style={styles.section}>
+        <section className="landing-grid-2" id="analyze" style={styles.section}>
           <div className="landing-card" style={styles.mainUploadCard}>
             <h2 style={styles.cardTitle}>Analyze your bill</h2>
             <p style={styles.cardText}>
@@ -307,7 +458,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="landing-card" style={styles.pricingCard}>
+            <div className="landing-card" id="pricing" style={styles.pricingCard}>
               <div style={styles.pricingLabel}>Simple pricing</div>
               <div style={styles.price}>$9.99</div>
               <p style={styles.pricingText}>One-time payment. No subscription. No recurring charges.</p>
@@ -315,7 +466,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section style={styles.section}>
+        <section id="how-it-works" style={styles.section}>
           <div style={styles.sectionHeader}>
             <h2 style={styles.sectionTitle}>How It Works</h2>
           </div>
@@ -338,7 +489,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section style={styles.section}>
+        <section id="sample-report" style={styles.section}>
           <div style={styles.sectionHeader}>
             <h2 style={styles.sectionTitle}>What You Get</h2>
           </div>
@@ -457,6 +608,13 @@ const styles: Record<string, React.CSSProperties> = {
     width: "100%",
     maxWidth: 800,
     margin: "0 auto",
+  },
+  logo: {
+    fontSize: 22,
+    lineHeight: 1,
+    fontWeight: 800,
+    letterSpacing: "-0.03em",
+    color: "#0f172a",
   },
   heroSection: {
     textAlign: "center",
