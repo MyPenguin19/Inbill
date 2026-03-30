@@ -125,9 +125,50 @@ export default function ResultPage() {
             transform: rotate(360deg);
           }
         }
+
+        .report-shell {
+          width: 100%;
+          max-width: 800px;
+          margin: 0 auto;
+        }
+
+        .report-topbar {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 12px;
+          margin-bottom: 24px;
+          flex-wrap: wrap;
+        }
+
+        .report-card {
+          transition:
+            transform 180ms ease,
+            box-shadow 180ms ease,
+            border-color 180ms ease;
+        }
+
+        .report-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+        }
+
+        @media (max-width: 640px) {
+          .report-shell {
+            max-width: 100%;
+          }
+
+          .report-topbar {
+            align-items: stretch;
+          }
+
+          .report-topbar > * {
+            width: 100%;
+          }
+        }
       `}</style>
-      <div style={styles.container}>
-        <div style={styles.topbar}>
+      <div className="report-shell" style={styles.container}>
+        <div className="report-topbar" style={styles.topbar}>
           <Link href="/" style={styles.backLink}>
             Back to home
           </Link>
@@ -144,8 +185,8 @@ export default function ResultPage() {
           </button>
         </div>
 
-        <section style={styles.heroCard}>
-          <div style={styles.heroBadge}>Premium Report</div>
+        <section className="report-card" style={styles.heroCard}>
+          <div style={styles.heroBadge}>✨ Premium Report</div>
           <h1 style={styles.heroTitle}>Your medical bill review</h1>
           <p style={styles.heroText}>
             Reviewing <strong>{fileName}</strong>. This report is structured to feel like a professional patient
@@ -156,7 +197,7 @@ export default function ResultPage() {
         {error ? <div style={styles.errorCard}>{error}</div> : null}
 
         {!report ? (
-          <section style={styles.loadingCard}>
+          <section className="report-card" style={styles.loadingCard}>
             <div style={styles.spinner} />
             <div>
               <h2 style={styles.loadingTitle}>Analysis workspace</h2>
@@ -172,8 +213,8 @@ export default function ResultPage() {
             {reportCards.map((section) => {
               if (section.type === "summary") {
                 return (
-                  <article key={section.title} style={styles.card}>
-                    <h2 style={styles.cardTitle}>{section.title}</h2>
+                  <article className="report-card" key={section.title} style={styles.card}>
+                    <h2 style={styles.cardTitle}>📝 {section.title}</h2>
                     <div style={styles.summaryBody}>
                       <p style={styles.paragraph}>{section.content}</p>
                     </div>
@@ -183,8 +224,8 @@ export default function ResultPage() {
 
               if (section.type === "owed") {
                 return (
-                  <article key={section.title} style={styles.card}>
-                    <h2 style={styles.cardTitle}>{section.title}</h2>
+                  <article className="report-card" key={section.title} style={styles.card}>
+                    <h2 style={styles.cardTitle}>💵 {section.title}</h2>
                     <div style={styles.owePanel}>
                       {section.content.map((line) => (
                         <div key={line} style={styles.oweRow}>
@@ -199,12 +240,12 @@ export default function ResultPage() {
 
               if (section.type === "issues") {
                 return (
-                  <article key={section.title} style={styles.card}>
-                    <h2 style={styles.cardTitle}>{section.title}</h2>
+                  <article className="report-card" key={section.title} style={styles.issueCard}>
+                    <h2 style={styles.cardTitle}>🚨 {section.title}</h2>
                     <div style={styles.issueList}>
                       {section.content.map((line) => (
                         <div key={line} style={styles.issueItem}>
-                          <span style={styles.issueIcon}>!</span>
+                          <span style={styles.issueIcon}>⚠️</span>
                           <span style={styles.issueText}>{line}</span>
                         </div>
                       ))}
@@ -215,8 +256,8 @@ export default function ResultPage() {
 
               if (section.type === "questions") {
                 return (
-                  <article key={section.title} style={styles.card}>
-                    <h2 style={styles.cardTitle}>{section.title}</h2>
+                  <article className="report-card" key={section.title} style={styles.card}>
+                    <h2 style={styles.cardTitle}>❓ {section.title}</h2>
                     <ul style={styles.bulletList}>
                       {section.content.map((line) => (
                         <li key={line} style={styles.bulletItem}>
@@ -230,12 +271,12 @@ export default function ResultPage() {
 
               if (section.type === "steps") {
                 return (
-                  <article key={section.title} style={styles.card}>
-                    <h2 style={styles.cardTitle}>{section.title}</h2>
+                  <article className="report-card" key={section.title} style={styles.card}>
+                    <h2 style={styles.cardTitle}>✅ {section.title}</h2>
                     <div style={styles.checklist}>
                       {section.content.map((line) => (
                         <div key={line} style={styles.checkItem}>
-                          <span style={styles.checkIcon}>✓</span>
+                          <span style={styles.checkIcon}>✔️</span>
                           <span style={styles.checkText}>{line}</span>
                         </div>
                       ))}
@@ -246,8 +287,8 @@ export default function ResultPage() {
 
               if (section.type === "script") {
                 return (
-                  <article key={section.title} style={styles.card}>
-                    <h2 style={styles.cardTitle}>{section.title}</h2>
+                  <article className="report-card" key={section.title} style={styles.card}>
+                    <h2 style={styles.cardTitle}>📞 {section.title}</h2>
                     <div style={styles.scriptBox}>
                       {section.content.map((line) => (
                         <p key={line} style={styles.scriptLine}>
@@ -269,12 +310,12 @@ export default function ResultPage() {
 const styles: Record<string, CSSProperties> = {
   page: {
     minHeight: "100vh",
-    background: "linear-gradient(180deg, #f6f8fb 0%, #eef3f7 100%)",
-    padding: "32px 16px 64px",
+    background: "linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%)",
+    padding: "40px 16px 72px",
   },
   container: {
     width: "100%",
-    maxWidth: 980,
+    maxWidth: 800,
     margin: "0 auto",
   },
   topbar: {
@@ -282,13 +323,14 @@ const styles: Record<string, CSSProperties> = {
     justifyContent: "space-between",
     alignItems: "center",
     gap: 12,
-    marginBottom: 20,
+    marginBottom: 24,
     flexWrap: "wrap",
   },
   backLink: {
     color: "#475569",
     fontWeight: 700,
     textDecoration: "none",
+    fontSize: 14,
   },
   regenerateButton: {
     border: "none",
@@ -298,7 +340,7 @@ const styles: Record<string, CSSProperties> = {
     borderRadius: 12,
     fontWeight: 700,
     cursor: "pointer",
-    boxShadow: "0 10px 24px rgba(15, 118, 110, 0.18)",
+    boxShadow: "0 6px 18px rgba(15, 118, 110, 0.16)",
   },
   buttonDisabled: {
     opacity: 0.7,
@@ -306,10 +348,10 @@ const styles: Record<string, CSSProperties> = {
   },
   heroCard: {
     background: "#ffffff",
-    borderRadius: 24,
-    padding: 28,
-    boxShadow: "0 18px 40px rgba(15, 23, 42, 0.08)",
-    marginBottom: 20,
+    borderRadius: 16,
+    padding: "28px 24px",
+    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+    marginBottom: 24,
   },
   heroBadge: {
     display: "inline-block",
@@ -339,16 +381,16 @@ const styles: Record<string, CSSProperties> = {
     background: "#fff1f2",
     color: "#b42318",
     border: "1px solid #fecdd3",
-    borderRadius: 18,
+    borderRadius: 12,
     padding: 18,
-    marginBottom: 20,
+    marginBottom: 24,
     fontWeight: 600,
   },
   loadingCard: {
     background: "#ffffff",
-    borderRadius: 24,
+    borderRadius: 12,
     padding: 24,
-    boxShadow: "0 18px 40px rgba(15, 23, 42, 0.08)",
+    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
     display: "flex",
     alignItems: "center",
     gap: 16,
@@ -372,13 +414,21 @@ const styles: Record<string, CSSProperties> = {
   },
   reportGrid: {
     display: "grid",
-    gap: 18,
+    gap: 22,
   },
   card: {
     background: "#ffffff",
-    padding: 24,
-    borderRadius: 22,
-    boxShadow: "0 16px 36px rgba(15, 23, 42, 0.08)",
+    padding: "22px 24px",
+    borderRadius: 12,
+    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+    marginBottom: 0,
+  },
+  issueCard: {
+    background: "#fffafa",
+    padding: "22px 24px",
+    borderRadius: 12,
+    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+    borderLeft: "4px solid #ef4444",
   },
   cardTitle: {
     margin: "0 0 16px",
@@ -399,7 +449,7 @@ const styles: Record<string, CSSProperties> = {
     display: "grid",
     gap: 12,
     background: "#f8fafc",
-    borderRadius: 18,
+    borderRadius: 12,
     padding: 18,
   },
   oweRow: {
@@ -426,20 +476,14 @@ const styles: Record<string, CSSProperties> = {
     display: "flex",
     gap: 12,
     alignItems: "flex-start",
-    background: "#fef2f2",
-    borderRadius: 16,
+    background: "#fff5f5",
+    borderRadius: 12,
     padding: 14,
   },
   issueIcon: {
-    width: 24,
-    height: 24,
-    borderRadius: "50%",
-    background: "#dc2626",
-    color: "#fff",
+    fontSize: 16,
+    lineHeight: 1.6,
     display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontWeight: 800,
     flexShrink: 0,
   },
   issueText: {
@@ -450,7 +494,7 @@ const styles: Record<string, CSSProperties> = {
     margin: 0,
     paddingLeft: 22,
     display: "grid",
-    gap: 10,
+    gap: 12,
     color: "#334155",
     lineHeight: 1.7,
   },
@@ -466,19 +510,12 @@ const styles: Record<string, CSSProperties> = {
     gap: 12,
     alignItems: "flex-start",
     background: "#f8fafc",
-    borderRadius: 16,
+    borderRadius: 12,
     padding: 14,
   },
   checkIcon: {
-    width: 24,
-    height: 24,
-    borderRadius: "50%",
-    background: "#dcfce7",
-    color: "#166534",
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontWeight: 800,
+    fontSize: 16,
+    lineHeight: 1.6,
     flexShrink: 0,
   },
   checkText: {
@@ -486,9 +523,9 @@ const styles: Record<string, CSSProperties> = {
     lineHeight: 1.7,
   },
   scriptBox: {
-    background: "#f8fafc",
+    background: "#f3f4f6",
     border: "1px solid #e2e8f0",
-    borderRadius: 18,
+    borderRadius: 12,
     padding: 18,
     display: "grid",
     gap: 12,
