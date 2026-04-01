@@ -352,14 +352,14 @@ export default function ResultPage() {
 
         .audit-shell {
           width: 100%;
-          max-width: 1180px;
+          max-width: 1020px;
           margin: 0 auto;
         }
 
         .audit-grid {
           display: grid;
-          grid-template-columns: minmax(0, 1.28fr) minmax(320px, 0.72fr);
-          gap: 20px;
+          grid-template-columns: minmax(0, 1.18fr) minmax(300px, 0.82fr);
+          gap: 18px;
           align-items: start;
         }
 
@@ -769,11 +769,11 @@ const styles: Record<string, CSSProperties> = {
   page: {
     minHeight: "100vh",
     background: "#f4f6f8",
-    padding: "40px 16px 64px",
+    padding: "32px 16px 56px",
   },
   container: {
     width: "100%",
-    maxWidth: 1180,
+    maxWidth: 1020,
     margin: "0 auto",
   },
   brandBar: {
@@ -796,7 +796,7 @@ const styles: Record<string, CSSProperties> = {
   },
   brand: {
     color: "#0f172a",
-    fontSize: 22,
+    fontSize: 20,
     lineHeight: 1,
     fontWeight: 900,
     letterSpacing: "-0.04em",
@@ -814,29 +814,29 @@ const styles: Record<string, CSSProperties> = {
   },
   sectionStack: {
     display: "grid",
-    gap: 20,
+    gap: 18,
   },
   dashboardGrid: {
     alignItems: "start",
-    gap: 20,
+    gap: 18,
     position: "relative",
   },
   lockedDashboard: {
-    paddingBottom: 72,
+    paddingBottom: 56,
   },
   mainColumn: {
     display: "grid",
-    gap: 20,
+    gap: 18,
   },
   sidebarColumn: {
     display: "grid",
-    gap: 18,
+    gap: 16,
   },
   reportHeaderCard: {
     background: "#ffffff",
     borderRadius: 12,
     border: "1px solid #d9e0e7",
-    padding: 20,
+    padding: 18,
     boxShadow: "0 12px 26px rgba(15,23,42,0.05)",
     marginBottom: 18,
   },
@@ -860,8 +860,8 @@ const styles: Record<string, CSSProperties> = {
   reportTitle: {
     margin: 0,
     color: "#0f172a",
-    fontSize: "clamp(1.9rem, 4vw, 2.5rem)",
-    lineHeight: 1,
+    fontSize: "clamp(1.75rem, 3vw, 2.15rem)",
+    lineHeight: 1.02,
     letterSpacing: "-0.04em",
     fontWeight: 900,
   },
@@ -880,13 +880,13 @@ const styles: Record<string, CSSProperties> = {
   reportMetaRow: {
     display: "grid",
     gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-    gap: 12,
-    paddingTop: 16,
+    gap: 10,
+    paddingTop: 14,
   },
   metaItem: {
     display: "grid",
     gap: 4,
-    padding: 12,
+    padding: 10,
     borderRadius: 10,
     background: "#f8fafc",
     border: "1px solid #e6ebf0",
@@ -907,9 +907,9 @@ const styles: Record<string, CSSProperties> = {
   headerBody: {
     display: "grid",
     gridTemplateColumns: "minmax(0, 1fr) auto",
-    gap: 16,
+    gap: 14,
     alignItems: "end",
-    paddingTop: 16,
+    paddingTop: 14,
   },
   summaryBlock: {
     display: "grid",
@@ -925,16 +925,16 @@ const styles: Record<string, CSSProperties> = {
   reportSummary: {
     margin: 0,
     color: "#334155",
-    fontSize: 14,
-    lineHeight: 1.75,
+    fontSize: 13,
+    lineHeight: 1.7,
     fontWeight: 600,
   },
   headerSavingsChip: {
     border: "1px solid #bbf7d0",
     background: "#f0fdf4",
     borderRadius: 12,
-    padding: "12px 14px",
-    minWidth: 220,
+    padding: "10px 12px",
+    minWidth: 190,
   },
   headerSavingsLabel: {
     color: "#166534",
@@ -946,7 +946,7 @@ const styles: Record<string, CSSProperties> = {
   },
   headerSavingsValue: {
     color: "#0f172a",
-    fontSize: 18,
+    fontSize: 16,
     lineHeight: 1.15,
     fontWeight: 900,
     letterSpacing: "-0.03em",
@@ -964,7 +964,7 @@ const styles: Record<string, CSSProperties> = {
     background: "#ffffff",
     borderRadius: 12,
     border: "1px solid #d9e0e7",
-    padding: 24,
+    padding: 20,
     boxShadow: "0 12px 26px rgba(15,23,42,0.05)",
     display: "flex",
     alignItems: "center",
@@ -994,7 +994,7 @@ const styles: Record<string, CSSProperties> = {
     background: "linear-gradient(180deg, #ecfdf5 0%, #ffffff 100%)",
     borderRadius: 14,
     border: "1px solid #86efac",
-    padding: 20,
+    padding: 18,
     boxShadow: "0 18px 32px rgba(22, 163, 74, 0.12)",
   },
   savingsHeroBadge: {
@@ -1022,11 +1022,11 @@ const styles: Record<string, CSSProperties> = {
   },
   savingsHeroAmount: {
     color: "#0f172a",
-    fontSize: "clamp(2.8rem, 5vw, 4.2rem)",
-    lineHeight: 0.92,
+    fontSize: "clamp(2.1rem, 4vw, 3rem)",
+    lineHeight: 0.96,
     letterSpacing: "-0.06em",
     fontWeight: 900,
-    marginBottom: 10,
+    marginBottom: 8,
   },
   savingsHeroText: {
     margin: 0,
@@ -1039,15 +1039,15 @@ const styles: Record<string, CSSProperties> = {
     background: "#ffffff",
     borderRadius: 12,
     border: "1px solid #d9e0e7",
-    padding: 18,
+    padding: 16,
     boxShadow: "0 12px 26px rgba(15,23,42,0.05)",
     position: "relative",
   },
   lockOverlayWrap: {
     position: "absolute",
-    top: "53%",
+    top: "50%",
     left: "50%",
-    width: "min(100%, 360px)",
+    width: "min(100%, 340px)",
     zIndex: 4,
     transition: "transform 0.18s ease",
   },
@@ -1063,7 +1063,7 @@ const styles: Record<string, CSSProperties> = {
   sectionTitle: {
     margin: "0 0 16px",
     color: "#0f172a",
-    fontSize: 22,
+    fontSize: 20,
     lineHeight: 1.1,
     fontWeight: 900,
     letterSpacing: "-0.03em",
@@ -1108,13 +1108,13 @@ const styles: Record<string, CSSProperties> = {
   },
   findingsList: {
     display: "grid",
-    gap: 16,
+    gap: 14,
   },
   findingCard: {
     border: "1px solid #f1c7c7",
     background: "#fffaf9",
     borderRadius: 12,
-    padding: 16,
+    padding: 14,
   },
   findingHeader: {
     display: "flex",
@@ -1135,9 +1135,9 @@ const styles: Record<string, CSSProperties> = {
   },
   findingRow: {
     display: "grid",
-    gridTemplateColumns: "150px minmax(0, 1fr)",
-    gap: 12,
-    padding: "10px 0",
+    gridTemplateColumns: "132px minmax(0, 1fr)",
+    gap: 10,
+    padding: "9px 0",
     borderTop: "1px solid #f4dddd",
   },
   findingLabel: {
@@ -1161,13 +1161,13 @@ const styles: Record<string, CSSProperties> = {
   },
   actionList: {
     display: "grid",
-    gap: 12,
+    gap: 10,
   },
   actionItem: {
     display: "flex",
     alignItems: "flex-start",
     gap: 12,
-    padding: 12,
+    padding: 10,
     borderRadius: 10,
     border: "1px solid #e5e7eb",
     background: "#f8fafc",
@@ -1189,7 +1189,7 @@ const styles: Record<string, CSSProperties> = {
     border: "1px solid #d7dee5",
     background: "#f8fafc",
     borderRadius: 12,
-    padding: 14,
+    padding: 12,
   },
   scriptLine: {
     margin: "0 0 10px",
@@ -1203,12 +1203,12 @@ const styles: Record<string, CSSProperties> = {
     background: "rgba(255,255,255,0.98)",
     border: "1px solid #dbe3ea",
     borderRadius: 12,
-    padding: 18,
+    padding: 16,
     boxShadow: "0 24px 48px rgba(15, 23, 42, 0.12)",
   },
   lockTitle: {
     color: "#0f172a",
-    fontSize: 24,
+    fontSize: 22,
     lineHeight: 1.15,
     fontWeight: 900,
     letterSpacing: "-0.03em",
@@ -1218,8 +1218,8 @@ const styles: Record<string, CSSProperties> = {
   lockText: {
     margin: "0 0 14px",
     color: "#475569",
-    fontSize: 14,
-    lineHeight: 1.7,
+    fontSize: 13,
+    lineHeight: 1.65,
     fontWeight: 600,
     maxWidth: 520,
   },
@@ -1230,7 +1230,7 @@ const styles: Record<string, CSSProperties> = {
   },
   lockListItem: {
     color: "#0f172a",
-    fontSize: 14,
+    fontSize: 13,
     lineHeight: 1.6,
     fontWeight: 700,
   },
@@ -1266,7 +1266,7 @@ const styles: Record<string, CSSProperties> = {
     background: "#ffffff",
     border: "1px solid #d9e0e7",
     borderRadius: 14,
-    padding: 24,
+    padding: 20,
     boxShadow: "0 16px 32px rgba(15,23,42,0.07)",
   },
   paywallEyebrow: {
@@ -1280,15 +1280,15 @@ const styles: Record<string, CSSProperties> = {
   paywallTitle: {
     margin: "0 0 18px",
     color: "#0f172a",
-    fontSize: "clamp(2rem, 4vw, 2.6rem)",
-    lineHeight: 1,
+    fontSize: "clamp(1.7rem, 3vw, 2.2rem)",
+    lineHeight: 1.02,
     letterSpacing: "-0.04em",
     fontWeight: 900,
   },
   paywallGrid: {
     display: "grid",
     gridTemplateColumns: "minmax(0, 1fr) minmax(280px, 360px)",
-    gap: 20,
+    gap: 16,
     alignItems: "start",
   },
   paywallList: {
@@ -1322,7 +1322,7 @@ const styles: Record<string, CSSProperties> = {
   },
   paywallPrice: {
     color: "#0f172a",
-    fontSize: 36,
+    fontSize: 30,
     lineHeight: 1,
     fontWeight: 900,
     letterSpacing: "-0.05em",
