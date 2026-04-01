@@ -1,27 +1,28 @@
 "use client";
 
+import Link from "next/link";
 import type { CSSProperties } from "react";
 
 const policySections = [
   {
     title: "Overview",
-    body: "We take your privacy seriously. This service is designed to process your medical bill securely without storing your documents.",
+    body: "InBill analyzes uploaded medical bills so patients can understand charges, spot likely billing issues, and decide what to question before making payment.",
   },
   {
     title: "What We Collect",
-    bullets: ["Uploaded files (temporary)", "Basic technical data"],
+    bullets: ["Uploaded documents for temporary processing", "Basic technical data such as browser or request information"],
   },
   {
     title: "How We Use Data",
-    bullets: ["Generate analysis", "Improve service"],
+    bullets: ["To generate your medical bill analysis", "To improve the service and troubleshoot reliability issues"],
   },
   {
     title: "Data Storage",
-    body: "We do not store uploaded medical documents after processing. Files are processed temporarily and not retained.",
+    body: "Files are processed temporarily and are not stored permanently. We do not keep uploaded medical documents after processing is complete.",
   },
   {
     title: "Third-Party Services",
-    body: "We use secure third-party services to process analysis requests.",
+    body: "We use secure third-party services, including AI processing providers, to generate analysis results.",
   },
   {
     title: "Data Sharing",
@@ -29,75 +30,28 @@ const policySections = [
   },
   {
     title: "Security",
-    body: "We use secure transmission methods.",
-  },
-  {
-    title: "Disclaimer",
-    body: "This service is for informational purposes only and does not constitute medical, legal, or financial advice.",
+    body: "We use secure transmission methods and limit data handling to what is required to provide the service.",
   },
   {
     title: "Contact",
-    body: "support@inbill.com",
+    body: "Questions about privacy can be sent to support@inbill.com.",
   },
 ] as const;
 
 export default function PrivacyPage() {
   return (
     <main style={styles.page}>
-      <style jsx global>{`
-        .policy-nav {
-          position: sticky;
-          top: 0;
-          z-index: 30;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 16px;
-          padding: 14px 18px;
-          margin-bottom: 28px;
-          background: rgba(255, 255, 255, 0.96);
-          border: 1px solid #e2e8f0;
-          border-radius: 14px;
-          box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
-          backdrop-filter: blur(10px);
-        }
-
-        .policy-nav-links {
-          display: flex;
-          align-items: center;
-          gap: 22px;
-          color: #475569;
-          font-size: 14px;
-          font-weight: 600;
-          flex-wrap: wrap;
-        }
-
-        .policy-nav-link {
-          color: inherit;
-          text-decoration: none;
-        }
-
-        @media (max-width: 760px) {
-          .policy-nav {
-            align-items: flex-start;
-            flex-direction: column;
-          }
-        }
-      `}</style>
-
       <div style={styles.container}>
-        <section style={styles.heroCard}>
-          <div style={styles.eyebrow}>Trust & Privacy</div>
+        <section style={styles.headerCard}>
+          <div style={styles.kicker}>Legal</div>
           <h1 style={styles.title}>Privacy Policy</h1>
-          <p style={styles.subtitle}>
-            This page explains how InBill handles uploaded medical bill information and related technical
-            data so you can use the service with more confidence.
-          </p>
+          <p style={styles.subtitle}>We respect your privacy and are committed to protecting your data.</p>
+          <div style={styles.updatedLine}>Last updated: March 2026</div>
         </section>
 
-        <section style={styles.contentCard}>
+        <section style={styles.sectionsWrap}>
           {policySections.map((section) => (
-            <article key={section.title} style={styles.sectionBlock}>
+            <article key={section.title} style={styles.sectionCard}>
               <h2 style={styles.sectionTitle}>{section.title}</h2>
               {"body" in section ? <p style={styles.bodyText}>{section.body}</p> : null}
               {"bullets" in section ? (
@@ -112,6 +66,13 @@ export default function PrivacyPage() {
             </article>
           ))}
         </section>
+
+        <footer style={styles.footerNote}>
+          Questions? Contact us at <a href="mailto:support@inbill.com" style={styles.link}>support@inbill.com</a>.{" "}
+          <Link href="/" style={styles.link}>
+            Return to home
+          </Link>
+        </footer>
       </div>
     </main>
   );
@@ -120,31 +81,33 @@ export default function PrivacyPage() {
 const styles: Record<string, CSSProperties> = {
   page: {
     minHeight: "100vh",
-    background: "#f5f7fb",
+    background: "#f4f6f8",
     color: "#0f172a",
     fontFamily:
       'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-    padding: "32px 16px 64px",
+    padding: "48px 16px 64px",
   },
   container: {
     width: "100%",
-    maxWidth: 800,
+    maxWidth: 1040,
     margin: "0 auto",
   },
-  heroCard: {
+  headerCard: {
     background: "#ffffff",
-    border: "1px solid #e2e8f0",
+    border: "1px solid #d9e0e7",
     borderRadius: 12,
-    padding: "28px 24px",
-    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+    padding: "32px 28px",
+    boxShadow: "0 12px 26px rgba(15,23,42,0.05)",
     marginBottom: 24,
   },
-  eyebrow: {
-    display: "inline-block",
+  kicker: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
     padding: "8px 12px",
     borderRadius: 999,
-    background: "#ecfeff",
-    color: "#0f766e",
+    background: "#eef2ff",
+    color: "#4338ca",
     fontSize: 12,
     fontWeight: 800,
     letterSpacing: "0.08em",
@@ -152,42 +115,48 @@ const styles: Record<string, CSSProperties> = {
     marginBottom: 14,
   },
   title: {
-    margin: "0 0 12px",
-    fontSize: "clamp(2rem, 5vw, 3rem)",
-    lineHeight: 1.05,
+    margin: "0 0 10px",
+    fontSize: "clamp(2.4rem, 5vw, 3.6rem)",
+    lineHeight: 1,
+    fontWeight: 900,
     letterSpacing: "-0.04em",
-    fontWeight: 800,
   },
   subtitle: {
-    margin: 0,
-    fontSize: 16,
+    margin: "0 0 14px",
+    fontSize: 17,
     lineHeight: 1.75,
     color: "#475569",
+    maxWidth: 760,
   },
-  contentCard: {
+  updatedLine: {
+    color: "#64748b",
+    fontSize: 14,
+    lineHeight: 1.6,
+    fontWeight: 700,
+  },
+  sectionsWrap: {
+    display: "grid",
+    gap: 18,
+  },
+  sectionCard: {
     background: "#ffffff",
-    border: "1px solid #e2e8f0",
+    border: "1px solid #d9e0e7",
     borderRadius: 12,
-    padding: "24px",
-    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
-  },
-  sectionBlock: {
-    paddingBottom: 22,
-    marginBottom: 22,
-    borderBottom: "1px solid #e2e8f0",
+    padding: "24px 24px 22px",
+    boxShadow: "0 10px 22px rgba(15,23,42,0.04)",
   },
   sectionTitle: {
     margin: "0 0 10px",
-    fontSize: 22,
-    lineHeight: 1.2,
-    fontWeight: 800,
-    color: "#111827",
+    fontSize: 24,
+    lineHeight: 1.15,
+    fontWeight: 900,
+    letterSpacing: "-0.03em",
   },
   bodyText: {
     margin: 0,
     color: "#475569",
     fontSize: 15,
-    lineHeight: 1.8,
+    lineHeight: 1.85,
   },
   list: {
     margin: 0,
@@ -199,5 +168,17 @@ const styles: Record<string, CSSProperties> = {
     color: "#475569",
     fontSize: 15,
     lineHeight: 1.8,
+  },
+  footerNote: {
+    marginTop: 24,
+    textAlign: "center",
+    color: "#64748b",
+    fontSize: 14,
+    lineHeight: 1.8,
+  },
+  link: {
+    color: "#0f7757",
+    textDecoration: "none",
+    fontWeight: 700,
   },
 };

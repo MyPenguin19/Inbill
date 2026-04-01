@@ -98,7 +98,7 @@ function getFindingFinancialImpact(range: string, index: number) {
 }
 
 function getFindingMeaning(title: string, impact: string) {
-  return `${title} suggests this bill may not reflect the correct patient balance yet. ${impact}`;
+  return `${title} indicates this bill does not reflect the correct patient balance yet. ${impact}`;
 }
 
 export default function ResultPage() {
@@ -283,7 +283,7 @@ export default function ResultPage() {
 
           <p style={styles.reportSummary}>
             {report?.summary ||
-              "This bill contains multiple issues that may result in overpayment if not addressed."}
+              "This bill contains multiple issues that result in overpayment risk if not addressed."}
           </p>
         </section>
 
@@ -304,122 +304,146 @@ export default function ResultPage() {
         ) : null}
 
         {report ? (
-          <section style={styles.sectionStack}>
-            <article className="audit-card" style={styles.savingsHeroCard}>
-              <div style={styles.savingsHeroLabel}>Potential Savings Identified</div>
-              <div style={styles.savingsHeroAmount}>{report.potential_savings.range}</div>
-              <p style={styles.savingsHeroText}>
-                Based on detected billing issues and missing adjustments.
-              </p>
-            </article>
+          <>
+            <section className="audit-grid-2" style={styles.dashboardGrid}>
+              <div style={styles.mainColumn}>
+                <article className="audit-card" style={styles.card}>
+                  <h2 style={styles.sectionTitle}>Detailed Findings</h2>
+                  <div style={styles.findingsList}>
+                    {report.key_findings.map((finding, index) => (
+                      <div key={finding.title} style={styles.findingCard}>
+                        <div style={styles.findingHeader}>
+                          <div style={styles.findingIcon}>⚠️</div>
+                          <h3 style={styles.findingTitle}>{finding.title}</h3>
+                        </div>
 
-            <article className="audit-card" style={styles.card}>
-              <h2 style={styles.sectionTitle}>Risk Level</h2>
-              <div style={styles.riskRow}>
-                <div
-                  style={{
-                    ...styles.riskBadge,
-                    background: concernTone.badge,
-                    borderColor: concernTone.badgeBorder,
-                    color: concernTone.badgeText,
-                  }}
-                >
-                  Risk Level: {report.concern_level.level}
-                </div>
-                <div style={styles.riskMeter}>
-                  <div style={{ ...styles.riskMeterTrack, background: concernTone.meterTrack }}>
+                        <div style={styles.findingRow}>
+                          <div style={styles.findingLabel}>Impact</div>
+                          <div style={styles.findingValue}>
+                            {finding.impact
+                              .replace(/^You may be responsible/i, "You are currently responsible")
+                              .replace(/^This may indicate/i, "This indicates")}
+                          </div>
+                        </div>
+
+                        <div style={styles.findingRow}>
+                          <div style={styles.findingLabel}>Financial Impact</div>
+                          <div style={styles.findingValue}>
+                            {getFindingFinancialImpact(report.potential_savings.range, index)}
+                          </div>
+                        </div>
+
+                        <div style={styles.findingRow}>
+                          <div style={styles.findingLabel}>What This Means</div>
+                          <div style={styles.findingValue}>{getFindingMeaning(finding.title, finding.impact)}</div>
+                        </div>
+
+                        <div style={styles.findingRow}>
+                          <div style={styles.findingLabel}>Action</div>
+                          <div style={styles.findingAction}>
+                            {finding.action
+                              .replace(/^Contact/i, "Call")
+                              .replace(/^Request/i, "Ask for")}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </article>
+              </div>
+
+              <div style={styles.sidebarColumn}>
+                <article className="audit-card" style={styles.savingsHeroCard}>
+                  <div style={styles.savingsHeroBadge}>Potential Overpayment</div>
+                  <div style={styles.savingsHeroLabel}>Potential Overpayment</div>
+                  <div style={styles.savingsHeroAmount}>
+                    {`${report.potential_savings.range.replace(/^\$0\s*-\s*/, "$")} Potential Overpayment Identified`}
+                  </div>
+                  <p style={styles.savingsHeroText}>
+                    This amount is at risk due to detected billing issues.
+                  </p>
+                </article>
+
+                <article className="audit-card" style={styles.card}>
+                  <h2 style={styles.sectionTitle}>Risk Level</h2>
+                  <div style={styles.riskRow}>
                     <div
                       style={{
-                        ...styles.riskMeterFill,
-                        width: getRiskMeterWidth(report.concern_level.level),
-                        background: concernTone.meter,
+                        ...styles.riskBadge,
+                        background: concernTone.badge,
+                        borderColor: concernTone.badgeBorder,
+                        color: concernTone.badgeText,
                       }}
-                    />
-                  </div>
-                </div>
-              </div>
-              <p style={styles.riskReason}>
-                {report.concern_level.reason || "Multiple issues detected that may increase your out-of-pocket cost."}
-              </p>
-            </article>
-
-            <article className="audit-card" style={styles.card}>
-              <h2 style={styles.sectionTitle}>Detailed Findings</h2>
-              <div style={styles.findingsList}>
-                {report.key_findings.map((finding, index) => (
-                  <div key={finding.title} style={styles.findingCard}>
-                    <div style={styles.findingHeader}>
-                      <div style={styles.findingIcon}>⚠️</div>
-                      <h3 style={styles.findingTitle}>{finding.title}</h3>
+                    >
+                      Risk Level: {report.concern_level.level}
                     </div>
-
-                    <div style={styles.findingRow}>
-                      <div style={styles.findingLabel}>Impact</div>
-                      <div style={styles.findingValue}>{finding.impact}</div>
-                    </div>
-
-                    <div style={styles.findingRow}>
-                      <div style={styles.findingLabel}>Financial Impact</div>
-                      <div style={styles.findingValue}>
-                        {getFindingFinancialImpact(report.potential_savings.range, index)}
+                    <div style={styles.riskMeter}>
+                      <div style={{ ...styles.riskMeterTrack, background: concernTone.meterTrack }}>
+                        <div
+                          style={{
+                            ...styles.riskMeterFill,
+                            width: getRiskMeterWidth(report.concern_level.level),
+                            background: concernTone.meter,
+                          }}
+                        />
                       </div>
                     </div>
-
-                    <div style={styles.findingRow}>
-                      <div style={styles.findingLabel}>What This Means</div>
-                      <div style={styles.findingValue}>{getFindingMeaning(finding.title, finding.impact)}</div>
-                    </div>
-
-                    <div style={styles.findingRow}>
-                      <div style={styles.findingLabel}>Action</div>
-                      <div style={styles.findingAction}>{finding.action}</div>
-                    </div>
                   </div>
-                ))}
+                  <p style={styles.riskReason}>
+                    {(
+                      report.concern_level.reason ||
+                      "Multiple issues detected that increase your out-of-pocket cost."
+                    )
+                      .replace(/may increase/gi, "increase")
+                      .replace(/may result/gi, "result")}
+                  </p>
+                </article>
+
+                <article className="audit-card" style={styles.card}>
+                  <h2 style={styles.sectionTitle}>Recommended Next Steps</h2>
+                  <div style={styles.actionList}>
+                    {report.priority_actions.slice(0, 4).map((item, index) => (
+                      <div key={item} style={styles.actionItem}>
+                        <span style={styles.actionNumber}>{index + 1}.</span>
+                        <span style={styles.actionText}>{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </article>
+
+                <article className="audit-card" style={styles.card}>
+                  <h2 style={styles.sectionTitle}>What to Say When You Call</h2>
+                  <div style={styles.scriptBox}>
+                    {scriptLines.length > 0 ? (
+                      scriptLines.map((line) => (
+                        <p key={line} style={styles.scriptLine}>
+                          {line
+                            .replace(/appears to have/gi, "has")
+                            .replace(/may be/gi, "is")
+                            .replace(/can you/i, "I need you to")}
+                        </p>
+                      ))
+                    ) : (
+                      <p style={styles.scriptLine}>{report.call_script}</p>
+                    )}
+                  </div>
+                </article>
               </div>
-            </article>
+            </section>
 
-            <div className="audit-grid-2">
-              <article className="audit-card" style={styles.card}>
-                <h2 style={styles.sectionTitle}>Recommended Next Steps</h2>
-                <div style={styles.actionList}>
-                  {report.priority_actions.slice(0, 4).map((item, index) => (
-                    <div key={item} style={styles.actionItem}>
-                      <span style={styles.actionNumber}>{index + 1}.</span>
-                      <span style={styles.actionText}>{item}</span>
-                    </div>
-                  ))}
-                </div>
+            <section style={styles.sectionStack}>
+              <article className="audit-card" style={styles.warningCard}>
+                <div style={styles.warningTitle}>⚠️ Do Not Pay This Bill Yet</div>
+                <p style={styles.warningText}>
+                  Paying this bill now may prevent you from disputing these charges and could result in overpayment.
+                </p>
               </article>
 
-              <article className="audit-card" style={styles.card}>
-                <h2 style={styles.sectionTitle}>What to Say When You Call</h2>
-                <div style={styles.scriptBox}>
-                  {scriptLines.length > 0 ? (
-                    scriptLines.map((line) => (
-                      <p key={line} style={styles.scriptLine}>
-                        {line}
-                      </p>
-                    ))
-                  ) : (
-                    <p style={styles.scriptLine}>{report.call_script}</p>
-                  )}
-                </div>
-              </article>
-            </div>
-
-            <article className="audit-card" style={styles.warningCard}>
-              <div style={styles.warningTitle}>⚠️ Do Not Pay Yet</div>
-              <p style={styles.warningText}>
-                {report.risk_if_ignored ||
-                  "If you pay before addressing these issues, you may lose the ability to dispute charges and could overpay."}
-              </p>
-            </article>
-
-            <div style={styles.reportFooter}>
-              Report generated by AI-assisted analysis. Verify all billing details with your provider or insurer before making payment.
-            </div>
-          </section>
+              <div style={styles.reportFooter}>
+                Report generated using AI-assisted billing analysis.
+              </div>
+            </section>
+          </>
         ) : null}
       </div>
     </main>
@@ -434,10 +458,22 @@ const styles: Record<string, CSSProperties> = {
   },
   container: {
     width: "100%",
-    maxWidth: 900,
+    maxWidth: 1180,
     margin: "0 auto",
   },
   sectionStack: {
+    display: "grid",
+    gap: 22,
+  },
+  dashboardGrid: {
+    alignItems: "start",
+    gap: 22,
+  },
+  mainColumn: {
+    display: "grid",
+    gap: 22,
+  },
+  sidebarColumn: {
     display: "grid",
     gap: 18,
   },
@@ -517,7 +553,7 @@ const styles: Record<string, CSSProperties> = {
     margin: "16px 0 0",
     color: "#334155",
     fontSize: 15,
-    lineHeight: 1.8,
+    lineHeight: 1.75,
     fontWeight: 500,
   },
   errorCard: {
@@ -560,16 +596,30 @@ const styles: Record<string, CSSProperties> = {
     lineHeight: 1.7,
   },
   savingsHeroCard: {
-    background: "linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%)",
-    borderRadius: 12,
-    border: "1px solid #b7e3c6",
-    padding: 28,
-    boxShadow: "0 16px 28px rgba(15,23,42,0.06)",
-    textAlign: "center",
+    background: "linear-gradient(180deg, #ecfdf5 0%, #ffffff 100%)",
+    borderRadius: 14,
+    border: "1px solid #86efac",
+    padding: 26,
+    boxShadow: "0 18px 32px rgba(22, 163, 74, 0.12)",
+  },
+  savingsHeroBadge: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "fit-content",
+    padding: "8px 10px",
+    borderRadius: 999,
+    background: "#dcfce7",
+    color: "#166534",
+    fontSize: 11,
+    fontWeight: 800,
+    letterSpacing: "0.08em",
+    textTransform: "uppercase",
+    marginBottom: 12,
   },
   savingsHeroLabel: {
     color: "#166534",
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: 800,
     letterSpacing: "0.08em",
     textTransform: "uppercase",
@@ -577,18 +627,18 @@ const styles: Record<string, CSSProperties> = {
   },
   savingsHeroAmount: {
     color: "#0f172a",
-    fontSize: "clamp(2.8rem, 8vw, 4.6rem)",
-    lineHeight: 0.95,
+    fontSize: "clamp(3.3rem, 7vw, 5.4rem)",
+    lineHeight: 0.92,
     letterSpacing: "-0.06em",
     fontWeight: 900,
     marginBottom: 10,
   },
   savingsHeroText: {
     margin: 0,
-    color: "#475569",
+    color: "#166534",
     fontSize: 15,
     lineHeight: 1.7,
-    fontWeight: 600,
+    fontWeight: 700,
   },
   card: {
     background: "#ffffff",
@@ -600,8 +650,8 @@ const styles: Record<string, CSSProperties> = {
   sectionTitle: {
     margin: "0 0 16px",
     color: "#0f172a",
-    fontSize: 24,
-    lineHeight: 1.15,
+    fontSize: 26,
+    lineHeight: 1.1,
     fontWeight: 900,
     letterSpacing: "-0.03em",
   },
@@ -640,11 +690,12 @@ const styles: Record<string, CSSProperties> = {
     margin: 0,
     color: "#334155",
     fontSize: 15,
-    lineHeight: 1.8,
+    lineHeight: 1.75,
+    fontWeight: 600,
   },
   findingsList: {
     display: "grid",
-    gap: 14,
+    gap: 16,
   },
   findingCard: {
     border: "1px solid #f1c7c7",
@@ -686,13 +737,13 @@ const styles: Record<string, CSSProperties> = {
   findingValue: {
     color: "#334155",
     fontSize: 14,
-    lineHeight: 1.75,
-    fontWeight: 500,
+    lineHeight: 1.7,
+    fontWeight: 600,
   },
   findingAction: {
     color: "#0f172a",
     fontSize: 14,
-    lineHeight: 1.75,
+    lineHeight: 1.7,
     fontWeight: 700,
   },
   actionList: {
@@ -737,14 +788,14 @@ const styles: Record<string, CSSProperties> = {
   },
   warningCard: {
     background: "#fff7ed",
-    border: "1px solid #fdba74",
+    border: "2px solid #fb923c",
     borderRadius: 12,
-    padding: 20,
-    boxShadow: "0 12px 26px rgba(15,23,42,0.05)",
+    padding: 22,
+    boxShadow: "0 16px 28px rgba(249, 115, 22, 0.12)",
   },
   warningTitle: {
     color: "#9a3412",
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 900,
     lineHeight: 1.2,
     marginBottom: 10,
@@ -753,8 +804,8 @@ const styles: Record<string, CSSProperties> = {
     margin: 0,
     color: "#7c2d12",
     fontSize: 15,
-    lineHeight: 1.8,
-    fontWeight: 600,
+    lineHeight: 1.75,
+    fontWeight: 700,
   },
   reportFooter: {
     color: "#64748b",

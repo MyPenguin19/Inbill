@@ -1,71 +1,53 @@
 "use client";
 
+import Link from "next/link";
 import type { CSSProperties } from "react";
 
 const disclaimerItems = [
-  "This service provides informational analysis only and does not constitute medical, legal, or financial advice.",
-  "We are not healthcare providers, legal advisors, or billing authorities.",
-  "Results may not be accurate or complete and should always be verified.",
-  "Use of this service is at your own risk.",
+  {
+    title: "Informational Only",
+    body: "This service provides informational analysis only and does not constitute medical, legal, or financial advice.",
+  },
+  {
+    title: "Not a Professional Service",
+    body: "We are not healthcare providers, legal advisors, insurance representatives, or billing authorities.",
+  },
+  {
+    title: "Always Verify Results",
+    body: "Results may not be accurate or complete and should always be verified with your provider, insurer, or another qualified professional.",
+  },
+  {
+    title: "Use at Your Own Risk",
+    body: "Any action you take based on the analysis is your responsibility.",
+  },
 ] as const;
 
 export default function DisclaimerPage() {
   return (
     <main style={styles.page}>
-      <style jsx global>{`
-        .disclaimer-nav {
-          position: sticky;
-          top: 0;
-          z-index: 30;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 16px;
-          padding: 14px 18px;
-          margin-bottom: 28px;
-          background: rgba(255, 255, 255, 0.96);
-          border: 1px solid #e2e8f0;
-          border-radius: 14px;
-          box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
-          backdrop-filter: blur(10px);
-        }
-
-        .disclaimer-nav-links {
-          display: flex;
-          align-items: center;
-          gap: 22px;
-          color: #475569;
-          font-size: 14px;
-          font-weight: 600;
-          flex-wrap: wrap;
-        }
-
-        .disclaimer-nav-link {
-          color: inherit;
-          text-decoration: none;
-        }
-
-        @media (max-width: 760px) {
-          .disclaimer-nav {
-            align-items: flex-start;
-            flex-direction: column;
-          }
-        }
-      `}</style>
-
       <div style={styles.container}>
-        <section style={styles.heroCard}>
-          <div style={styles.eyebrow}>Legal</div>
+        <section style={styles.headerCard}>
+          <div style={styles.kicker}>Legal</div>
           <h1 style={styles.title}>Disclaimer</h1>
+          <p style={styles.subtitle}>This page explains the limits of the service and how the analysis should be used.</p>
+          <div style={styles.updatedLine}>Last updated: March 2026</div>
         </section>
 
-        <section style={styles.contentCard}>
+        <section style={styles.sectionsWrap}>
           {disclaimerItems.map((item) => (
-            <article key={item} style={styles.sectionBlock}>
-              <p style={styles.bodyText}>{item}</p>
+            <article key={item.title} style={styles.sectionCard}>
+              <h2 style={styles.sectionTitle}>{item.title}</h2>
+              <p style={styles.bodyText}>{item.body}</p>
             </article>
           ))}
         </section>
+
+        <footer style={styles.footerNote}>
+          Questions? Contact us at <a href="mailto:support@inbill.com" style={styles.link}>support@inbill.com</a>.{" "}
+          <Link href="/" style={styles.link}>
+            Return to home
+          </Link>
+        </footer>
       </div>
     </main>
   );
@@ -74,31 +56,33 @@ export default function DisclaimerPage() {
 const styles: Record<string, CSSProperties> = {
   page: {
     minHeight: "100vh",
-    background: "#f5f7fb",
+    background: "#f4f6f8",
     color: "#0f172a",
     fontFamily:
       'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-    padding: "32px 16px 64px",
+    padding: "48px 16px 64px",
   },
   container: {
     width: "100%",
-    maxWidth: 800,
+    maxWidth: 1040,
     margin: "0 auto",
   },
-  heroCard: {
+  headerCard: {
     background: "#ffffff",
-    border: "1px solid #e2e8f0",
+    border: "1px solid #d9e0e7",
     borderRadius: 12,
-    padding: "28px 24px",
-    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+    padding: "32px 28px",
+    boxShadow: "0 12px 26px rgba(15,23,42,0.05)",
     marginBottom: 24,
   },
-  eyebrow: {
-    display: "inline-block",
+  kicker: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
     padding: "8px 12px",
     borderRadius: 999,
-    background: "#ecfeff",
-    color: "#0f766e",
+    background: "#eef2ff",
+    color: "#4338ca",
     fontSize: 12,
     fontWeight: 800,
     letterSpacing: "0.08em",
@@ -106,28 +90,59 @@ const styles: Record<string, CSSProperties> = {
     marginBottom: 14,
   },
   title: {
-    margin: 0,
-    fontSize: "clamp(2rem, 5vw, 3rem)",
-    lineHeight: 1.05,
+    margin: "0 0 10px",
+    fontSize: "clamp(2.4rem, 5vw, 3.6rem)",
+    lineHeight: 1,
+    fontWeight: 900,
     letterSpacing: "-0.04em",
-    fontWeight: 800,
   },
-  contentCard: {
+  subtitle: {
+    margin: "0 0 14px",
+    fontSize: 17,
+    lineHeight: 1.75,
+    color: "#475569",
+    maxWidth: 760,
+  },
+  updatedLine: {
+    color: "#64748b",
+    fontSize: 14,
+    lineHeight: 1.6,
+    fontWeight: 700,
+  },
+  sectionsWrap: {
+    display: "grid",
+    gap: 18,
+  },
+  sectionCard: {
     background: "#ffffff",
-    border: "1px solid #e2e8f0",
+    border: "1px solid #d9e0e7",
     borderRadius: 12,
-    padding: "24px",
-    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+    padding: "24px 24px 22px",
+    boxShadow: "0 10px 22px rgba(15,23,42,0.04)",
   },
-  sectionBlock: {
-    paddingBottom: 22,
-    marginBottom: 22,
-    borderBottom: "1px solid #e2e8f0",
+  sectionTitle: {
+    margin: "0 0 10px",
+    fontSize: 24,
+    lineHeight: 1.15,
+    fontWeight: 900,
+    letterSpacing: "-0.03em",
   },
   bodyText: {
     margin: 0,
     color: "#475569",
     fontSize: 15,
+    lineHeight: 1.85,
+  },
+  footerNote: {
+    marginTop: 24,
+    textAlign: "center",
+    color: "#64748b",
+    fontSize: 14,
     lineHeight: 1.8,
+  },
+  link: {
+    color: "#0f7757",
+    textDecoration: "none",
+    fontWeight: 700,
   },
 };

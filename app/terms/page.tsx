@@ -1,104 +1,69 @@
 "use client";
 
+import Link from "next/link";
 import type { CSSProperties } from "react";
 
 const termsSections = [
   {
     title: "Overview",
-    body: "By using this service, you agree to these terms.",
+    body: "By using InBill, you agree to these terms. They explain what the service does and what it does not do.",
   },
   {
     title: "Service Description",
-    body: "InBill provides AI-generated analysis of medical bills for informational purposes only.",
+    body: "InBill provides AI-assisted analysis of medical bills to help users review charges before payment.",
   },
   {
     title: "No Professional Advice",
-    body: "This service does not provide medical, legal, or financial advice.",
+    body: "This service does not provide medical, legal, or financial advice. It is intended for informational use only.",
   },
   {
     title: "User Responsibility",
-    body: "You are responsible for verifying all information before taking action.",
+    body: "You are responsible for reviewing the output, verifying billing details, and confirming any conclusions with the provider, insurer, or another qualified professional.",
   },
   {
     title: "Payments",
-    body: "All payments are one-time and non-refundable once analysis is generated.",
+    body: "All payments are one-time. Once analysis is generated, the payment is non-refundable.",
   },
   {
     title: "Limitation of Liability",
-    body: "We are not liable for any decisions made based on this analysis.",
+    body: "We are not liable for actions, decisions, payments, disputes, or outcomes based on the analysis provided.",
   },
   {
     title: "Availability",
-    body: "Service may change or be discontinued at any time.",
+    body: "The service may change, pause, or be discontinued at any time without notice.",
   },
   {
     title: "Contact",
-    body: "support@inbill.com",
+    body: "Questions about these terms can be sent to support@inbill.com.",
   },
 ] as const;
 
 export default function TermsPage() {
   return (
     <main style={styles.page}>
-      <style jsx global>{`
-        .legal-nav {
-          position: sticky;
-          top: 0;
-          z-index: 30;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 16px;
-          padding: 14px 18px;
-          margin-bottom: 28px;
-          background: rgba(255, 255, 255, 0.96);
-          border: 1px solid #e2e8f0;
-          border-radius: 14px;
-          box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
-          backdrop-filter: blur(10px);
-        }
-
-        .legal-nav-links {
-          display: flex;
-          align-items: center;
-          gap: 22px;
-          color: #475569;
-          font-size: 14px;
-          font-weight: 600;
-          flex-wrap: wrap;
-        }
-
-        .legal-nav-link {
-          color: inherit;
-          text-decoration: none;
-        }
-
-        @media (max-width: 760px) {
-          .legal-nav {
-            align-items: flex-start;
-            flex-direction: column;
-          }
-        }
-      `}</style>
-
       <div style={styles.container}>
-        <section style={styles.heroCard}>
-          <div style={styles.eyebrow}>Legal</div>
+        <section style={styles.headerCard}>
+          <div style={styles.kicker}>Legal</div>
           <h1 style={styles.title}>Terms of Service</h1>
-          <p style={styles.subtitle}>
-            Please review these terms before using InBill. They explain the service and your
-            responsibilities when relying on the analysis.
-          </p>
+          <p style={styles.subtitle}>These terms explain how the service works and what you agree to when you use it.</p>
+          <div style={styles.updatedLine}>Last updated: March 2026</div>
         </section>
 
-        <section style={styles.contentCard}>
+        <section style={styles.sectionsWrap}>
           {termsSections.map((section) => (
-            <article key={section.title} style={styles.sectionBlock}>
+            <article key={section.title} style={styles.sectionCard}>
               <h2 style={styles.sectionTitle}>{section.title}</h2>
               <p style={styles.bodyText}>{section.body}</p>
             </article>
           ))}
         </section>
+
+        <footer style={styles.footerNote}>
+          Questions? Contact us at <a href="mailto:support@inbill.com" style={styles.link}>support@inbill.com</a>.{" "}
+          <Link href="/" style={styles.link}>
+            Return to home
+          </Link>
+        </footer>
       </div>
     </main>
   );
@@ -107,31 +72,33 @@ export default function TermsPage() {
 const styles: Record<string, CSSProperties> = {
   page: {
     minHeight: "100vh",
-    background: "#f5f7fb",
+    background: "#f4f6f8",
     color: "#0f172a",
     fontFamily:
       'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-    padding: "32px 16px 64px",
+    padding: "48px 16px 64px",
   },
   container: {
     width: "100%",
-    maxWidth: 800,
+    maxWidth: 1040,
     margin: "0 auto",
   },
-  heroCard: {
+  headerCard: {
     background: "#ffffff",
-    border: "1px solid #e2e8f0",
+    border: "1px solid #d9e0e7",
     borderRadius: 12,
-    padding: "28px 24px",
-    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+    padding: "32px 28px",
+    boxShadow: "0 12px 26px rgba(15,23,42,0.05)",
     marginBottom: 24,
   },
-  eyebrow: {
-    display: "inline-block",
+  kicker: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
     padding: "8px 12px",
     borderRadius: 999,
-    background: "#ecfeff",
-    color: "#0f766e",
+    background: "#eef2ff",
+    color: "#4338ca",
     fontSize: 12,
     fontWeight: 800,
     letterSpacing: "0.08em",
@@ -139,41 +106,59 @@ const styles: Record<string, CSSProperties> = {
     marginBottom: 14,
   },
   title: {
-    margin: "0 0 12px",
-    fontSize: "clamp(2rem, 5vw, 3rem)",
-    lineHeight: 1.05,
+    margin: "0 0 10px",
+    fontSize: "clamp(2.4rem, 5vw, 3.6rem)",
+    lineHeight: 1,
+    fontWeight: 900,
     letterSpacing: "-0.04em",
-    fontWeight: 800,
   },
   subtitle: {
-    margin: 0,
-    fontSize: 16,
+    margin: "0 0 14px",
+    fontSize: 17,
     lineHeight: 1.75,
     color: "#475569",
+    maxWidth: 760,
   },
-  contentCard: {
+  updatedLine: {
+    color: "#64748b",
+    fontSize: 14,
+    lineHeight: 1.6,
+    fontWeight: 700,
+  },
+  sectionsWrap: {
+    display: "grid",
+    gap: 18,
+  },
+  sectionCard: {
     background: "#ffffff",
-    border: "1px solid #e2e8f0",
+    border: "1px solid #d9e0e7",
     borderRadius: 12,
-    padding: "24px",
-    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
-  },
-  sectionBlock: {
-    paddingBottom: 22,
-    marginBottom: 22,
-    borderBottom: "1px solid #e2e8f0",
+    padding: "24px 24px 22px",
+    boxShadow: "0 10px 22px rgba(15,23,42,0.04)",
   },
   sectionTitle: {
     margin: "0 0 10px",
-    fontSize: 22,
-    lineHeight: 1.2,
-    fontWeight: 800,
-    color: "#111827",
+    fontSize: 24,
+    lineHeight: 1.15,
+    fontWeight: 900,
+    letterSpacing: "-0.03em",
   },
   bodyText: {
     margin: 0,
     color: "#475569",
     fontSize: 15,
+    lineHeight: 1.85,
+  },
+  footerNote: {
+    marginTop: 24,
+    textAlign: "center",
+    color: "#64748b",
+    fontSize: 14,
     lineHeight: 1.8,
+  },
+  link: {
+    color: "#0f7757",
+    textDecoration: "none",
+    fontWeight: 700,
   },
 };
