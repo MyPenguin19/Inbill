@@ -1,12 +1,17 @@
-"use client";
-
+import type { Metadata } from "next";
 import Link from "next/link";
 import type { CSSProperties } from "react";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy — MyBillScanner",
+  description:
+    "Learn how MyBillScanner protects your data and handles uploaded medical documents securely.",
+};
 
 const policySections = [
   {
     title: "Overview",
-    body: "InBill analyzes uploaded medical bills so patients can understand charges, spot likely billing issues, and decide what to question before making payment.",
+    body: "MyBillScanner analyzes uploaded medical bills so patients can understand charges, spot likely billing issues, and decide what to question before making payment.",
   },
   {
     title: "What We Collect",
@@ -34,7 +39,7 @@ const policySections = [
   },
   {
     title: "Contact",
-    body: "Questions about privacy can be sent to support@inbill.com.",
+    body: "Questions about privacy can be sent to support@mybillscanner.com.",
   },
 ] as const;
 
@@ -68,7 +73,7 @@ export default function PrivacyPage() {
         </section>
 
         <footer style={styles.footerNote}>
-          Questions? Contact us at <a href="mailto:support@inbill.com" style={styles.link}>support@inbill.com</a>.{" "}
+          Questions? Contact us at <a href="mailto:support@mybillscanner.com" style={styles.link}>support@mybillscanner.com</a>.{" "}
           <Link href="/" style={styles.link}>
             Return to home
           </Link>

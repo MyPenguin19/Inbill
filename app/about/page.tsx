@@ -1,6 +1,10 @@
-"use client";
-
+import type { Metadata } from "next";
 import type { CSSProperties } from "react";
+
+export const metadata: Metadata = {
+  title: "About MyBillScanner",
+  description: "Learn why MyBillScanner was built to help patients detect medical bill errors before they pay.",
+};
 
 const faqs = [
   {
@@ -34,10 +38,10 @@ export default function AboutPage() {
     <main style={styles.page}>
       <div style={styles.container}>
         <section style={styles.heroCard}>
-          <div style={styles.eyebrow}>About InBill</div>
-          <h1 style={styles.title}>Why we built InBill</h1>
+          <div style={styles.eyebrow}>About MyBillScanner</div>
+          <h1 style={styles.title}>Why we built MyBillScanner</h1>
           <p style={styles.subtitle}>
-            Medical bills are confusing, inconsistent, and often wrong. We built InBill to help people
+            Medical bills are confusing, inconsistent, and often wrong. We built MyBillScanner to help people
             understand what they’re paying — before they overpay.
           </p>
         </section>

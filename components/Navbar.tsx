@@ -210,7 +210,7 @@ export default function Navbar() {
       <header className="nav-shell">
         <div className="nav-bar">
           <Link href="/" className="brand">
-            InBill
+            MyBillScanner
           </Link>
 
           <nav className="desktopNav" aria-label="Primary">
@@ -263,7 +263,7 @@ export default function Navbar() {
           </Link>
 
           <div className="mobileSubtext">
-            AI-powered medical bill review to help patients avoid overpaying. No account required.
+            Scan your medical bill and detect errors before you pay. No account required.
           </div>
         </div>
       </div>

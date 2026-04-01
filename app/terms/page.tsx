@@ -1,16 +1,21 @@
-"use client";
-
+import type { Metadata } from "next";
 import Link from "next/link";
 import type { CSSProperties } from "react";
+
+export const metadata: Metadata = {
+  title: "Terms of Service — MyBillScanner",
+  description:
+    "Read the terms and conditions for using MyBillScanner medical bill analysis service.",
+};
 
 const termsSections = [
   {
     title: "Overview",
-    body: "By using InBill, you agree to these terms. They explain what the service does and what it does not do.",
+    body: "By using MyBillScanner, you agree to these terms. They explain what the service does and what it does not do.",
   },
   {
     title: "Service Description",
-    body: "InBill provides AI-assisted analysis of medical bills to help users review charges before payment.",
+    body: "MyBillScanner provides AI-assisted analysis of medical bills to help users review charges before payment.",
   },
   {
     title: "No Professional Advice",
@@ -34,7 +39,7 @@ const termsSections = [
   },
   {
     title: "Contact",
-    body: "Questions about these terms can be sent to support@inbill.com.",
+    body: "Questions about these terms can be sent to support@mybillscanner.com.",
   },
 ] as const;
 
@@ -59,7 +64,7 @@ export default function TermsPage() {
         </section>
 
         <footer style={styles.footerNote}>
-          Questions? Contact us at <a href="mailto:support@inbill.com" style={styles.link}>support@inbill.com</a>.{" "}
+          Questions? Contact us at <a href="mailto:support@mybillscanner.com" style={styles.link}>support@mybillscanner.com</a>.{" "}
           <Link href="/" style={styles.link}>
             Return to home
           </Link>
