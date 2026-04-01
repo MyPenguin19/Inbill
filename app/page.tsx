@@ -633,11 +633,11 @@ const styles: Record<string, React.CSSProperties> = {
   },
   container: {
     width: "100%",
-    maxWidth: 900,
+    maxWidth: 1000,
     margin: "0 auto",
   },
   heroSection: {
-    paddingTop: 26,
+    paddingTop: 22,
   },
   heroCopy: {
     paddingTop: 6,
@@ -659,7 +659,7 @@ const styles: Record<string, React.CSSProperties> = {
   headline: {
     margin: "0 0 14px",
     maxWidth: 560,
-    fontSize: "clamp(2.9rem, 5vw, 4.7rem)",
+    fontSize: "clamp(2rem, 4vw, 3.1rem)",
     lineHeight: 0.96,
     letterSpacing: "-0.05em",
     fontWeight: 900,
@@ -668,7 +668,7 @@ const styles: Record<string, React.CSSProperties> = {
   subheadline: {
     margin: "0 0 20px",
     maxWidth: 560,
-    fontSize: 18,
+    fontSize: 16,
     lineHeight: 1.65,
     color: "#334155",
   },
@@ -729,17 +729,17 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 600,
   },
   section: {
-    marginTop: 48,
+    marginTop: 40,
   },
   finalSection: {
-    marginTop: 52,
+    marginTop: 40,
     marginBottom: 8,
   },
   reportPreview: {
     background: "#ffffff",
     border: "1px solid #d7dee5",
     borderRadius: 12,
-    padding: 20,
+    padding: 18,
     boxShadow: "0 20px 36px rgba(15,23,42,0.08)",
     display: "grid",
     gap: 16,
@@ -763,7 +763,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   previewHeading: {
     color: "#0f172a",
-    fontSize: 30,
+    fontSize: 24,
     fontWeight: 900,
     letterSpacing: "-0.04em",
     lineHeight: 1,
@@ -843,7 +843,7 @@ const styles: Record<string, React.CSSProperties> = {
     background: "#ffffff",
     border: "1px solid #d7dee5",
     borderRadius: 12,
-    padding: 24,
+    padding: 20,
     boxShadow: "0 14px 28px rgba(15,23,42,0.06)",
   },
   cardHeader: {
@@ -851,7 +851,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   cardTitle: {
     margin: "0 0 8px",
-    fontSize: 24,
+    fontSize: 22,
     lineHeight: 1.15,
     fontWeight: 800,
     color: "#111827",
@@ -859,7 +859,7 @@ const styles: Record<string, React.CSSProperties> = {
   cardText: {
     margin: 0,
     color: "#475569",
-    fontSize: 15,
+    fontSize: 14,
     lineHeight: 1.7,
   },
   uploadZone: {
@@ -944,8 +944,8 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: 10,
     background: "#0f7757",
     color: "#ffffff",
-    padding: "16px 18px",
-    fontSize: 16,
+    padding: "14px 18px",
+    fontSize: 15,
     fontWeight: 800,
     cursor: "pointer",
     boxShadow: "0 12px 24px rgba(15, 118, 110, 0.18)",
@@ -959,7 +959,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   sectionTitle: {
     margin: 0,
-    fontSize: 30,
+    fontSize: 22,
     lineHeight: 1.1,
     fontWeight: 900,
     letterSpacing: "-0.03em",
@@ -969,7 +969,7 @@ const styles: Record<string, React.CSSProperties> = {
     background: "#ffffff",
     border: "1px solid #d7dee5",
     borderRadius: 12,
-    padding: 18,
+    padding: 16,
     boxShadow: "0 12px 26px rgba(15,23,42,0.05)",
   },
   problemTop: {
@@ -990,14 +990,14 @@ const styles: Record<string, React.CSSProperties> = {
   },
   problemImpact: {
     color: "#b42318",
-    fontSize: 30,
+    fontSize: 24,
     lineHeight: 1,
     letterSpacing: "-0.04em",
     fontWeight: 900,
   },
   problemTitle: {
     margin: "0 0 8px",
-    fontSize: 18,
+    fontSize: 17,
     lineHeight: 1.25,
     fontWeight: 800,
     color: "#111827",
@@ -1006,13 +1006,13 @@ const styles: Record<string, React.CSSProperties> = {
     margin: 0,
     color: "#475569",
     lineHeight: 1.7,
-    fontSize: 14,
+    fontSize: 13,
   },
   beforeAfterCard: {
     background: "#ffffff",
     border: "1px solid #d7dee5",
     borderRadius: 12,
-    padding: 24,
+    padding: 20,
     boxShadow: "0 12px 26px rgba(15,23,42,0.05)",
   },
   beforeAfterHeader: {
@@ -1025,7 +1025,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   beforeAfterHighlight: {
     color: "#0f7757",
-    fontSize: 19,
+    fontSize: 16,
     fontWeight: 900,
   },
   comparePanel: {
@@ -1049,7 +1049,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   compareValue: {
     color: "#0f172a",
-    fontSize: "clamp(2.4rem, 6vw, 3.4rem)",
+    fontSize: "clamp(2rem, 5vw, 2.8rem)",
     lineHeight: 1,
     letterSpacing: "-0.05em",
     fontWeight: 900,
@@ -1058,7 +1058,7 @@ const styles: Record<string, React.CSSProperties> = {
     background: "#ffffff",
     border: "1px solid #d7dee5",
     borderRadius: 12,
-    padding: 20,
+    padding: 16,
     boxShadow: "0 12px 26px rgba(15,23,42,0.05)",
   },
   stepIcon: {
@@ -1073,7 +1073,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   stepTitle: {
     margin: "0 0 8px",
-    fontSize: 18,
+    fontSize: 17,
     lineHeight: 1.25,
     fontWeight: 800,
     color: "#111827",
@@ -1082,13 +1082,13 @@ const styles: Record<string, React.CSSProperties> = {
     margin: 0,
     color: "#475569",
     lineHeight: 1.7,
-    fontSize: 14,
+    fontSize: 13,
   },
   sampleCard: {
     background: "#ffffff",
     border: "1px solid #d7dee5",
     borderRadius: 12,
-    padding: 24,
+    padding: 20,
     boxShadow: "0 12px 26px rgba(15,23,42,0.05)",
   },
   sampleHeader: {
@@ -1151,7 +1151,7 @@ const styles: Record<string, React.CSSProperties> = {
     background: "#ffffff",
     border: "1px solid #d7dee5",
     borderRadius: 12,
-    padding: 24,
+    padding: 20,
     boxShadow: "0 12px 26px rgba(15,23,42,0.05)",
   },
   trustItem: {
@@ -1183,13 +1183,13 @@ const styles: Record<string, React.CSSProperties> = {
     background: "#ffffff",
     border: "1px solid #d7dee5",
     borderRadius: 12,
-    padding: 28,
+    padding: 22,
     boxShadow: "0 12px 26px rgba(15,23,42,0.05)",
     textAlign: "center",
   },
   finalTitle: {
     margin: "0 0 10px",
-    fontSize: 30,
+    fontSize: 24,
     lineHeight: 1.1,
     fontWeight: 900,
     color: "#111827",
@@ -1198,7 +1198,7 @@ const styles: Record<string, React.CSSProperties> = {
   finalText: {
     margin: "0 0 18px",
     color: "#475569",
-    fontSize: 15,
+    fontSize: 14,
     lineHeight: 1.7,
     fontWeight: 600,
   },
@@ -1207,8 +1207,8 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: 10,
     background: "#0f7757",
     color: "#ffffff",
-    padding: "16px 22px",
-    fontSize: 16,
+    padding: "14px 20px",
+    fontSize: 15,
     fontWeight: 800,
     cursor: "pointer",
     boxShadow: "0 12px 24px rgba(15, 118, 110, 0.18)",

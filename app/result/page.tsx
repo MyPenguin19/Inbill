@@ -215,7 +215,7 @@ export default function ResultPage() {
 
         .audit-shell {
           width: 100%;
-          max-width: 900px;
+          max-width: 1000px;
           margin: 0 auto;
         }
 
@@ -458,7 +458,7 @@ const styles: Record<string, CSSProperties> = {
   },
   container: {
     width: "100%",
-    maxWidth: 1180,
+    maxWidth: 1000,
     margin: "0 auto",
   },
   sectionStack: {
@@ -481,7 +481,7 @@ const styles: Record<string, CSSProperties> = {
     background: "#ffffff",
     borderRadius: 12,
     border: "1px solid #d9e0e7",
-    padding: 24,
+    padding: 20,
     boxShadow: "0 12px 26px rgba(15,23,42,0.05)",
     marginBottom: 18,
   },
@@ -505,7 +505,7 @@ const styles: Record<string, CSSProperties> = {
   reportTitle: {
     margin: 0,
     color: "#0f172a",
-    fontSize: "clamp(2rem, 5vw, 2.8rem)",
+    fontSize: "clamp(1.9rem, 4vw, 2.4rem)",
     lineHeight: 1,
     letterSpacing: "-0.04em",
     fontWeight: 900,
@@ -552,7 +552,7 @@ const styles: Record<string, CSSProperties> = {
   reportSummary: {
     margin: "16px 0 0",
     color: "#334155",
-    fontSize: 15,
+    fontSize: 14,
     lineHeight: 1.75,
     fontWeight: 500,
   },
@@ -599,7 +599,7 @@ const styles: Record<string, CSSProperties> = {
     background: "linear-gradient(180deg, #ecfdf5 0%, #ffffff 100%)",
     borderRadius: 14,
     border: "1px solid #86efac",
-    padding: 26,
+    padding: 20,
     boxShadow: "0 18px 32px rgba(22, 163, 74, 0.12)",
   },
   savingsHeroBadge: {
@@ -627,7 +627,7 @@ const styles: Record<string, CSSProperties> = {
   },
   savingsHeroAmount: {
     color: "#0f172a",
-    fontSize: "clamp(3.3rem, 7vw, 5.4rem)",
+    fontSize: "clamp(2.4rem, 5vw, 3.6rem)",
     lineHeight: 0.92,
     letterSpacing: "-0.06em",
     fontWeight: 900,
@@ -636,7 +636,7 @@ const styles: Record<string, CSSProperties> = {
   savingsHeroText: {
     margin: 0,
     color: "#166534",
-    fontSize: 15,
+    fontSize: 14,
     lineHeight: 1.7,
     fontWeight: 700,
   },
@@ -644,13 +644,13 @@ const styles: Record<string, CSSProperties> = {
     background: "#ffffff",
     borderRadius: 12,
     border: "1px solid #d9e0e7",
-    padding: 22,
+    padding: 18,
     boxShadow: "0 12px 26px rgba(15,23,42,0.05)",
   },
   sectionTitle: {
     margin: "0 0 16px",
     color: "#0f172a",
-    fontSize: 26,
+    fontSize: 22,
     lineHeight: 1.1,
     fontWeight: 900,
     letterSpacing: "-0.03em",
@@ -689,7 +689,7 @@ const styles: Record<string, CSSProperties> = {
   riskReason: {
     margin: 0,
     color: "#334155",
-    fontSize: 15,
+    fontSize: 14,
     lineHeight: 1.75,
     fontWeight: 600,
   },
@@ -701,7 +701,7 @@ const styles: Record<string, CSSProperties> = {
     border: "1px solid #f1c7c7",
     background: "#fffaf9",
     borderRadius: 12,
-    padding: 18,
+    padding: 16,
   },
   findingHeader: {
     display: "flex",
@@ -716,7 +716,7 @@ const styles: Record<string, CSSProperties> = {
   findingTitle: {
     margin: 0,
     color: "#991b1b",
-    fontSize: 18,
+    fontSize: 17,
     lineHeight: 1.25,
     fontWeight: 800,
   },
@@ -736,13 +736,13 @@ const styles: Record<string, CSSProperties> = {
   },
   findingValue: {
     color: "#334155",
-    fontSize: 14,
+    fontSize: 13,
     lineHeight: 1.7,
     fontWeight: 600,
   },
   findingAction: {
     color: "#0f172a",
-    fontSize: 14,
+    fontSize: 13,
     lineHeight: 1.7,
     fontWeight: 700,
   },
@@ -754,7 +754,7 @@ const styles: Record<string, CSSProperties> = {
     display: "flex",
     alignItems: "flex-start",
     gap: 12,
-    padding: 14,
+    padding: 12,
     borderRadius: 10,
     border: "1px solid #e5e7eb",
     background: "#f8fafc",
@@ -768,7 +768,7 @@ const styles: Record<string, CSSProperties> = {
   },
   actionText: {
     color: "#334155",
-    fontSize: 15,
+    fontSize: 14,
     lineHeight: 1.7,
     fontWeight: 600,
   },
@@ -776,12 +776,12 @@ const styles: Record<string, CSSProperties> = {
     border: "1px solid #d7dee5",
     background: "#f8fafc",
     borderRadius: 12,
-    padding: 16,
+    padding: 14,
   },
   scriptLine: {
     margin: "0 0 10px",
     color: "#111827",
-    fontSize: 14,
+    fontSize: 13,
     lineHeight: 1.85,
     fontFamily:
       'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
@@ -790,12 +790,12 @@ const styles: Record<string, CSSProperties> = {
     background: "#fff7ed",
     border: "2px solid #fb923c",
     borderRadius: 12,
-    padding: 22,
+    padding: 18,
     boxShadow: "0 16px 28px rgba(249, 115, 22, 0.12)",
   },
   warningTitle: {
     color: "#9a3412",
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: 900,
     lineHeight: 1.2,
     marginBottom: 10,
@@ -803,7 +803,7 @@ const styles: Record<string, CSSProperties> = {
   warningText: {
     margin: 0,
     color: "#7c2d12",
-    fontSize: 15,
+    fontSize: 14,
     lineHeight: 1.75,
     fontWeight: 700,
   },

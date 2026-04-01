@@ -89,14 +89,14 @@ const styles: Record<string, CSSProperties> = {
   },
   container: {
     width: "100%",
-    maxWidth: 1040,
+    maxWidth: 1000,
     margin: "0 auto",
   },
   headerCard: {
     background: "#ffffff",
     border: "1px solid #d9e0e7",
     borderRadius: 12,
-    padding: "32px 28px",
+    padding: "24px 22px",
     boxShadow: "0 12px 26px rgba(15,23,42,0.05)",
     marginBottom: 24,
   },
@@ -116,14 +116,14 @@ const styles: Record<string, CSSProperties> = {
   },
   title: {
     margin: "0 0 10px",
-    fontSize: "clamp(2.4rem, 5vw, 3.6rem)",
+    fontSize: "clamp(2rem, 4vw, 2.7rem)",
     lineHeight: 1,
     fontWeight: 900,
     letterSpacing: "-0.04em",
   },
   subtitle: {
     margin: "0 0 14px",
-    fontSize: 17,
+    fontSize: 15,
     lineHeight: 1.75,
     color: "#475569",
     maxWidth: 760,
@@ -142,12 +142,12 @@ const styles: Record<string, CSSProperties> = {
     background: "#ffffff",
     border: "1px solid #d9e0e7",
     borderRadius: 12,
-    padding: "24px 24px 22px",
+    padding: "18px 18px 16px",
     boxShadow: "0 10px 22px rgba(15,23,42,0.04)",
   },
   sectionTitle: {
     margin: "0 0 10px",
-    fontSize: 24,
+    fontSize: 21,
     lineHeight: 1.15,
     fontWeight: 900,
     letterSpacing: "-0.03em",
@@ -155,7 +155,7 @@ const styles: Record<string, CSSProperties> = {
   bodyText: {
     margin: 0,
     color: "#475569",
-    fontSize: 15,
+    fontSize: 14,
     lineHeight: 1.85,
   },
   list: {
@@ -166,7 +166,7 @@ const styles: Record<string, CSSProperties> = {
   },
   listItem: {
     color: "#475569",
-    fontSize: 15,
+    fontSize: 14,
     lineHeight: 1.8,
   },
   footerNote: {

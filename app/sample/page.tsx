@@ -81,7 +81,7 @@ export default function SamplePage() {
       <style jsx global>{`
         .sample-shell {
           width: 100%;
-          max-width: 1140px;
+          max-width: 1000px;
           margin: 0 auto;
         }
 
@@ -249,7 +249,7 @@ const styles: Record<string, CSSProperties> = {
   },
   container: {
     width: "100%",
-    maxWidth: 1140,
+    maxWidth: 1000,
     margin: "0 auto",
   },
   dashboardSection: {
@@ -266,7 +266,7 @@ const styles: Record<string, CSSProperties> = {
   heroCard: {
     background: "#ffffff",
     borderRadius: 12,
-    padding: "24px",
+    padding: "20px",
     border: "1px solid #d9e0e7",
     boxShadow: "0 12px 26px rgba(15,23,42,0.05)",
   },
@@ -293,7 +293,7 @@ const styles: Record<string, CSSProperties> = {
   },
   heroTitle: {
     margin: "0 0 10px",
-    fontSize: "clamp(2.2rem, 5vw, 3.2rem)",
+    fontSize: "clamp(2rem, 4vw, 2.8rem)",
     lineHeight: 1,
     letterSpacing: "-0.04em",
     color: "#111827",
@@ -301,7 +301,7 @@ const styles: Record<string, CSSProperties> = {
   },
   heroSummary: {
     margin: 0,
-    fontSize: 16,
+    fontSize: 15,
     lineHeight: 1.75,
     color: "#4b5563",
     fontWeight: 500,
@@ -317,14 +317,14 @@ const styles: Record<string, CSSProperties> = {
   card: {
     background: "#ffffff",
     borderRadius: 12,
-    padding: "22px",
+    padding: "18px",
     border: "1px solid #d9e0e7",
     boxShadow: "0 12px 26px rgba(15,23,42,0.05)",
   },
   savingsCard: {
     background: "linear-gradient(180deg, #ecfdf5 0%, #ffffff 100%)",
     borderRadius: 12,
-    padding: "24px",
+    padding: "20px",
     border: "1px solid #86efac",
     boxShadow: "0 18px 30px rgba(22, 163, 74, 0.12)",
   },
@@ -338,7 +338,7 @@ const styles: Record<string, CSSProperties> = {
   },
   savingsValue: {
     color: "#0f172a",
-    fontSize: "clamp(2.6rem, 6vw, 4rem)",
+    fontSize: "clamp(2.2rem, 5vw, 3rem)",
     lineHeight: 0.95,
     fontWeight: 900,
     letterSpacing: "-0.05em",
@@ -347,27 +347,27 @@ const styles: Record<string, CSSProperties> = {
   savingsText: {
     margin: 0,
     color: "#166534",
-    fontSize: 15,
+    fontSize: 14,
     lineHeight: 1.7,
     fontWeight: 700,
   },
   whyCard: {
     background: "#ffffff",
     borderRadius: 12,
-    padding: "22px",
+    padding: "18px",
     border: "1px solid #d9e0e7",
     boxShadow: "0 12px 26px rgba(15,23,42,0.05)",
   },
   concernCard: {
     background: "#ffffff",
     borderRadius: 12,
-    padding: "22px",
+    padding: "18px",
     border: "1px solid #d9e0e7",
     boxShadow: "0 12px 26px rgba(15,23,42,0.05)",
   },
   sectionTitle: {
     margin: "0 0 16px",
-    fontSize: 24,
+    fontSize: 22,
     lineHeight: 1.1,
     fontWeight: 900,
     color: "#111827",
@@ -375,7 +375,7 @@ const styles: Record<string, CSSProperties> = {
   },
   bodyText: {
     margin: 0,
-    fontSize: 15,
+    fontSize: 14,
     lineHeight: 1.8,
     color: "#334155",
   },
@@ -398,7 +398,7 @@ const styles: Record<string, CSSProperties> = {
     color: "#991b1b",
   },
   concernHeadline: {
-    fontSize: 30,
+    fontSize: 24,
     lineHeight: 1.05,
     fontWeight: 900,
     letterSpacing: "-0.04em",
@@ -409,7 +409,7 @@ const styles: Record<string, CSSProperties> = {
     margin: 0,
     color: "#7f1d1d",
     lineHeight: 1.75,
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: 500,
   },
   findingsList: {
@@ -420,7 +420,7 @@ const styles: Record<string, CSSProperties> = {
     background: "#fff8f8",
     border: "1px solid #f3c0c0",
     borderRadius: 12,
-    padding: 18,
+    padding: 16,
   },
   findingHeader: {
     display: "flex",
@@ -435,7 +435,7 @@ const styles: Record<string, CSSProperties> = {
   },
   findingTitle: {
     margin: "0 0 6px",
-    fontSize: 19,
+    fontSize: 17,
     lineHeight: 1.25,
     fontWeight: 900,
     color: "#991b1b",
@@ -460,14 +460,14 @@ const styles: Record<string, CSSProperties> = {
     margin: 0,
     color: "#374151",
     lineHeight: 1.75,
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: 500,
   },
   findingAction: {
     margin: 0,
     color: "#111827",
     lineHeight: 1.75,
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: 700,
   },
   actionList: {
@@ -490,7 +490,7 @@ const styles: Record<string, CSSProperties> = {
   actionText: {
     color: "#374151",
     lineHeight: 1.7,
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: 600,
   },
   scriptHeader: {
@@ -506,7 +506,7 @@ const styles: Record<string, CSSProperties> = {
   scriptBox: {
     background: "#f3f4f6",
     borderRadius: 12,
-    padding: 18,
+    padding: 14,
     border: "1px solid #e5e7eb",
   },
   scriptLine: {
@@ -514,7 +514,7 @@ const styles: Record<string, CSSProperties> = {
     color: "#111827",
     fontFamily:
       'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
-    fontSize: 14,
+    fontSize: 13,
     lineHeight: 1.85,
   },
   proofCard: {
@@ -526,14 +526,14 @@ const styles: Record<string, CSSProperties> = {
   },
   proofValue: {
     color: "#0f172a",
-    fontSize: 18,
+    fontSize: 17,
     lineHeight: 1.4,
     fontWeight: 800,
     marginBottom: 6,
   },
   proofText: {
     color: "#475569",
-    fontSize: 15,
+    fontSize: 14,
     lineHeight: 1.7,
     fontWeight: 600,
   },
@@ -554,7 +554,7 @@ const styles: Record<string, CSSProperties> = {
   ctaCard: {
     background: "#ffffff",
     borderRadius: 12,
-    padding: "30px 24px",
+    padding: "22px 20px",
     border: "1px solid #d9e0e7",
     boxShadow: "0 14px 28px rgba(15,23,42,0.05)",
     marginTop: 18,
@@ -562,7 +562,7 @@ const styles: Record<string, CSSProperties> = {
   },
   ctaTitle: {
     margin: "0 0 8px",
-    fontSize: 32,
+    fontSize: 26,
     lineHeight: 1.08,
     fontWeight: 900,
     color: "#111827",
@@ -571,7 +571,7 @@ const styles: Record<string, CSSProperties> = {
   ctaText: {
     margin: "0 0 18px",
     color: "#475569",
-    fontSize: 16,
+    fontSize: 14,
     lineHeight: 1.7,
     fontWeight: 600,
   },
@@ -582,8 +582,8 @@ const styles: Record<string, CSSProperties> = {
     borderRadius: 10,
     background: "#0f7757",
     color: "#ffffff",
-    padding: "16px 26px",
-    fontSize: 16,
+    padding: "14px 22px",
+    fontSize: 15,
     fontWeight: 800,
     textDecoration: "none",
     boxShadow: "0 12px 24px rgba(15, 118, 110, 0.18)",
