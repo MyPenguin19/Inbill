@@ -222,7 +222,7 @@ export default function Navbar() {
           </nav>
 
           <Link href="/#analyze" className="cta">
-            Analyze Bill — $4.99
+            Check My Bill — $4.99
           </Link>
 
           <button
@@ -259,7 +259,7 @@ export default function Navbar() {
           ))}
 
           <Link href="/#analyze" className="mobileCta" onClick={() => setMobileOpen(false)}>
-            Analyze Bill — $4.99
+            Check My Bill — $4.99
           </Link>
 
           <div className="mobileSubtext">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { type CSSProperties, useEffect, useRef, useState } from "react";
+import { type CSSProperties, useEffect, useMemo, useRef, useState } from "react";
 
 import {
   BILL_IMAGE_STORAGE_KEY,
@@ -23,16 +23,82 @@ function splitScript(script: string) {
     .filter(Boolean);
 }
 
+function formatAnalysisDate() {
+  return new Intl.DateTimeFormat("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  }).format(new Date());
+}
+
 function getConcernLabel(level: AnalysisReport["concern_level"]["level"]) {
   if (level === "HIGH") {
-    return "High Risk of Overpayment";
+    return "High Risk";
   }
 
   if (level === "LOW") {
-    return "Low Immediate Risk";
+    return "Low Risk";
   }
 
-  return "Medium Risk of Overpayment";
+  return "Moderate Risk";
+}
+
+function getConcernTone(level: AnalysisReport["concern_level"]["level"]) {
+  if (level === "HIGH") {
+    return {
+      badge: "#fff1f2",
+      badgeBorder: "#fecdd3",
+      badgeText: "#b42318",
+      meter: "#dc2626",
+      meterTrack: "#fee2e2",
+    };
+  }
+
+  if (level === "LOW") {
+    return {
+      badge: "#f0fdf4",
+      badgeBorder: "#bbf7d0",
+      badgeText: "#166534",
+      meter: "#16a34a",
+      meterTrack: "#dcfce7",
+    };
+  }
+
+  return {
+    badge: "#fff7ed",
+    badgeBorder: "#fed7aa",
+    badgeText: "#b45309",
+    meter: "#ea580c",
+    meterTrack: "#ffedd5",
+  };
+}
+
+function getRiskMeterWidth(level: AnalysisReport["concern_level"]["level"]) {
+  if (level === "HIGH") {
+    return "92%";
+  }
+
+  if (level === "LOW") {
+    return "38%";
+  }
+
+  return "68%";
+}
+
+function getFindingFinancialImpact(range: string, index: number) {
+  if (!range.trim()) {
+    return "Included in the overall savings estimate above.";
+  }
+
+  if (index === 0) {
+    return `${range} at risk across the bill.`;
+  }
+
+  return `Contributes to the estimated ${range} in potential savings.`;
+}
+
+function getFindingMeaning(title: string, impact: string) {
+  return `${title} suggests this bill may not reflect the correct patient balance yet. ${impact}`;
 }
 
 export default function ResultPage() {
@@ -134,14 +200,9 @@ export default function ResultPage() {
     void generateAnalysis(billText, billImageData);
   }, [billImageData, billText, hasHydrated]);
 
-  const concernStyle =
-    report?.concern_level.level === "HIGH"
-      ? styles.concernHigh
-      : report?.concern_level.level === "LOW"
-        ? styles.concernLow
-        : styles.concernMedium;
-
   const scriptLines = report ? splitScript(report.call_script) : [];
+  const analyzedDate = useMemo(() => formatAnalysisDate(), []);
+  const concernTone = report ? getConcernTone(report.concern_level.level) : getConcernTone("MEDIUM");
 
   return (
     <main style={styles.page}>
@@ -152,79 +213,90 @@ export default function ResultPage() {
           }
         }
 
-        .result-shell {
+        .audit-shell {
           width: 100%;
           max-width: 900px;
           margin: 0 auto;
         }
 
-        .result-card {
-          transition:
-            transform 180ms ease,
-            box-shadow 180ms ease,
-            border-color 180ms ease;
-        }
-
-        .result-card:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
-        }
-
-        .result-nav-inner {
-          width: 100%;
-          max-width: 900px;
-          margin: 0 auto;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 16px;
-        }
-
-        .result-nav-links {
-          display: flex;
-          align-items: center;
+        .audit-grid-2 {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
           gap: 18px;
-          flex-wrap: wrap;
         }
 
-        @media (max-width: 720px) {
-          .result-nav-inner {
-            flex-direction: column;
-            align-items: flex-start;
-          }
+        .audit-card {
+          transition:
+            transform 160ms ease,
+            box-shadow 160ms ease;
+        }
 
-          .result-nav-links {
-            width: 100%;
-            gap: 12px;
+        .audit-card:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 18px 30px rgba(15, 23, 42, 0.08);
+        }
+
+        @media (max-width: 760px) {
+          .audit-grid-2 {
+            grid-template-columns: 1fr;
           }
         }
       `}</style>
 
-      <div className="result-shell" style={styles.container}>
-        <section className="result-card" style={styles.heroCard}>
-          <div style={styles.heroMetaRow}>
+      <div className="audit-shell" style={styles.container}>
+        <section className="audit-card" style={styles.reportHeaderCard}>
+          <div style={styles.reportHeaderTop}>
             <div>
-              <div style={styles.eyebrow}>Professional audit</div>
-              <h1 style={styles.heroTitle}>Your Bill Review</h1>
+              <div style={styles.reportEyebrow}>Medical Bill Audit Report</div>
+              <h1 style={styles.reportTitle}>Audit Summary</h1>
             </div>
-            <div style={styles.fileChip}>{fileName}</div>
+            {report ? (
+              <div
+                style={{
+                  ...styles.statusBadge,
+                  background: concernTone.badge,
+                  borderColor: concernTone.badgeBorder,
+                  color: concernTone.badgeText,
+                }}
+              >
+                {getConcernLabel(report.concern_level.level)}
+              </div>
+            ) : null}
           </div>
-          <p style={styles.heroSummary}>
+
+          <div style={styles.reportMetaRow}>
+            <div style={styles.metaItem}>
+              <span style={styles.metaLabel}>Date analyzed</span>
+              <span style={styles.metaValue}>{analyzedDate}</span>
+            </div>
+            <div style={styles.metaItem}>
+              <span style={styles.metaLabel}>File name</span>
+              <span style={styles.metaValue}>{fileName}</span>
+            </div>
+            <div style={styles.metaItem}>
+              <span style={styles.metaLabel}>Status</span>
+              <span style={styles.metaValue}>
+                {report ? getConcernLabel(report.concern_level.level) : "Processing"}
+              </span>
+            </div>
+          </div>
+
+          <p style={styles.reportSummary}>
             {report?.summary ||
-              "We’re reviewing your bill for overcharges, denial issues, and billing mistakes that could cost you money if you pay too quickly."}
+              "This bill contains multiple issues that may result in overpayment if not addressed."}
           </p>
         </section>
 
         {error ? <div style={styles.errorCard}>{error}</div> : null}
 
         {!report ? (
-          <section className="result-card" style={styles.loadingCard}>
+          <section className="audit-card" style={styles.loadingCard}>
             <div style={styles.spinner} />
             <div>
-              <h2 style={styles.loadingTitle}>Building your audit</h2>
+              <h2 style={styles.loadingTitle}>Generating your audit report</h2>
               <p style={styles.loadingText}>
                 {isLoading
-                  ? "Reviewing charges, looking for billing mistakes, and preparing your action plan..."
+                  ? "Reviewing charges, denials, and payment risk now..."
                   : "Waiting for bill data to start analysis."}
               </p>
             </div>
@@ -232,77 +304,121 @@ export default function ResultPage() {
         ) : null}
 
         {report ? (
-          <section style={styles.reportGrid}>
-            <article className="result-card" style={styles.card}>
-              <h2 style={styles.sectionTitle}>Concern Level</h2>
-              <div style={{ ...styles.concernBox, ...concernStyle }}>
-                <div style={styles.concernPill}>{report.concern_level.level}</div>
-                <div style={styles.concernHeadline}>{getConcernLabel(report.concern_level.level)}</div>
-                <p style={styles.concernReason}>{report.concern_level.reason}</p>
-              </div>
+          <section style={styles.sectionStack}>
+            <article className="audit-card" style={styles.savingsHeroCard}>
+              <div style={styles.savingsHeroLabel}>Potential Savings Identified</div>
+              <div style={styles.savingsHeroAmount}>{report.potential_savings.range}</div>
+              <p style={styles.savingsHeroText}>
+                Based on detected billing issues and missing adjustments.
+              </p>
             </article>
 
-            <article className="result-card" style={styles.card}>
-              <h2 style={styles.sectionTitle}>Potential Savings</h2>
-              <div style={styles.savingsBox}>
-                <div style={styles.savingsAmount}>{report.potential_savings.range}</div>
-                <p style={styles.savingsReason}>{report.potential_savings.reason}</p>
+            <article className="audit-card" style={styles.card}>
+              <h2 style={styles.sectionTitle}>Risk Level</h2>
+              <div style={styles.riskRow}>
+                <div
+                  style={{
+                    ...styles.riskBadge,
+                    background: concernTone.badge,
+                    borderColor: concernTone.badgeBorder,
+                    color: concernTone.badgeText,
+                  }}
+                >
+                  Risk Level: {report.concern_level.level}
+                </div>
+                <div style={styles.riskMeter}>
+                  <div style={{ ...styles.riskMeterTrack, background: concernTone.meterTrack }}>
+                    <div
+                      style={{
+                        ...styles.riskMeterFill,
+                        width: getRiskMeterWidth(report.concern_level.level),
+                        background: concernTone.meter,
+                      }}
+                    />
+                  </div>
+                </div>
               </div>
+              <p style={styles.riskReason}>
+                {report.concern_level.reason || "Multiple issues detected that may increase your out-of-pocket cost."}
+              </p>
             </article>
 
-            <article className="result-card" style={styles.card}>
-              <h2 style={styles.sectionTitle}>Key Findings</h2>
+            <article className="audit-card" style={styles.card}>
+              <h2 style={styles.sectionTitle}>Detailed Findings</h2>
               <div style={styles.findingsList}>
-                {report.key_findings.map((finding) => (
+                {report.key_findings.map((finding, index) => (
                   <div key={finding.title} style={styles.findingCard}>
                     <div style={styles.findingHeader}>
-                      <span style={styles.findingIcon}>⚠️</span>
+                      <div style={styles.findingIcon}>⚠️</div>
                       <h3 style={styles.findingTitle}>{finding.title}</h3>
                     </div>
-                    <div style={styles.findingBlock}>
+
+                    <div style={styles.findingRow}>
                       <div style={styles.findingLabel}>Impact</div>
-                      <p style={styles.findingText}>{finding.impact}</p>
+                      <div style={styles.findingValue}>{finding.impact}</div>
                     </div>
-                    <div style={styles.findingBlock}>
+
+                    <div style={styles.findingRow}>
+                      <div style={styles.findingLabel}>Financial Impact</div>
+                      <div style={styles.findingValue}>
+                        {getFindingFinancialImpact(report.potential_savings.range, index)}
+                      </div>
+                    </div>
+
+                    <div style={styles.findingRow}>
+                      <div style={styles.findingLabel}>What This Means</div>
+                      <div style={styles.findingValue}>{getFindingMeaning(finding.title, finding.impact)}</div>
+                    </div>
+
+                    <div style={styles.findingRow}>
                       <div style={styles.findingLabel}>Action</div>
-                      <p style={styles.findingAction}>{finding.action}</p>
+                      <div style={styles.findingAction}>{finding.action}</div>
                     </div>
                   </div>
                 ))}
               </div>
             </article>
 
-            <article className="result-card" style={styles.card}>
-              <h2 style={styles.sectionTitle}>Priority Actions</h2>
-              <div style={styles.actionList}>
-                {report.priority_actions.slice(0, 3).map((item) => (
-                  <div key={item} style={styles.actionItem}>
-                    <span style={styles.actionIcon}>✔️</span>
-                    <span style={styles.actionText}>{item}</span>
-                  </div>
-                ))}
-              </div>
+            <div className="audit-grid-2">
+              <article className="audit-card" style={styles.card}>
+                <h2 style={styles.sectionTitle}>Recommended Next Steps</h2>
+                <div style={styles.actionList}>
+                  {report.priority_actions.slice(0, 4).map((item, index) => (
+                    <div key={item} style={styles.actionItem}>
+                      <span style={styles.actionNumber}>{index + 1}.</span>
+                      <span style={styles.actionText}>{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </article>
+
+              <article className="audit-card" style={styles.card}>
+                <h2 style={styles.sectionTitle}>What to Say When You Call</h2>
+                <div style={styles.scriptBox}>
+                  {scriptLines.length > 0 ? (
+                    scriptLines.map((line) => (
+                      <p key={line} style={styles.scriptLine}>
+                        {line}
+                      </p>
+                    ))
+                  ) : (
+                    <p style={styles.scriptLine}>{report.call_script}</p>
+                  )}
+                </div>
+              </article>
+            </div>
+
+            <article className="audit-card" style={styles.warningCard}>
+              <div style={styles.warningTitle}>⚠️ Do Not Pay Yet</div>
+              <p style={styles.warningText}>
+                {report.risk_if_ignored ||
+                  "If you pay before addressing these issues, you may lose the ability to dispute charges and could overpay."}
+              </p>
             </article>
 
-            <article className="result-card" style={styles.card}>
-              <h2 style={styles.sectionTitle}>Call Script</h2>
-              <div style={styles.scriptBox}>
-                {scriptLines.length > 0 ? (
-                  scriptLines.map((line) => (
-                    <p key={line} style={styles.scriptLine}>
-                      {line}
-                    </p>
-                  ))
-                ) : (
-                  <p style={styles.scriptLine}>{report.call_script}</p>
-                )}
-              </div>
-            </article>
-
-            <article className="result-card" style={styles.riskCard}>
-              <h2 style={styles.sectionTitle}>Before You Pay</h2>
-              <p style={styles.riskText}>{report.risk_if_ignored}</p>
-            </article>
+            <div style={styles.reportFooter}>
+              Report generated by AI-assisted analysis. Verify all billing details with your provider or insurer before making payment.
+            </div>
           </section>
         ) : null}
       </div>
@@ -313,72 +429,112 @@ export default function ResultPage() {
 const styles: Record<string, CSSProperties> = {
   page: {
     minHeight: "100vh",
-    background: "#f9fafb",
-    padding: "96px 16px 64px",
+    background: "#f4f6f8",
+    padding: "48px 16px 64px",
   },
   container: {
     width: "100%",
     maxWidth: 900,
     margin: "0 auto",
   },
-  heroCard: {
+  sectionStack: {
+    display: "grid",
+    gap: 18,
+  },
+  reportHeaderCard: {
     background: "#ffffff",
     borderRadius: 12,
-    padding: "24px",
-    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
-    marginBottom: 24,
+    border: "1px solid #d9e0e7",
+    padding: 24,
+    boxShadow: "0 12px 26px rgba(15,23,42,0.05)",
+    marginBottom: 18,
   },
-  heroMetaRow: {
+  reportHeaderTop: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "flex-start",
     gap: 16,
     flexWrap: "wrap",
-    marginBottom: 14,
+    paddingBottom: 16,
+    borderBottom: "1px solid #e8edf2",
   },
-  eyebrow: {
-    color: "#059669",
+  reportEyebrow: {
+    color: "#475569",
     fontSize: 12,
     fontWeight: 800,
     letterSpacing: "0.08em",
     textTransform: "uppercase",
     marginBottom: 8,
   },
-  heroTitle: {
+  reportTitle: {
     margin: 0,
-    fontSize: "clamp(2rem, 5vw, 2.6rem)",
-    lineHeight: 1.05,
+    color: "#0f172a",
+    fontSize: "clamp(2rem, 5vw, 2.8rem)",
+    lineHeight: 1,
     letterSpacing: "-0.04em",
-    color: "#111827",
+    fontWeight: 900,
   },
-  fileChip: {
-    background: "#f3f4f6",
-    color: "#374151",
+  statusBadge: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
     padding: "10px 14px",
     borderRadius: 999,
+    border: "1px solid",
     fontSize: 13,
-    fontWeight: 700,
+    fontWeight: 800,
+    letterSpacing: "0.06em",
+    textTransform: "uppercase",
   },
-  heroSummary: {
-    margin: 0,
-    fontSize: 16,
-    lineHeight: 1.75,
-    color: "#4b5563",
+  reportMetaRow: {
+    display: "grid",
+    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+    gap: 12,
+    paddingTop: 16,
+  },
+  metaItem: {
+    display: "grid",
+    gap: 4,
+    padding: 12,
+    borderRadius: 10,
+    background: "#f8fafc",
+    border: "1px solid #e6ebf0",
+  },
+  metaLabel: {
+    color: "#64748b",
+    fontSize: 12,
+    fontWeight: 800,
+    letterSpacing: "0.06em",
+    textTransform: "uppercase",
+  },
+  metaValue: {
+    color: "#0f172a",
+    fontSize: 14,
+    fontWeight: 700,
+    lineHeight: 1.5,
+  },
+  reportSummary: {
+    margin: "16px 0 0",
+    color: "#334155",
+    fontSize: 15,
+    lineHeight: 1.8,
+    fontWeight: 500,
   },
   errorCard: {
     background: "#fff1f2",
     color: "#b42318",
     border: "1px solid #fecdd3",
     borderRadius: 12,
-    padding: 18,
-    marginBottom: 24,
-    fontWeight: 600,
+    padding: 16,
+    marginBottom: 18,
+    fontWeight: 700,
   },
   loadingCard: {
     background: "#ffffff",
     borderRadius: 12,
+    border: "1px solid #d9e0e7",
     padding: 24,
-    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+    boxShadow: "0 12px 26px rgba(15,23,42,0.05)",
     display: "flex",
     alignItems: "center",
     gap: 16,
@@ -387,8 +543,8 @@ const styles: Record<string, CSSProperties> = {
     width: 28,
     height: 28,
     borderRadius: "50%",
-    border: "3px solid #d1fae5",
-    borderTopColor: "#059669",
+    border: "3px solid #dbeafe",
+    borderTopColor: "#2563eb",
     animation: "spin 0.8s linear infinite",
     flexShrink: 0,
   },
@@ -396,105 +552,103 @@ const styles: Record<string, CSSProperties> = {
     margin: "0 0 6px",
     fontSize: 22,
     color: "#111827",
+    fontWeight: 800,
   },
   loadingText: {
     margin: 0,
-    color: "#6b7280",
+    color: "#64748b",
     lineHeight: 1.7,
   },
-  reportGrid: {
-    display: "grid",
-    gap: 20,
+  savingsHeroCard: {
+    background: "linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%)",
+    borderRadius: 12,
+    border: "1px solid #b7e3c6",
+    padding: 28,
+    boxShadow: "0 16px 28px rgba(15,23,42,0.06)",
+    textAlign: "center",
+  },
+  savingsHeroLabel: {
+    color: "#166534",
+    fontSize: 13,
+    fontWeight: 800,
+    letterSpacing: "0.08em",
+    textTransform: "uppercase",
+    marginBottom: 10,
+  },
+  savingsHeroAmount: {
+    color: "#0f172a",
+    fontSize: "clamp(2.8rem, 8vw, 4.6rem)",
+    lineHeight: 0.95,
+    letterSpacing: "-0.06em",
+    fontWeight: 900,
+    marginBottom: 10,
+  },
+  savingsHeroText: {
+    margin: 0,
+    color: "#475569",
+    fontSize: 15,
+    lineHeight: 1.7,
+    fontWeight: 600,
   },
   card: {
     background: "#ffffff",
     borderRadius: 12,
-    padding: "24px",
-    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
-  },
-  riskCard: {
-    background: "#fff7ed",
-    borderRadius: 12,
-    padding: "24px",
-    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
-    borderLeft: "4px solid #f97316",
+    border: "1px solid #d9e0e7",
+    padding: 22,
+    boxShadow: "0 12px 26px rgba(15,23,42,0.05)",
   },
   sectionTitle: {
     margin: "0 0 16px",
+    color: "#0f172a",
     fontSize: 24,
-    lineHeight: 1.2,
-    fontWeight: 800,
-    color: "#111827",
-  },
-  concernBox: {
-    borderRadius: 12,
-    padding: 20,
-    border: "1px solid #e5e7eb",
-  },
-  concernHigh: {
-    background: "#fef2f2",
-    borderColor: "#fecaca",
-  },
-  concernMedium: {
-    background: "#fff7ed",
-    borderColor: "#fed7aa",
-  },
-  concernLow: {
-    background: "#f0fdf4",
-    borderColor: "#bbf7d0",
-  },
-  concernPill: {
-    display: "inline-block",
-    padding: "6px 10px",
-    borderRadius: 999,
-    background: "rgba(255,255,255,0.8)",
-    fontSize: 12,
-    fontWeight: 800,
-    letterSpacing: "0.08em",
-    textTransform: "uppercase",
-    marginBottom: 12,
-  },
-  concernHeadline: {
-    fontSize: 34,
-    lineHeight: 1.05,
-    fontWeight: 800,
-    letterSpacing: "-0.04em",
-    color: "#111827",
-    marginBottom: 10,
-  },
-  concernReason: {
-    margin: 0,
-    color: "#374151",
-    lineHeight: 1.75,
-    fontSize: 15,
-  },
-  savingsBox: {
-    background: "#ecfdf5",
-    border: "1px solid #a7f3d0",
-    borderRadius: 12,
-    padding: 20,
-  },
-  savingsAmount: {
-    fontSize: 40,
-    lineHeight: 1,
+    lineHeight: 1.15,
     fontWeight: 900,
-    color: "#047857",
-    letterSpacing: "-0.05em",
-    marginBottom: 12,
+    letterSpacing: "-0.03em",
   },
-  savingsReason: {
+  riskRow: {
+    display: "grid",
+    gap: 12,
+    marginBottom: 14,
+  },
+  riskBadge: {
+    display: "inline-flex",
+    width: "fit-content",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "10px 14px",
+    borderRadius: 999,
+    border: "1px solid",
+    fontSize: 13,
+    fontWeight: 800,
+    letterSpacing: "0.06em",
+    textTransform: "uppercase",
+  },
+  riskMeter: {
+    width: "100%",
+  },
+  riskMeterTrack: {
+    width: "100%",
+    height: 10,
+    borderRadius: 999,
+    overflow: "hidden",
+  },
+  riskMeterFill: {
+    height: "100%",
+    borderRadius: 999,
+  },
+  riskReason: {
     margin: 0,
-    color: "#374151",
-    lineHeight: 1.75,
+    color: "#334155",
     fontSize: 15,
+    lineHeight: 1.8,
   },
   findingsList: {
     display: "grid",
     gap: 14,
   },
   findingCard: {
-    background: "#fffafa",
-    border: "1px solid #fecaca",
+    border: "1px solid #f1c7c7",
+    background: "#fffaf9",
     borderRadius: 12,
     padding: 18,
   },
@@ -502,7 +656,7 @@ const styles: Record<string, CSSProperties> = {
     display: "flex",
     alignItems: "center",
     gap: 10,
-    marginBottom: 12,
+    marginBottom: 14,
   },
   findingIcon: {
     fontSize: 18,
@@ -510,34 +664,36 @@ const styles: Record<string, CSSProperties> = {
   },
   findingTitle: {
     margin: 0,
-    fontSize: 18,
-    lineHeight: 1.3,
-    fontWeight: 800,
     color: "#991b1b",
+    fontSize: 18,
+    lineHeight: 1.25,
+    fontWeight: 800,
   },
-  findingBlock: {
-    marginTop: 10,
+  findingRow: {
+    display: "grid",
+    gridTemplateColumns: "150px minmax(0, 1fr)",
+    gap: 12,
+    padding: "10px 0",
+    borderTop: "1px solid #f4dddd",
   },
   findingLabel: {
-    marginBottom: 4,
+    color: "#64748b",
     fontSize: 12,
     fontWeight: 800,
     letterSpacing: "0.06em",
     textTransform: "uppercase",
-    color: "#6b7280",
   },
-  findingText: {
-    margin: 0,
-    color: "#374151",
+  findingValue: {
+    color: "#334155",
+    fontSize: 14,
     lineHeight: 1.75,
-    fontSize: 15,
+    fontWeight: 500,
   },
   findingAction: {
-    margin: 0,
-    color: "#111827",
+    color: "#0f172a",
+    fontSize: 14,
     lineHeight: 1.75,
-    fontSize: 15,
-    fontWeight: 600,
+    fontWeight: 700,
   },
   actionList: {
     display: "grid",
@@ -547,39 +703,64 @@ const styles: Record<string, CSSProperties> = {
     display: "flex",
     alignItems: "flex-start",
     gap: 12,
-    background: "#f9fafb",
-    borderRadius: 12,
-    padding: "14px 16px",
+    padding: 14,
+    borderRadius: 10,
+    border: "1px solid #e5e7eb",
+    background: "#f8fafc",
   },
-  actionIcon: {
-    flexShrink: 0,
-    lineHeight: 1.5,
+  actionNumber: {
+    color: "#0f172a",
+    fontSize: 15,
+    fontWeight: 900,
+    lineHeight: 1.6,
+    minWidth: 18,
   },
   actionText: {
-    color: "#374151",
-    lineHeight: 1.7,
+    color: "#334155",
     fontSize: 15,
+    lineHeight: 1.7,
     fontWeight: 600,
   },
   scriptBox: {
-    background: "#f3f4f6",
+    border: "1px solid #d7dee5",
+    background: "#f8fafc",
     borderRadius: 12,
-    padding: 18,
-    border: "1px solid #e5e7eb",
+    padding: 16,
   },
   scriptLine: {
     margin: "0 0 10px",
     color: "#111827",
-    fontFamily:
-      'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
     fontSize: 14,
     lineHeight: 1.85,
+    fontFamily:
+      'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
   },
-  riskText: {
+  warningCard: {
+    background: "#fff7ed",
+    border: "1px solid #fdba74",
+    borderRadius: 12,
+    padding: 20,
+    boxShadow: "0 12px 26px rgba(15,23,42,0.05)",
+  },
+  warningTitle: {
+    color: "#9a3412",
+    fontSize: 20,
+    fontWeight: 900,
+    lineHeight: 1.2,
+    marginBottom: 10,
+  },
+  warningText: {
     margin: 0,
     color: "#7c2d12",
     fontSize: 15,
     lineHeight: 1.8,
     fontWeight: 600,
+  },
+  reportFooter: {
+    color: "#64748b",
+    fontSize: 13,
+    lineHeight: 1.7,
+    textAlign: "center",
+    padding: "4px 8px 0",
   },
 };
