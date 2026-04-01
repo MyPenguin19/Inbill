@@ -7,12 +7,12 @@ import {
   AlertTriangle,
   ArrowRight,
   BadgeDollarSign,
-  ClipboardCheck,
+  ClipboardList,
   FileText,
   Receipt,
-  ShieldAlert,
-  Sparkles,
-  Stethoscope,
+  ScanSearch,
+  ShieldCheck,
+  ShieldX,
 } from "lucide-react";
 
 import {
@@ -39,26 +39,30 @@ async function readJsonResponse<T>(response: Response): Promise<T> {
   return JSON.parse(bodyText) as T;
 }
 
-const findings = [
+const moneyLossCards = [
   {
     icon: Receipt,
-    title: "Duplicate charges",
-    description: "Catch repeated line items that may appear more than once on the same bill.",
+    title: "Duplicate Charges",
+    description: "Same service billed multiple times",
+    impact: "+$180",
   },
   {
-    icon: ShieldAlert,
-    title: "Insurance denials",
-    description: "Spot denied or misapplied claims before the full balance lands on you.",
+    icon: ShieldX,
+    title: "Insurance Errors",
+    description: "Claims denied or misapplied",
+    impact: "+$420",
   },
   {
     icon: BadgeDollarSign,
-    title: "Overpriced items",
-    description: "Flag charges that look unusually high for routine services or lab work.",
+    title: "Overpriced Services",
+    description: "Routine procedures billed above standard rates",
+    impact: "+$250",
   },
   {
     icon: AlertTriangle,
-    title: "Missing adjustments",
-    description: "Find cases where discounts or insurance adjustments may not have been applied.",
+    title: "Missing Adjustments",
+    description: "Discounts or negotiated rates not applied",
+    impact: "+$145",
   },
 ] as const;
 
@@ -66,18 +70,25 @@ const steps = [
   {
     icon: FileText,
     title: "Upload your bill",
-    description: "Add a PDF, screenshot, or medical bill image.",
+    description: "PDF, screenshot, or photo",
   },
   {
-    icon: Sparkles,
+    icon: ScanSearch,
     title: "AI analyzes it",
-    description: "We review the bill for costly mistakes and confusing charges.",
+    description: "Finds errors, duplicates, and pricing issues",
   },
   {
-    icon: ClipboardCheck,
-    title: "Get report + action steps",
-    description: "See what looks wrong and what to do next before paying.",
+    icon: ClipboardList,
+    title: "Get a report + action steps",
+    description: "Exactly what to say before you pay",
   },
+] as const;
+
+const trustItems = [
+  "Files are automatically deleted",
+  "No account required",
+  "No data stored",
+  "Secure processing",
 ] as const;
 
 export default function HomePage() {
@@ -250,53 +261,54 @@ export default function HomePage() {
   return (
     <main style={styles.page}>
       <style jsx global>{`
-        .home-hero-grid {
+        .landing-hero-grid {
           display: grid;
-          grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
-          gap: 24px;
-          align-items: center;
+          grid-template-columns: minmax(0, 1.05fr) minmax(340px, 0.95fr);
+          gap: 28px;
+          align-items: start;
         }
 
-        .home-grid-2 {
+        .landing-grid-2 {
           display: grid;
           grid-template-columns: repeat(2, minmax(0, 1fr));
           gap: 18px;
         }
 
-        .home-grid-3 {
+        .landing-grid-3 {
           display: grid;
           grid-template-columns: repeat(3, minmax(0, 1fr));
           gap: 18px;
         }
 
-        .home-grid-4 {
+        .landing-grid-4 {
           display: grid;
           grid-template-columns: repeat(4, minmax(0, 1fr));
           gap: 18px;
         }
 
-        .home-card {
+        .landing-card {
           transition:
-            transform 180ms ease,
-            box-shadow 180ms ease;
+            transform 160ms ease,
+            box-shadow 160ms ease,
+            border-color 160ms ease;
         }
 
-        .home-card:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+        .landing-card:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 18px 34px rgba(15, 23, 42, 0.08);
         }
 
-        @media (max-width: 900px) {
-          .home-grid-4 {
+        @media (max-width: 920px) {
+          .landing-grid-4 {
             grid-template-columns: repeat(2, minmax(0, 1fr));
           }
         }
 
         @media (max-width: 760px) {
-          .home-hero-grid,
-          .home-grid-2,
-          .home-grid-3,
-          .home-grid-4 {
+          .landing-hero-grid,
+          .landing-grid-2,
+          .landing-grid-3,
+          .landing-grid-4 {
             grid-template-columns: 1fr;
           }
         }
@@ -304,12 +316,12 @@ export default function HomePage() {
 
       <div style={styles.container}>
         <section style={styles.heroSection}>
-          <div className="home-hero-grid">
+          <div className="landing-hero-grid">
             <div style={styles.heroCopy}>
-              <div style={styles.kicker}>Medical Bill Review</div>
-              <h1 style={styles.headline}>You Might Be Overpaying Your Medical Bill</h1>
+              <div style={styles.kicker}>Medical Bill Audit</div>
+              <h1 style={styles.headline}>You&apos;re Probably Overpaying Your Medical Bill</h1>
               <p style={styles.subheadline}>
-                Upload your bill. Get a clear breakdown, hidden issues, and what to do next — in under 60 seconds.
+                Upload your bill and find hidden charges, duplicate fees, and insurance errors in under 60 seconds.
               </p>
 
               <div style={styles.heroActions}>
@@ -322,45 +334,70 @@ export default function HomePage() {
                   }}
                   type="button"
                 >
-                  {loading ? "Preparing..." : "Analyze My Bill — $4.99"}
+                  {loading ? "Preparing..." : "Find Errors in My Bill — $4.99"}
                 </button>
-                <p style={styles.trustLine}>No account required • Secure • No storage</p>
+                <div style={styles.trustRow}>
+                  <span>No account required</span>
+                  <span>Secure processing</span>
+                  <span>Files deleted after analysis</span>
+                </div>
               </div>
             </div>
 
-            <div className="home-card" style={styles.reportMockCard}>
-              <div style={styles.mockBadge}>Audit preview</div>
-              <div style={styles.mockHeader}>
+            <div className="landing-card" style={styles.reportPreview}>
+              <div style={styles.reportPreviewHeader}>
                 <div>
-                  <div style={styles.mockTitle}>Potential savings</div>
-                  <div style={styles.mockAmount}>$320</div>
+                  <div style={styles.previewEyebrow}>Review summary</div>
+                  <div style={styles.previewHeading}>Potential Savings: $320</div>
                 </div>
-                <div style={styles.mockStatus}>High concern</div>
+                <div style={styles.previewRisk}>High Risk</div>
               </div>
-              <div style={styles.mockFindingCard}>
-                <div style={styles.mockFindingIcon}>
-                  <AlertTriangle size={18} />
+
+              <div style={styles.previewTable}>
+                <div style={styles.previewTableHeader}>
+                  <span>Code</span>
+                  <span>Description</span>
+                  <span>Amount</span>
                 </div>
-                <div>
-                  <div style={styles.mockFindingTitle}>Duplicate charge detected</div>
-                  <div style={styles.mockFindingText}>
-                    The same lab service appears more than once for the same visit date.
-                  </div>
+
+                <div style={styles.previewRow}>
+                  <span>85025</span>
+                  <span>CBC lab panel</span>
+                  <span>$52.05</span>
+                </div>
+                <div style={{ ...styles.previewRow, ...styles.previewRowAlert }}>
+                  <span>85025</span>
+                  <span>Duplicate CBC lab panel</span>
+                  <span>$52.05</span>
+                </div>
+                <div style={styles.previewRow}>
+                  <span>36415</span>
+                  <span>Venipuncture</span>
+                  <span>$18.00</span>
+                </div>
+                <div style={styles.previewRow}>
+                  <span>Adj.</span>
+                  <span>Insurance adjustment missing</span>
+                  <span>$249.95</span>
                 </div>
               </div>
-              <div style={styles.mockCallout}>
-                <Stethoscope size={18} />
-                <span>Action plan included before you call billing.</span>
+
+              <div style={styles.previewFlagBox}>
+                <div style={styles.previewFlagTitle}>Flagged issues</div>
+                <ul style={styles.previewFlagList}>
+                  <li>Duplicate charge detected on same date of service</li>
+                  <li>Insurance adjustment appears missing from patient balance</li>
+                </ul>
               </div>
             </div>
           </div>
         </section>
 
         <section id="analyze" style={styles.section}>
-          <div className="home-card" style={styles.uploadCard}>
+          <div className="landing-card" style={styles.uploadCard}>
             <div style={styles.cardHeader}>
-              <h2 style={styles.cardTitle}>Upload your bill</h2>
-              <p style={styles.cardText}>PDF, image, or screenshot. We keep the flow simple, fast, and private.</p>
+              <h2 style={styles.cardTitle}>Run your bill before you pay it</h2>
+              <p style={styles.cardText}>Upload a PDF, screenshot, or phone photo. The review is built to catch costs you should question first.</p>
             </div>
 
             <label
@@ -404,89 +441,123 @@ export default function HomePage() {
               }}
               type="button"
             >
-              {loading ? "Preparing..." : "Analyze My Bill — $4.99"}
+              {loading ? "Preparing..." : "Find Errors in My Bill — $4.99"}
             </button>
           </div>
         </section>
 
         <section id="what-we-find" style={styles.section}>
           <div style={styles.sectionHeader}>
-            <h2 style={styles.sectionTitle}>What we find</h2>
+            <h2 style={styles.sectionTitle}>Where Your Money Gets Lost</h2>
           </div>
-          <div className="home-grid-4">
-            {findings.map((item) => (
-              <article className="home-card" key={item.title} style={styles.infoCard}>
-                <div style={styles.infoIcon}>
-                  <item.icon size={22} />
+
+          <div className="landing-grid-4">
+            {moneyLossCards.map((item) => (
+              <article key={item.title} className="landing-card" style={styles.problemCard}>
+                <div style={styles.problemIcon}>
+                  <item.icon size={20} />
                 </div>
-                <h3 style={styles.infoTitle}>{item.title}</h3>
-                <p style={styles.infoText}>{item.description}</p>
+                <div style={styles.problemImpact}>{item.impact}</div>
+                <h3 style={styles.problemTitle}>{item.title}</h3>
+                <p style={styles.problemText}>{item.description}</p>
               </article>
             ))}
+          </div>
+        </section>
+
+        <section style={styles.section}>
+          <div className="landing-card" style={styles.beforeAfterCard}>
+            <div style={styles.beforeAfterHeader}>
+              <h2 style={styles.sectionTitle}>Before You Pay — Check This First</h2>
+              <div style={styles.beforeAfterHighlight}>You could be overpaying by $320</div>
+            </div>
+
+            <div className="landing-grid-2">
+              <div style={styles.comparePanel}>
+                <div style={styles.compareLabel}>Total Bill</div>
+                <div style={styles.compareValue}>$2,140</div>
+              </div>
+              <div style={{ ...styles.comparePanel, ...styles.comparePanelAccent }}>
+                <div style={styles.compareLabel}>After Review</div>
+                <div style={styles.compareValue}>$1,820</div>
+              </div>
+            </div>
           </div>
         </section>
 
         <section style={styles.section}>
           <div style={styles.sectionHeader}>
-            <h2 style={styles.sectionTitle}>How it works</h2>
+            <h2 style={styles.sectionTitle}>How It Works</h2>
           </div>
-          <div className="home-grid-3">
+
+          <div className="landing-grid-3">
             {steps.map((item) => (
-              <article className="home-card" key={item.title} style={styles.infoCard}>
+              <article key={item.title} className="landing-card" style={styles.stepCard}>
                 <div style={styles.stepIcon}>
-                  <item.icon size={22} />
+                  <item.icon size={20} />
                 </div>
-                <h3 style={styles.infoTitle}>{item.title}</h3>
-                <p style={styles.infoText}>{item.description}</p>
+                <h3 style={styles.stepTitle}>{item.title}</h3>
+                <p style={styles.stepText}>{item.description}</p>
               </article>
             ))}
           </div>
         </section>
 
         <section style={styles.section}>
-          <div className="home-card" style={styles.samplePreviewCard}>
+          <div className="landing-card" style={styles.trustCard}>
             <div style={styles.sectionHeader}>
-              <h2 style={styles.sectionTitle}>Sample preview</h2>
+              <h2 style={styles.sectionTitle}>Private. Secure. Built for Sensitive Data</h2>
             </div>
-            <div className="home-grid-3">
-              <div style={styles.previewBlock}>
-                <div style={styles.previewLabel}>Summary</div>
-                <p style={styles.previewText}>
-                  Lab charges may be overstated because the claim appears denied and the balance may not reflect final insurance review.
-                </p>
-              </div>
-              <div style={styles.previewBlock}>
-                <div style={styles.previewLabel}>Issue found</div>
-                <p style={styles.previewText}>
-                  Possible duplicate charge that could increase the patient balance if not corrected.
-                </p>
-              </div>
-              <div style={styles.previewBlock}>
-                <div style={styles.previewLabel}>Call script</div>
-                <p style={styles.previewText}>
-                  “I need this bill reviewed before I pay because I see a denied claim and a charge that may be duplicated.”
-                </p>
-              </div>
-            </div>
-            <div style={styles.previewCtaRow}>
-              <Link href="/sample" style={styles.secondaryButton}>
-                See Full Example
-                <ArrowRight size={16} />
-              </Link>
+
+            <div className="landing-grid-2">
+              {trustItems.map((item) => (
+                <div key={item} style={styles.trustItem}>
+                  <div style={styles.trustIcon}>
+                    <ShieldCheck size={18} />
+                  </div>
+                  <div style={styles.trustText}>{item}</div>
+                </div>
+              ))}
             </div>
           </div>
         </section>
 
         <section style={styles.section}>
-          <div className="home-card" style={styles.savingsCard}>
-            <div style={styles.savingsValue}>$1,200+ potential savings</div>
-            <p style={styles.savingsText}>Based on real analyzed medical bills</p>
+          <div className="landing-card" style={styles.sampleCard}>
+            <div style={styles.sampleHeader}>
+              <div>
+                <div style={styles.sampleEyebrow}>Sample Output</div>
+                <h2 style={styles.sectionTitle}>What the report tells you to challenge</h2>
+              </div>
+              <Link href="/sample" style={styles.secondaryButton}>
+                See Full Example
+                <ArrowRight size={16} />
+              </Link>
+            </div>
+
+            <div className="landing-grid-3">
+              <div style={styles.sampleBlock}>
+                <div style={styles.sampleLabel}>Issue</div>
+                <p style={styles.sampleText}>Duplicate lab charge</p>
+                <div style={styles.sampleImpact}>Impact: +$120</div>
+              </div>
+              <div style={styles.sampleBlock}>
+                <div style={styles.sampleLabel}>Recommendation</div>
+                <p style={styles.sampleText}>Ask billing department to verify duplicate CPT code entry.</p>
+              </div>
+              <div style={styles.sampleBlock}>
+                <div style={styles.sampleLabel}>Call Script</div>
+                <p style={styles.sampleText}>
+                  “I’m calling about a charge that appears duplicated. I need this reviewed and adjusted before I make payment.”
+                </p>
+              </div>
+            </div>
           </div>
         </section>
 
         <section style={styles.finalSection}>
-          <div className="home-card" style={styles.finalCard}>
-            <h2 style={styles.finalTitle}>Check your bill before you pay it</h2>
+          <div className="landing-card" style={styles.finalCard}>
+            <h2 style={styles.finalTitle}>Check Your Bill Before You Pay It</h2>
             <button
               disabled={loading}
               onClick={handleAnalyze}
@@ -498,6 +569,7 @@ export default function HomePage() {
             >
               {loading ? "Preparing..." : "Analyze My Bill — $4.99"}
             </button>
+            <p style={styles.finalText}>Takes 60 seconds. Could save you hundreds.</p>
           </div>
         </section>
       </div>
@@ -515,40 +587,40 @@ const styles: Record<string, React.CSSProperties> = {
     margin: "0 auto",
   },
   heroSection: {
-    paddingTop: 20,
+    paddingTop: 28,
   },
   heroCopy: {
-    paddingTop: 10,
+    paddingTop: 6,
   },
   kicker: {
     display: "inline-flex",
     alignItems: "center",
-    justifyContent: "center",
-    padding: "8px 12px",
+    padding: "6px 10px",
+    border: "1px solid #d5dce3",
     borderRadius: 999,
-    background: "#ecfeff",
-    color: "#0f766e",
-    fontSize: 12,
+    background: "#ffffff",
+    color: "#475569",
+    fontSize: 11,
     fontWeight: 800,
     letterSpacing: "0.08em",
     textTransform: "uppercase",
-    marginBottom: 14,
+    marginBottom: 16,
   },
   headline: {
     margin: "0 0 14px",
     maxWidth: 560,
-    fontSize: "clamp(2.7rem, 5vw, 4.4rem)",
-    lineHeight: 0.98,
+    fontSize: "clamp(2.8rem, 5vw, 4.5rem)",
+    lineHeight: 0.96,
     letterSpacing: "-0.05em",
-    fontWeight: 800,
+    fontWeight: 900,
     color: "#0f172a",
   },
   subheadline: {
-    margin: "0 0 18px",
+    margin: "0 0 20px",
     maxWidth: 560,
     fontSize: 18,
-    lineHeight: 1.75,
-    color: "#475569",
+    lineHeight: 1.65,
+    color: "#334155",
   },
   heroActions: {
     display: "grid",
@@ -556,128 +628,131 @@ const styles: Record<string, React.CSSProperties> = {
     justifyItems: "flex-start",
   },
   heroButton: {
-    border: "none",
-    borderRadius: 12,
-    background: "linear-gradient(135deg, #16946d, #0f7757)",
+    border: "1px solid #0b6a4d",
+    borderRadius: 10,
+    background: "#0f7757",
     color: "#ffffff",
     padding: "16px 22px",
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: 800,
     cursor: "pointer",
-    boxShadow: "0 14px 28px rgba(15, 119, 87, 0.18)",
+    boxShadow: "0 12px 24px rgba(15, 119, 87, 0.2)",
   },
-  trustLine: {
-    margin: 0,
+  trustRow: {
+    display: "flex",
+    gap: 14,
+    flexWrap: "wrap",
     color: "#64748b",
-    fontSize: 14,
+    fontSize: 13,
     lineHeight: 1.6,
     fontWeight: 600,
   },
   section: {
-    marginTop: 60,
+    marginTop: 52,
   },
   finalSection: {
-    marginTop: 60,
+    marginTop: 56,
     marginBottom: 8,
   },
-  reportMockCard: {
-    background: "linear-gradient(180deg, #ffffff 0%, #f8fbfd 100%)",
-    border: "1px solid #e5e7eb",
-    borderRadius: 18,
-    padding: 24,
-    boxShadow: "0 18px 40px rgba(15,23,42,0.08)",
+  reportPreview: {
+    background: "#ffffff",
+    border: "1px solid #d7dee5",
+    borderRadius: 12,
+    padding: 20,
+    boxShadow: "0 20px 36px rgba(15,23,42,0.08)",
     display: "grid",
-    gap: 18,
+    gap: 16,
   },
-  mockBadge: {
-    display: "inline-flex",
-    width: "fit-content",
-    alignItems: "center",
-    padding: "7px 10px",
-    borderRadius: 999,
-    background: "#eefbf5",
-    color: "#0f7757",
+  reportPreviewHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    gap: 16,
+    flexWrap: "wrap",
+    paddingBottom: 14,
+    borderBottom: "1px solid #e5e7eb",
+  },
+  previewEyebrow: {
+    color: "#64748b",
     fontSize: 12,
     fontWeight: 800,
     letterSpacing: "0.08em",
     textTransform: "uppercase",
-  },
-  mockHeader: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    gap: 14,
-    flexWrap: "wrap",
-  },
-  mockTitle: {
-    color: "#64748b",
-    fontSize: 14,
-    fontWeight: 700,
     marginBottom: 6,
   },
-  mockAmount: {
+  previewHeading: {
     color: "#0f172a",
-    fontSize: 40,
-    lineHeight: 1,
-    letterSpacing: "-0.05em",
+    fontSize: 30,
     fontWeight: 900,
+    letterSpacing: "-0.04em",
+    lineHeight: 1,
   },
-  mockStatus: {
+  previewRisk: {
     padding: "8px 10px",
     borderRadius: 999,
-    background: "#fff7ed",
-    color: "#b45309",
+    border: "1px solid #f3c0c0",
+    background: "#fff3f3",
+    color: "#b42318",
+    fontSize: 12,
+    fontWeight: 800,
+    letterSpacing: "0.06em",
+    textTransform: "uppercase",
+  },
+  previewTable: {
+    display: "grid",
+    gap: 8,
+  },
+  previewTableHeader: {
+    display: "grid",
+    gridTemplateColumns: "72px minmax(0, 1fr) 82px",
+    gap: 12,
+    color: "#64748b",
+    fontSize: 12,
+    fontWeight: 800,
+    letterSpacing: "0.06em",
+    textTransform: "uppercase",
+  },
+  previewRow: {
+    display: "grid",
+    gridTemplateColumns: "72px minmax(0, 1fr) 82px",
+    gap: 12,
+    padding: "10px 0",
+    borderBottom: "1px solid #eef2f6",
+    color: "#1e293b",
+    fontSize: 14,
+    lineHeight: 1.5,
+  },
+  previewRowAlert: {
+    color: "#991b1b",
+    fontWeight: 700,
+  },
+  previewFlagBox: {
+    border: "1px solid #f2d1d1",
+    background: "#fff8f8",
+    borderRadius: 10,
+    padding: 14,
+  },
+  previewFlagTitle: {
+    color: "#991b1b",
     fontSize: 13,
     fontWeight: 800,
+    letterSpacing: "0.06em",
+    textTransform: "uppercase",
+    marginBottom: 8,
   },
-  mockFindingCard: {
-    display: "flex",
-    gap: 14,
-    alignItems: "flex-start",
-    padding: 16,
-    borderRadius: 14,
-    background: "#fff7f7",
-    border: "1px solid #fecaca",
-  },
-  mockFindingIcon: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
-    display: "grid",
-    placeItems: "center",
-    background: "#fee2e2",
-    color: "#b91c1c",
-    flexShrink: 0,
-  },
-  mockFindingTitle: {
-    color: "#991b1b",
-    fontSize: 15,
-    fontWeight: 800,
-    marginBottom: 4,
-  },
-  mockFindingText: {
+  previewFlagList: {
+    margin: 0,
+    paddingLeft: 18,
     color: "#475569",
     fontSize: 14,
     lineHeight: 1.7,
   },
-  mockCallout: {
-    display: "inline-flex",
-    alignItems: "center",
-    gap: 10,
-    color: "#334155",
-    fontSize: 14,
-    fontWeight: 600,
-    padding: "14px 16px",
-    borderRadius: 14,
-    background: "#f8fafc",
-    border: "1px solid #e5e7eb",
-  },
   uploadCard: {
     background: "#ffffff",
-    border: "1px solid #e5e7eb",
-    borderRadius: 16,
+    border: "1px solid #d7dee5",
+    borderRadius: 12,
     padding: 24,
-    boxShadow: "0 16px 36px rgba(15,23,42,0.06)",
+    boxShadow: "0 14px 28px rgba(15,23,42,0.06)",
   },
   cardHeader: {
     marginBottom: 16,
@@ -685,7 +760,7 @@ const styles: Record<string, React.CSSProperties> = {
   cardTitle: {
     margin: "0 0 8px",
     fontSize: 24,
-    lineHeight: 1.2,
+    lineHeight: 1.15,
     fontWeight: 800,
     color: "#111827",
   },
@@ -700,32 +775,32 @@ const styles: Record<string, React.CSSProperties> = {
     justifyItems: "center",
     gap: 10,
     padding: "28px 18px",
-    border: "1.5px dashed #cbd5e1",
-    borderRadius: 12,
+    border: "1.5px dashed #b8c4d0",
+    borderRadius: 10,
     background: "#f8fafc",
     cursor: "pointer",
   },
   uploadZoneActive: {
-    borderColor: "#0f766e",
-    background: "#f0fdfa",
+    borderColor: "#0f7757",
+    background: "#f1f8f5",
   },
   hiddenInput: {
     display: "none",
   },
   uploadIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 14,
-    background: "#ecfeff",
-    color: "#0f766e",
+    width: 46,
+    height: 46,
+    borderRadius: 10,
+    background: "#eef3f7",
+    color: "#0f172a",
     display: "grid",
     placeItems: "center",
     fontSize: 22,
     fontWeight: 700,
   },
   uploadZoneTitle: {
-    fontSize: 18,
-    fontWeight: 700,
+    fontSize: 17,
+    fontWeight: 800,
     color: "#0f172a",
   },
   uploadZoneText: {
@@ -736,8 +811,9 @@ const styles: Record<string, React.CSSProperties> = {
   fileCard: {
     marginTop: 14,
     padding: 14,
-    borderRadius: 12,
+    borderRadius: 10,
     background: "#f8fafc",
+    border: "1px solid #e5e7eb",
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
@@ -760,24 +836,24 @@ const styles: Record<string, React.CSSProperties> = {
     color: "#334155",
     borderRadius: 10,
     padding: "10px 14px",
-    fontWeight: 600,
+    fontWeight: 700,
     cursor: "pointer",
   },
   errorText: {
     marginTop: 14,
     color: "#b91c1c",
-    fontWeight: 600,
+    fontWeight: 700,
     fontSize: 14,
   },
   ctaButton: {
     width: "100%",
     marginTop: 16,
-    border: "none",
-    borderRadius: 12,
-    background: "linear-gradient(135deg, #16946d, #0f7757)",
+    border: "1px solid #0b6a4d",
+    borderRadius: 10,
+    background: "#0f7757",
     color: "#ffffff",
     padding: "16px 18px",
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: 800,
     cursor: "pointer",
     boxShadow: "0 12px 24px rgba(15, 118, 110, 0.18)",
@@ -787,85 +863,209 @@ const styles: Record<string, React.CSSProperties> = {
     cursor: "wait",
   },
   sectionHeader: {
-    marginBottom: 18,
+    marginBottom: 16,
   },
   sectionTitle: {
     margin: 0,
     fontSize: 30,
-    lineHeight: 1.15,
-    fontWeight: 800,
+    lineHeight: 1.1,
+    fontWeight: 900,
     letterSpacing: "-0.03em",
     color: "#111827",
   },
-  infoCard: {
+  problemCard: {
     background: "#ffffff",
-    border: "1px solid #e5e7eb",
+    border: "1px solid #d7dee5",
     borderRadius: 12,
-    padding: 20,
-    boxShadow: "0 12px 28px rgba(15,23,42,0.05)",
+    padding: 18,
+    boxShadow: "0 12px 26px rgba(15,23,42,0.05)",
   },
-  infoIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
+  problemIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
     marginBottom: 14,
     display: "grid",
     placeItems: "center",
-    background: "#eff7f3",
-    color: "#0f7757",
+    background: "#f6f8fb",
+    color: "#0f172a",
   },
-  infoTitle: {
+  problemImpact: {
+    color: "#b42318",
+    fontSize: 28,
+    lineHeight: 1,
+    letterSpacing: "-0.04em",
+    fontWeight: 900,
+    marginBottom: 10,
+  },
+  problemTitle: {
     margin: "0 0 8px",
     fontSize: 18,
-    lineHeight: 1.3,
-    fontWeight: 700,
+    lineHeight: 1.25,
+    fontWeight: 800,
     color: "#111827",
   },
-  infoText: {
+  problemText: {
     margin: 0,
     color: "#475569",
-    lineHeight: 1.75,
+    lineHeight: 1.7,
     fontSize: 14,
   },
-  stepIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    background: "#eff7f3",
+  beforeAfterCard: {
+    background: "#ffffff",
+    border: "1px solid #d7dee5",
+    borderRadius: 12,
+    padding: 24,
+    boxShadow: "0 12px 26px rgba(15,23,42,0.05)",
+  },
+  beforeAfterHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "flex-end",
+    gap: 16,
+    flexWrap: "wrap",
+    marginBottom: 20,
+  },
+  beforeAfterHighlight: {
     color: "#0f7757",
+    fontSize: 18,
+    fontWeight: 900,
+  },
+  comparePanel: {
+    border: "1px solid #d7dee5",
+    borderRadius: 12,
+    background: "#f8fafc",
+    padding: 22,
+  },
+  comparePanelAccent: {
+    background: "#f1f8f5",
+    borderColor: "#b7dfd0",
+  },
+  compareLabel: {
+    color: "#64748b",
+    fontSize: 13,
+    fontWeight: 800,
+    letterSpacing: "0.06em",
+    textTransform: "uppercase",
+    marginBottom: 8,
+  },
+  compareValue: {
+    color: "#0f172a",
+    fontSize: "clamp(2.2rem, 6vw, 3.2rem)",
+    lineHeight: 1,
+    letterSpacing: "-0.05em",
+    fontWeight: 900,
+  },
+  stepCard: {
+    background: "#ffffff",
+    border: "1px solid #d7dee5",
+    borderRadius: 12,
+    padding: 20,
+    boxShadow: "0 12px 26px rgba(15,23,42,0.05)",
+  },
+  stepIcon: {
+    width: 42,
+    height: 42,
+    borderRadius: 10,
     display: "grid",
     placeItems: "center",
+    background: "#f6f8fb",
+    color: "#0f172a",
     marginBottom: 14,
   },
-  samplePreviewCard: {
+  stepTitle: {
+    margin: "0 0 8px",
+    fontSize: 18,
+    lineHeight: 1.25,
+    fontWeight: 800,
+    color: "#111827",
+  },
+  stepText: {
+    margin: 0,
+    color: "#475569",
+    lineHeight: 1.7,
+    fontSize: 14,
+  },
+  trustCard: {
     background: "#ffffff",
-    border: "1px solid #e5e7eb",
-    borderRadius: 16,
-    padding: 24,
-    boxShadow: "0 12px 28px rgba(15,23,42,0.05)",
-  },
-  previewBlock: {
-    background: "#f8fafc",
+    border: "1px solid #d7dee5",
     borderRadius: 12,
-    padding: 16,
-    border: "1px solid #e5e7eb",
+    padding: 24,
+    boxShadow: "0 12px 26px rgba(15,23,42,0.05)",
   },
-  previewLabel: {
-    marginBottom: 8,
-    color: "#0f766e",
+  trustItem: {
+    display: "flex",
+    alignItems: "center",
+    gap: 12,
+    padding: 14,
+    borderRadius: 10,
+    border: "1px solid #e5e7eb",
+    background: "#f8fafc",
+  },
+  trustIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    display: "grid",
+    placeItems: "center",
+    background: "#eef7f2",
+    color: "#0f7757",
+    flexShrink: 0,
+  },
+  trustText: {
+    color: "#1e293b",
+    fontSize: 15,
+    lineHeight: 1.6,
+    fontWeight: 700,
+  },
+  sampleCard: {
+    background: "#ffffff",
+    border: "1px solid #d7dee5",
+    borderRadius: 12,
+    padding: 24,
+    boxShadow: "0 12px 26px rgba(15,23,42,0.05)",
+  },
+  sampleHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "flex-end",
+    gap: 16,
+    flexWrap: "wrap",
+    marginBottom: 18,
+  },
+  sampleEyebrow: {
+    color: "#64748b",
     fontSize: 12,
     fontWeight: 800,
     letterSpacing: "0.08em",
     textTransform: "uppercase",
+    marginBottom: 6,
   },
-  previewText: {
+  sampleBlock: {
+    border: "1px solid #e5e7eb",
+    borderRadius: 10,
+    background: "#f8fafc",
+    padding: 16,
+  },
+  sampleLabel: {
+    color: "#0f172a",
+    fontSize: 12,
+    fontWeight: 800,
+    letterSpacing: "0.08em",
+    textTransform: "uppercase",
+    marginBottom: 8,
+  },
+  sampleText: {
     margin: 0,
     color: "#334155",
-    fontSize: 15,
+    fontSize: 14,
     lineHeight: 1.7,
   },
-  previewCtaRow: {
-    marginTop: 16,
+  sampleImpact: {
+    marginTop: 10,
+    color: "#b42318",
+    fontSize: 15,
+    fontWeight: 800,
   },
   secondaryButton: {
     display: "inline-flex",
@@ -873,61 +1073,46 @@ const styles: Record<string, React.CSSProperties> = {
     justifyContent: "center",
     gap: 8,
     padding: "12px 16px",
-    borderRadius: 12,
+    borderRadius: 10,
     border: "1px solid #cbd5e1",
     background: "#ffffff",
     color: "#0f172a",
     fontSize: 14,
-    fontWeight: 700,
+    fontWeight: 800,
     textDecoration: "none",
-  },
-  savingsCard: {
-    background: "#ffffff",
-    border: "1px solid #d1fae5",
-    borderRadius: 16,
-    padding: "28px 24px",
-    boxShadow: "0 12px 28px rgba(15,23,42,0.05)",
-    textAlign: "center",
-  },
-  savingsValue: {
-    fontSize: "clamp(2.8rem, 9vw, 4.4rem)",
-    lineHeight: 1,
-    fontWeight: 900,
-    letterSpacing: "-0.06em",
-    color: "#0f172a",
-    marginBottom: 10,
-  },
-  savingsText: {
-    margin: 0,
-    color: "#475569",
-    fontSize: 16,
-    lineHeight: 1.7,
-    fontWeight: 600,
   },
   finalCard: {
     background: "#ffffff",
-    border: "1px solid #e5e7eb",
-    borderRadius: 16,
-    padding: 24,
-    boxShadow: "0 12px 28px rgba(15,23,42,0.05)",
+    border: "1px solid #d7dee5",
+    borderRadius: 12,
+    padding: 28,
+    boxShadow: "0 12px 26px rgba(15,23,42,0.05)",
     textAlign: "center",
   },
   finalTitle: {
     margin: "0 0 16px",
-    fontSize: 28,
-    lineHeight: 1.15,
-    fontWeight: 800,
+    fontSize: 30,
+    lineHeight: 1.1,
+    fontWeight: 900,
     color: "#111827",
+    letterSpacing: "-0.03em",
   },
   finalButton: {
-    border: "none",
-    borderRadius: 12,
-    background: "linear-gradient(135deg, #16946d, #0f7757)",
+    border: "1px solid #0b6a4d",
+    borderRadius: 10,
+    background: "#0f7757",
     color: "#ffffff",
-    padding: "16px 20px",
-    fontSize: 17,
+    padding: "16px 22px",
+    fontSize: 16,
     fontWeight: 800,
     cursor: "pointer",
     boxShadow: "0 12px 24px rgba(15, 118, 110, 0.18)",
+  },
+  finalText: {
+    margin: "14px 0 0",
+    color: "#475569",
+    fontSize: 15,
+    lineHeight: 1.7,
+    fontWeight: 600,
   },
 };

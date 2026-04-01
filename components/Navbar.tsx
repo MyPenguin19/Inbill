@@ -8,8 +8,6 @@ const navLinks = [
   { href: "/", label: "Home" },
   { href: "/sample", label: "Sample" },
   { href: "/pricing", label: "Pricing" },
-  { href: "/#what-we-find", label: "Features" },
-  { href: "/about", label: "About Us" },
 ] as const;
 
 export default function Navbar() {
@@ -33,7 +31,7 @@ export default function Navbar() {
           height: 64px;
           background: rgba(255, 255, 255, 0.96);
           backdrop-filter: blur(12px);
-          border-bottom: 1px solid #e5e7eb;
+          border-bottom: 1px solid #d8e0e7;
         }
 
         .nav-bar {
@@ -43,7 +41,7 @@ export default function Navbar() {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: 20px;
+          gap: 18px;
         }
 
         .brand {
@@ -63,9 +61,9 @@ export default function Navbar() {
         }
 
         .link {
-          color: #475569;
-          font-size: 0.95rem;
-          font-weight: 600;
+          color: #334155;
+          font-size: 0.94rem;
+          font-weight: 700;
           text-decoration: none;
           transition: color 160ms ease;
         }
@@ -80,13 +78,14 @@ export default function Navbar() {
           justify-content: center;
           min-height: 44px;
           padding: 0 18px;
-          border-radius: 12px;
-          background: linear-gradient(135deg, #16946d, #0f7757);
+          border-radius: 10px;
+          border: 1px solid #0b6a4d;
+          background: #0f7757;
           color: #ffffff;
           font-size: 0.94rem;
           font-weight: 800;
           text-decoration: none;
-          box-shadow: 0 10px 24px rgba(15, 119, 87, 0.18);
+          box-shadow: 0 10px 22px rgba(15, 119, 87, 0.18);
         }
 
         .burger {
@@ -167,7 +166,7 @@ export default function Navbar() {
         .mobileLink {
           color: #0f172a;
           text-decoration: none;
-          font-size: 1.5rem;
+          font-size: 1.42rem;
           line-height: 1.2;
           font-weight: 800;
           padding: 8px 0;
@@ -180,8 +179,9 @@ export default function Navbar() {
           justify-content: center;
           min-height: 48px;
           width: 100%;
-          border-radius: 12px;
-          background: linear-gradient(135deg, #16946d, #0f7757);
+          border-radius: 10px;
+          border: 1px solid #0b6a4d;
+          background: #0f7757;
           color: #ffffff;
           font-size: 1rem;
           font-weight: 800;
