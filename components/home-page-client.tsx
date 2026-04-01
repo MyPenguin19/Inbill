@@ -3,17 +3,7 @@
 import Link from "next/link";
 import { ChangeEvent, DragEvent, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  AlertTriangle,
-  ArrowRight,
-  BadgeDollarSign,
-  ClipboardList,
-  FileSearch,
-  FileText,
-  Receipt,
-  ShieldCheck,
-  ShieldX,
-} from "lucide-react";
+import { ArrowRight, BadgeDollarSign, ClipboardList, FileSearch, FileText, Receipt, ShieldX } from "lucide-react";
 
 import {
   BILL_IMAGE_STORAGE_KEY,
@@ -59,7 +49,7 @@ const moneyLossCards = [
     impact: "+$250",
   },
   {
-    icon: AlertTriangle,
+    icon: ClipboardList,
     title: "Missing Adjustments",
     description: "Discounts or negotiated rates not applied",
     impact: "+$145",
@@ -74,21 +64,14 @@ const steps = [
   },
   {
     icon: FileSearch,
-    title: "AI analyzes it instantly",
+    title: "AI analyzes it",
     description: "Finds errors, duplicates, and pricing issues",
   },
   {
     icon: ClipboardList,
-    title: "Get exact errors + what to say before paying",
-    description: "A report built to help you question the balance before you send money",
+    title: "Get your report",
+    description: "See what to challenge and what to say before paying",
   },
-] as const;
-
-const trustItems = [
-  "Files auto-deleted after analysis",
-  "No data stored",
-  "No account required",
-  "Secure processing",
 ] as const;
 
 export default function HomePage() {
@@ -262,110 +245,44 @@ export default function HomePage() {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
     name: "BillFixa",
-    description:
-      "Tool to detect and fix medical billing errors before payment",
+    description: "Tool to detect and fix medical billing errors before payment",
     applicationCategory: "FinanceApplication",
     operatingSystem: "Web",
   };
 
   return (
-    <main style={styles.page}>
+    <main className="min-h-screen bg-gradient-to-b from-white to-gray-100 py-10">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
-      <style jsx global>{`
-        .landing-hero-grid {
-          display: grid;
-          grid-template-columns: minmax(0, 1.02fr) minmax(360px, 0.98fr);
-          gap: 28px;
-          align-items: start;
-        }
 
-        .landing-grid-2 {
-          display: grid;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 18px;
-        }
+      <div className="mx-auto w-full max-w-[1200px] space-y-10 px-4 md:px-6 lg:px-8">
+        <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm md:p-8">
+          <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+            <div className="space-y-6">
+              <div className="inline-flex rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">
+                Medical Bill Review
+              </div>
+              <div className="space-y-4">
+                <h1 className="text-4xl font-semibold tracking-tight text-gray-950 md:text-5xl">
+                  Fix billing errors before you pay
+                </h1>
+                <p className="max-w-2xl text-sm leading-relaxed text-gray-600 md:text-base">
+                  Upload your bill, find hidden charges, and get a clear action plan in under 60 seconds.
+                </p>
+              </div>
 
-        .landing-grid-3 {
-          display: grid;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-          gap: 18px;
-        }
-
-        .landing-grid-4 {
-          display: grid;
-          grid-template-columns: repeat(4, minmax(0, 1fr));
-          gap: 18px;
-        }
-
-        .landing-card {
-          transition:
-            transform 160ms ease,
-            box-shadow 160ms ease,
-            border-color 160ms ease;
-        }
-
-        .landing-card:hover {
-          transform: translateY(-1px);
-          box-shadow: 0 18px 34px rgba(15, 23, 42, 0.08);
-        }
-
-        .audit-scroll {
-          max-height: 244px;
-          overflow-y: auto;
-          padding-right: 4px;
-        }
-
-        .audit-scroll::-webkit-scrollbar {
-          width: 6px;
-        }
-
-        .audit-scroll::-webkit-scrollbar-thumb {
-          background: #c9d4df;
-          border-radius: 999px;
-        }
-
-        @media (max-width: 920px) {
-          .landing-grid-4 {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-          }
-        }
-
-        @media (max-width: 760px) {
-          .landing-hero-grid,
-          .landing-grid-2,
-          .landing-grid-3,
-          .landing-grid-4 {
-            grid-template-columns: 1fr;
-          }
-        }
-      `}</style>
-
-      <div style={styles.container}>
-        <section style={styles.heroSection}>
-          <div className="landing-hero-grid">
-            <div style={styles.heroCopy}>
-              <div style={styles.kicker}>Medical Bill Audit</div>
-              <h1 style={styles.headline}>Don&apos;t Pay Your Medical Bill Until You Check This</h1>
-              <p style={styles.subheadline}>
-                We find hidden charges, duplicate fees, and insurance errors in under 60 seconds.
-              </p>
-
-              <div style={styles.heroActions}>
+              <div className="space-y-4">
                 <button
                   disabled={loading}
                   onClick={handleAnalyze}
-                  style={{
-                    ...styles.heroButton,
-                    ...(loading ? styles.buttonDisabled : {}),
-                  }}
+                  className="inline-flex rounded-xl bg-black px-4 py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-wait disabled:opacity-70"
                   type="button"
                 >
-                  {loading ? "Preparing..." : "Fix My Bill Before I Pay — $4.99"}
+                  {loading ? "Preparing..." : "Fix My Bill — $4.99"}
                 </button>
-                <div style={styles.trustRow}>
+                <div className="flex flex-wrap gap-3 text-sm text-gray-500">
                   <span>No account required</span>
                   <span>Secure processing</span>
                   <span>Files automatically deleted</span>
@@ -373,98 +290,49 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="landing-card" style={styles.reportPreview}>
-              <div style={styles.reportPreviewHeader}>
-                <div>
-                  <div style={styles.previewEyebrow}>Bill audit preview</div>
-                  <div style={styles.previewHeading}>Potential Savings: $320</div>
-                </div>
-                <div style={styles.previewRisk}>Review before paying</div>
-              </div>
-
-              <div className="audit-scroll" style={styles.previewTableWrap}>
-                <div style={styles.previewTable}>
-                  <div style={styles.previewTableHeader}>
-                    <span>Code</span>
-                    <span>Description</span>
-                    <span>Amount</span>
+            <div className="rounded-2xl border border-gray-200 bg-gray-50 p-6 shadow-sm">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">
+                      Example result
+                    </div>
+                    <div className="mt-2 text-2xl font-semibold tracking-tight text-gray-950">$320 identified</div>
                   </div>
-
-                  <div style={styles.previewRow}>
-                    <span>85025</span>
-                    <span>CBC, platelet differential</span>
-                    <span>$52.05</span>
-                  </div>
-                  <div style={{ ...styles.previewRow, ...styles.previewRowAlert }}>
-                    <span>85025</span>
-                    <span>Duplicate CBC, platelet differential</span>
-                    <span>$52.05</span>
-                  </div>
-                  <div style={styles.previewRow}>
-                    <span>36415</span>
-                    <span>Collection of venous blood</span>
-                    <span>$18.00</span>
-                  </div>
-                  <div style={styles.previewRow}>
-                    <span>80053</span>
-                    <span>Comprehensive metabolic panel</span>
-                    <span>$92.40</span>
-                  </div>
-                  <div style={{ ...styles.previewRow, ...styles.previewRowWarn }}>
-                    <span>Adj.</span>
-                    <span>Insurance adjustment missing from patient balance</span>
-                    <span>$215.50</span>
-                  </div>
-                  <div style={styles.previewRow}>
-                    <span>Denial</span>
-                    <span>Claim appears denied as billed to patient</span>
-                    <span>$108.00</span>
+                  <div className="rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
+                    Review recommended
                   </div>
                 </div>
-              </div>
-
-              <div style={styles.previewFlagBox}>
-                <div style={styles.previewFlagTitle}>Flagged</div>
-                <ul style={styles.previewFlagList}>
-                  <li>Duplicate charge likely inflated the balance</li>
-                  <li>Insurance adjustment appears missing before patient billing</li>
-                </ul>
+                <div className="space-y-3 rounded-xl border border-gray-200 bg-white p-4">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-500">85025</span>
+                    <span className="font-medium text-gray-900">$52.05</span>
+                  </div>
+                  <div className="flex items-center justify-between rounded-lg bg-red-50 px-3 py-2 text-sm">
+                    <span className="font-medium text-red-700">Duplicate charge detected</span>
+                    <span className="font-semibold text-red-700">+$52.05</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-500">Insurance adjustment missing</span>
+                    <span className="font-medium text-gray-900">$215.50</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </section>
 
-        <section style={styles.proofStripSection}>
-          <div style={styles.proofStrip}>
-            <div style={styles.proofItem}>
-              <div style={styles.proofValue}>1,200+</div>
-              <div style={styles.proofLabel}>medical bills reviewed</div>
-            </div>
-            <div style={styles.proofItem}>
-              <div style={styles.proofValue}>$287</div>
-              <div style={styles.proofLabel}>average savings identified</div>
-            </div>
-            <div style={styles.proofItem}>
-              <div style={styles.proofValue}>#1</div>
-              <div style={styles.proofLabel}>duplicate lab charges found most often</div>
-            </div>
-          </div>
-        </section>
-
-        <section id="analyze" style={styles.section}>
-          <div className="landing-card" style={styles.uploadCard}>
-            <div style={styles.cardHeader}>
-              <h2 style={styles.cardTitle}>Check your bill before you send money</h2>
-              <p style={styles.cardText}>
-                Upload a PDF, screenshot, or photo. The review is designed to catch costs you should challenge before paying.
-              </p>
+        <section id="analyze" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm md:p-8">
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <h2 className="text-xl font-semibold tracking-tight text-gray-950">Upload your bill</h2>
+              <p className="text-sm leading-relaxed text-gray-600">PDF, screenshot, or photo. We’ll prepare the report before you pay.</p>
             </div>
 
             <label
-              style={{
-                ...styles.uploadZone,
-                ...(dragActive ? styles.uploadZoneActive : {}),
-              }}
+              className={`grid cursor-pointer justify-items-center gap-3 rounded-2xl border border-dashed p-8 text-center transition ${
+                dragActive ? "border-gray-900 bg-gray-100" : "border-gray-300 bg-gray-50"
+              }`}
               onDragLeave={() => setDragActive(false)}
               onDragOver={(event) => {
                 event.preventDefault();
@@ -472,759 +340,108 @@ export default function HomePage() {
               }}
               onDrop={handleDrop}
             >
-              <input accept=".pdf,image/*,.txt" onChange={handleFileInput} style={styles.hiddenInput} type="file" />
-              <div style={styles.uploadIcon}>↑</div>
-              <div style={styles.uploadZoneTitle}>Drag and drop your bill</div>
-              <div style={styles.uploadZoneText}>PDF, image, or screenshot</div>
+              <input accept=".pdf,image/*,.txt" onChange={handleFileInput} className="hidden" type="file" />
+              <div className="rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-700">
+                Upload Your Bill
+              </div>
+              <div className="text-sm font-medium text-gray-900">Drag and drop your file here</div>
+              <div className="text-sm text-gray-500">PDF, image, or screenshot</div>
             </label>
 
             {selectedFile ? (
-              <div style={styles.fileCard}>
+              <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-gray-200 bg-gray-50 p-4">
                 <div>
-                  <div style={styles.fileName}>{selectedFile.name}</div>
-                  <div style={styles.fileMeta}>{fileSummary}</div>
+                  <div className="text-sm font-semibold text-gray-950">{selectedFile.name}</div>
+                  <div className="text-sm text-gray-500">{fileSummary}</div>
                 </div>
-                <button onClick={removeFile} style={styles.removeButton} type="button">
+                <button
+                  onClick={removeFile}
+                  className="rounded-xl border border-gray-300 px-4 py-3 text-sm font-medium text-gray-700 transition hover:bg-white"
+                  type="button"
+                >
                   Remove
                 </button>
               </div>
             ) : null}
 
-            {error ? <div style={styles.errorText}>{error}</div> : null}
+            {error ? <div className="text-sm font-medium text-red-700">{error}</div> : null}
 
             <button
               disabled={loading}
               onClick={handleAnalyze}
-              style={{
-                ...styles.ctaButton,
-                ...(loading ? styles.buttonDisabled : {}),
-              }}
-              type="button"
-            >
-              {loading ? "Preparing..." : "Fix My Bill Before I Pay — $4.99"}
-            </button>
-          </div>
-        </section>
-
-        <section id="what-we-find" style={styles.section}>
-          <div style={styles.sectionHeader}>
-            <h2 style={styles.sectionTitle}>Where Your Money Gets Lost</h2>
-          </div>
-
-          <div className="landing-grid-4">
-            {moneyLossCards.map((item) => (
-              <article key={item.title} className="landing-card" style={styles.problemCard}>
-                <div style={styles.problemTop}>
-                  <div style={styles.problemIcon}>
-                    <item.icon size={20} />
-                  </div>
-                  <div style={styles.problemImpact}>{item.impact}</div>
-                </div>
-                <h3 style={styles.problemTitle}>{item.title}</h3>
-                <p style={styles.problemText}>{item.description}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section style={styles.section}>
-          <div className="landing-card" style={styles.beforeAfterCard}>
-            <div style={styles.beforeAfterHeader}>
-              <h2 style={styles.sectionTitle}>Before You Pay — Check This First</h2>
-              <div style={styles.beforeAfterHighlight}>You could be overpaying by $320</div>
-            </div>
-
-            <div className="landing-grid-2">
-              <div style={styles.comparePanel}>
-                <div style={styles.compareLabel}>Total Bill</div>
-                <div style={styles.compareValue}>$2,140</div>
-              </div>
-              <div style={{ ...styles.comparePanel, ...styles.comparePanelAccent }}>
-                <div style={styles.compareLabel}>After Review</div>
-                <div style={styles.compareValue}>$1,820</div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section style={styles.section}>
-          <div style={styles.sectionHeader}>
-            <h2 style={styles.sectionTitle}>How It Works</h2>
-          </div>
-
-          <div className="landing-grid-3">
-            {steps.map((item) => (
-              <article key={item.title} className="landing-card" style={styles.stepCard}>
-                <div style={styles.stepIcon}>
-                  <item.icon size={20} />
-                </div>
-                <h3 style={styles.stepTitle}>{item.title}</h3>
-                <p style={styles.stepText}>{item.description}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section style={styles.section}>
-          <div className="landing-card" style={styles.sampleCard}>
-            <div style={styles.sampleHeader}>
-              <div>
-                <div style={styles.sampleEyebrow}>Sample Report</div>
-                <h2 style={styles.sectionTitle}>What you can challenge before you pay</h2>
-              </div>
-              <Link href="/sample" style={styles.secondaryButton}>
-                See Full Example
-                <ArrowRight size={16} />
-              </Link>
-            </div>
-
-            <div className="landing-grid-3">
-              <div style={styles.sampleBlock}>
-                <div style={styles.sampleLabel}>Issue</div>
-                <p style={styles.sampleText}>Duplicate lab charge</p>
-                <div style={styles.sampleImpact}>Impact: +$120</div>
-              </div>
-              <div style={styles.sampleBlock}>
-                <div style={styles.sampleLabel}>Recommendation</div>
-                <p style={styles.sampleText}>Ask billing department to verify duplicate CPT code entry.</p>
-              </div>
-              <div style={styles.sampleBlock}>
-                <div style={styles.sampleLabel}>Call Script</div>
-                <p style={styles.sampleText}>
-                  &quot;I&apos;m calling about a charge that appears duplicated. Can you verify this before I make payment?&quot;
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section style={styles.section}>
-          <div className="landing-card" style={styles.trustCard}>
-            <div style={styles.sectionHeader}>
-              <h2 style={styles.sectionTitle}>Private. Secure. Built for Sensitive Data</h2>
-            </div>
-
-            <div className="landing-grid-2">
-              {trustItems.map((item) => (
-                <div key={item} style={styles.trustItem}>
-                  <div style={styles.trustIcon}>
-                    <ShieldCheck size={18} />
-                  </div>
-                  <div style={styles.trustText}>{item}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section style={styles.finalSection}>
-          <div className="landing-card" style={styles.finalCard}>
-            <h2 style={styles.finalTitle}>Check Your Bill Before You Pay It</h2>
-            <p style={styles.finalText}>
-              Most medical bills contain errors. Takes 60 seconds. Could save you hundreds.
-            </p>
-            <button
-              disabled={loading}
-              onClick={handleAnalyze}
-              style={{
-                ...styles.finalButton,
-                ...(loading ? styles.buttonDisabled : {}),
-              }}
+              className="w-full rounded-xl bg-black px-4 py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-wait disabled:opacity-70"
               type="button"
             >
               {loading ? "Preparing..." : "Fix My Bill — $4.99"}
             </button>
           </div>
         </section>
+
+        <section className="space-y-4">
+          <div className="space-y-2">
+            <h2 className="text-xl font-semibold tracking-tight text-gray-950">How it works</h2>
+            <p className="text-sm leading-relaxed text-gray-600">A fast workflow designed to help you review the bill before sending money.</p>
+          </div>
+          <div className="grid gap-6 md:grid-cols-3">
+            {steps.map((item) => (
+              <article key={item.title} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+                <div className="mb-4 inline-flex rounded-xl border border-gray-200 bg-gray-50 p-3 text-gray-900">
+                  <item.icon size={18} />
+                </div>
+                <h3 className="text-lg font-semibold tracking-tight text-gray-950">{item.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-gray-600">{item.description}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="space-y-4">
+          <div className="space-y-2">
+            <h2 className="text-xl font-semibold tracking-tight text-gray-950">Example result preview</h2>
+            <p className="text-sm leading-relaxed text-gray-600">A snapshot of the kind of issues and actions the report highlights.</p>
+          </div>
+          <div className="grid gap-6 md:grid-cols-3">
+            {moneyLossCards.map((item) => (
+              <article key={item.title} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <div className="inline-flex rounded-xl border border-gray-200 bg-gray-50 p-3 text-gray-900">
+                    <item.icon size={18} />
+                  </div>
+                  <div className="text-lg font-semibold tracking-tight text-gray-950">{item.impact}</div>
+                </div>
+                <h3 className="mt-4 text-lg font-semibold tracking-tight text-gray-950">{item.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-gray-600">{item.description}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm md:p-8">
+          <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+            <div className="space-y-2">
+              <h2 className="text-xl font-semibold tracking-tight text-gray-950">Check your bill before you pay it</h2>
+              <p className="text-sm leading-relaxed text-gray-600">One report, one action plan, one clear next step.</p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/sample"
+                className="inline-flex items-center gap-2 rounded-xl border border-gray-300 px-4 py-3 text-sm font-medium text-gray-700 transition hover:bg-gray-100"
+              >
+                See sample
+                <ArrowRight size={16} />
+              </Link>
+              <button
+                disabled={loading}
+                onClick={handleAnalyze}
+                className="inline-flex rounded-xl bg-black px-4 py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-wait disabled:opacity-70"
+                type="button"
+              >
+                {loading ? "Preparing..." : "Fix My Bill — $4.99"}
+              </button>
+            </div>
+          </div>
+        </section>
       </div>
     </main>
   );
 }
-
-const styles: Record<string, React.CSSProperties> = {
-  page: {
-    minHeight: "100%",
-  },
-  container: {
-    width: "100%",
-    maxWidth: 1000,
-    margin: "0 auto",
-  },
-  heroSection: {
-    paddingTop: 22,
-  },
-  heroCopy: {
-    paddingTop: 6,
-  },
-  kicker: {
-    display: "inline-flex",
-    alignItems: "center",
-    padding: "6px 10px",
-    border: "1px solid #d5dce3",
-    borderRadius: 999,
-    background: "#ffffff",
-    color: "#475569",
-    fontSize: 11,
-    fontWeight: 800,
-    letterSpacing: "0.08em",
-    textTransform: "uppercase",
-    marginBottom: 16,
-  },
-  headline: {
-    margin: "0 0 14px",
-    maxWidth: 560,
-    fontSize: "clamp(2rem, 4vw, 3.1rem)",
-    lineHeight: 0.96,
-    letterSpacing: "-0.05em",
-    fontWeight: 900,
-    color: "#0f172a",
-  },
-  subheadline: {
-    margin: "0 0 20px",
-    maxWidth: 560,
-    fontSize: 16,
-    lineHeight: 1.65,
-    color: "#334155",
-  },
-  heroActions: {
-    display: "grid",
-    gap: 14,
-    justifyItems: "flex-start",
-  },
-  heroButton: {
-    border: "1px solid #0b6a4d",
-    borderRadius: 10,
-    background: "#0f7757",
-    color: "#ffffff",
-    padding: "16px 22px",
-    fontSize: 16,
-    fontWeight: 800,
-    cursor: "pointer",
-    boxShadow: "0 12px 24px rgba(15, 119, 87, 0.2)",
-  },
-  trustRow: {
-    display: "flex",
-    gap: 14,
-    flexWrap: "wrap",
-    color: "#64748b",
-    fontSize: 13,
-    lineHeight: 1.6,
-    fontWeight: 600,
-  },
-  proofStripSection: {
-    marginTop: 24,
-  },
-  proofStrip: {
-    display: "grid",
-    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-    gap: 0,
-    border: "1px solid #d7dee5",
-    borderRadius: 12,
-    background: "#ffffff",
-    overflow: "hidden",
-    boxShadow: "0 12px 24px rgba(15,23,42,0.04)",
-  },
-  proofItem: {
-    padding: "18px 20px",
-    borderRight: "1px solid #e7edf2",
-  },
-  proofValue: {
-    color: "#0f172a",
-    fontSize: 28,
-    lineHeight: 1,
-    letterSpacing: "-0.04em",
-    fontWeight: 900,
-    marginBottom: 6,
-  },
-  proofLabel: {
-    color: "#475569",
-    fontSize: 14,
-    lineHeight: 1.6,
-    fontWeight: 600,
-  },
-  section: {
-    marginTop: 40,
-  },
-  finalSection: {
-    marginTop: 40,
-    marginBottom: 8,
-  },
-  reportPreview: {
-    background: "#ffffff",
-    border: "1px solid #d7dee5",
-    borderRadius: 12,
-    padding: 18,
-    boxShadow: "0 20px 36px rgba(15,23,42,0.08)",
-    display: "grid",
-    gap: 16,
-  },
-  reportPreviewHeader: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    gap: 16,
-    flexWrap: "wrap",
-    paddingBottom: 14,
-    borderBottom: "1px solid #e5e7eb",
-  },
-  previewEyebrow: {
-    color: "#64748b",
-    fontSize: 12,
-    fontWeight: 800,
-    letterSpacing: "0.08em",
-    textTransform: "uppercase",
-    marginBottom: 6,
-  },
-  previewHeading: {
-    color: "#0f172a",
-    fontSize: 24,
-    fontWeight: 900,
-    letterSpacing: "-0.04em",
-    lineHeight: 1,
-  },
-  previewRisk: {
-    padding: "8px 10px",
-    borderRadius: 999,
-    border: "1px solid #f3c0c0",
-    background: "#fff3f3",
-    color: "#b42318",
-    fontSize: 12,
-    fontWeight: 800,
-    letterSpacing: "0.06em",
-    textTransform: "uppercase",
-  },
-  previewTableWrap: {
-    border: "1px solid #e7edf2",
-    borderRadius: 10,
-    background: "#fafcfd",
-    padding: "12px 12px 8px",
-  },
-  previewTable: {
-    display: "grid",
-    gap: 8,
-  },
-  previewTableHeader: {
-    display: "grid",
-    gridTemplateColumns: "70px minmax(0, 1fr) 84px",
-    gap: 12,
-    color: "#64748b",
-    fontSize: 11,
-    fontWeight: 800,
-    letterSpacing: "0.08em",
-    textTransform: "uppercase",
-    paddingBottom: 2,
-  },
-  previewRow: {
-    display: "grid",
-    gridTemplateColumns: "70px minmax(0, 1fr) 84px",
-    gap: 12,
-    padding: "10px 0",
-    borderBottom: "1px solid #eef2f6",
-    color: "#1e293b",
-    fontSize: 13,
-    lineHeight: 1.5,
-  },
-  previewRowAlert: {
-    color: "#991b1b",
-    fontWeight: 800,
-  },
-  previewRowWarn: {
-    color: "#92400e",
-    fontWeight: 700,
-  },
-  previewFlagBox: {
-    border: "1px solid #f2d1d1",
-    background: "#fff8f8",
-    borderRadius: 10,
-    padding: 14,
-  },
-  previewFlagTitle: {
-    color: "#991b1b",
-    fontSize: 12,
-    fontWeight: 800,
-    letterSpacing: "0.08em",
-    textTransform: "uppercase",
-    marginBottom: 8,
-  },
-  previewFlagList: {
-    margin: 0,
-    paddingLeft: 18,
-    color: "#475569",
-    fontSize: 14,
-    lineHeight: 1.7,
-  },
-  uploadCard: {
-    background: "#ffffff",
-    border: "1px solid #d7dee5",
-    borderRadius: 12,
-    padding: 20,
-    boxShadow: "0 14px 28px rgba(15,23,42,0.06)",
-  },
-  cardHeader: {
-    marginBottom: 16,
-  },
-  cardTitle: {
-    margin: "0 0 8px",
-    fontSize: 22,
-    lineHeight: 1.15,
-    fontWeight: 800,
-    color: "#111827",
-  },
-  cardText: {
-    margin: 0,
-    color: "#475569",
-    fontSize: 14,
-    lineHeight: 1.7,
-  },
-  uploadZone: {
-    display: "grid",
-    justifyItems: "center",
-    gap: 10,
-    padding: "28px 18px",
-    border: "1.5px dashed #b8c4d0",
-    borderRadius: 10,
-    background: "#f8fafc",
-    cursor: "pointer",
-  },
-  uploadZoneActive: {
-    borderColor: "#0f7757",
-    background: "#f1f8f5",
-  },
-  hiddenInput: {
-    display: "none",
-  },
-  uploadIcon: {
-    width: 46,
-    height: 46,
-    borderRadius: 10,
-    background: "#eef3f7",
-    color: "#0f172a",
-    display: "grid",
-    placeItems: "center",
-    fontSize: 22,
-    fontWeight: 700,
-  },
-  uploadZoneTitle: {
-    fontSize: 17,
-    fontWeight: 800,
-    color: "#0f172a",
-  },
-  uploadZoneText: {
-    color: "#64748b",
-    fontSize: 14,
-    lineHeight: 1.6,
-  },
-  fileCard: {
-    marginTop: 14,
-    padding: 14,
-    borderRadius: 10,
-    background: "#f8fafc",
-    border: "1px solid #e5e7eb",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    gap: 12,
-    flexWrap: "wrap",
-  },
-  fileName: {
-    fontSize: 15,
-    fontWeight: 700,
-    color: "#0f172a",
-  },
-  fileMeta: {
-    marginTop: 4,
-    color: "#64748b",
-    fontSize: 14,
-  },
-  removeButton: {
-    border: "1px solid #cbd5e1",
-    background: "#ffffff",
-    color: "#334155",
-    borderRadius: 10,
-    padding: "10px 14px",
-    fontWeight: 700,
-    cursor: "pointer",
-  },
-  errorText: {
-    marginTop: 14,
-    color: "#b91c1c",
-    fontWeight: 700,
-    fontSize: 14,
-  },
-  ctaButton: {
-    width: "100%",
-    marginTop: 16,
-    border: "1px solid #0b6a4d",
-    borderRadius: 10,
-    background: "#0f7757",
-    color: "#ffffff",
-    padding: "14px 18px",
-    fontSize: 15,
-    fontWeight: 800,
-    cursor: "pointer",
-    boxShadow: "0 12px 24px rgba(15, 118, 110, 0.18)",
-  },
-  buttonDisabled: {
-    opacity: 0.7,
-    cursor: "wait",
-  },
-  sectionHeader: {
-    marginBottom: 16,
-  },
-  sectionTitle: {
-    margin: 0,
-    fontSize: 22,
-    lineHeight: 1.1,
-    fontWeight: 900,
-    letterSpacing: "-0.03em",
-    color: "#111827",
-  },
-  problemCard: {
-    background: "#ffffff",
-    border: "1px solid #d7dee5",
-    borderRadius: 12,
-    padding: 16,
-    boxShadow: "0 12px 26px rgba(15,23,42,0.05)",
-  },
-  problemTop: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 14,
-    marginBottom: 14,
-  },
-  problemIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
-    display: "grid",
-    placeItems: "center",
-    background: "#f6f8fb",
-    color: "#0f172a",
-  },
-  problemImpact: {
-    color: "#b42318",
-    fontSize: 24,
-    lineHeight: 1,
-    letterSpacing: "-0.04em",
-    fontWeight: 900,
-  },
-  problemTitle: {
-    margin: "0 0 8px",
-    fontSize: 17,
-    lineHeight: 1.25,
-    fontWeight: 800,
-    color: "#111827",
-  },
-  problemText: {
-    margin: 0,
-    color: "#475569",
-    lineHeight: 1.7,
-    fontSize: 13,
-  },
-  beforeAfterCard: {
-    background: "#ffffff",
-    border: "1px solid #d7dee5",
-    borderRadius: 12,
-    padding: 20,
-    boxShadow: "0 12px 26px rgba(15,23,42,0.05)",
-  },
-  beforeAfterHeader: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "flex-end",
-    gap: 16,
-    flexWrap: "wrap",
-    marginBottom: 20,
-  },
-  beforeAfterHighlight: {
-    color: "#0f7757",
-    fontSize: 16,
-    fontWeight: 900,
-  },
-  comparePanel: {
-    border: "1px solid #d7dee5",
-    borderRadius: 12,
-    background: "#f8fafc",
-    padding: 24,
-    textAlign: "center",
-  },
-  comparePanelAccent: {
-    background: "#f1f8f5",
-    borderColor: "#b7dfd0",
-  },
-  compareLabel: {
-    color: "#64748b",
-    fontSize: 12,
-    fontWeight: 800,
-    letterSpacing: "0.08em",
-    textTransform: "uppercase",
-    marginBottom: 8,
-  },
-  compareValue: {
-    color: "#0f172a",
-    fontSize: "clamp(2rem, 5vw, 2.8rem)",
-    lineHeight: 1,
-    letterSpacing: "-0.05em",
-    fontWeight: 900,
-  },
-  stepCard: {
-    background: "#ffffff",
-    border: "1px solid #d7dee5",
-    borderRadius: 12,
-    padding: 16,
-    boxShadow: "0 12px 26px rgba(15,23,42,0.05)",
-  },
-  stepIcon: {
-    width: 42,
-    height: 42,
-    borderRadius: 10,
-    display: "grid",
-    placeItems: "center",
-    background: "#f6f8fb",
-    color: "#0f172a",
-    marginBottom: 14,
-  },
-  stepTitle: {
-    margin: "0 0 8px",
-    fontSize: 17,
-    lineHeight: 1.25,
-    fontWeight: 800,
-    color: "#111827",
-  },
-  stepText: {
-    margin: 0,
-    color: "#475569",
-    lineHeight: 1.7,
-    fontSize: 13,
-  },
-  sampleCard: {
-    background: "#ffffff",
-    border: "1px solid #d7dee5",
-    borderRadius: 12,
-    padding: 20,
-    boxShadow: "0 12px 26px rgba(15,23,42,0.05)",
-  },
-  sampleHeader: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "flex-end",
-    gap: 16,
-    flexWrap: "wrap",
-    marginBottom: 18,
-  },
-  sampleEyebrow: {
-    color: "#64748b",
-    fontSize: 12,
-    fontWeight: 800,
-    letterSpacing: "0.08em",
-    textTransform: "uppercase",
-    marginBottom: 6,
-  },
-  sampleBlock: {
-    border: "1px solid #e5e7eb",
-    borderRadius: 10,
-    background: "#f8fafc",
-    padding: 16,
-  },
-  sampleLabel: {
-    color: "#0f172a",
-    fontSize: 12,
-    fontWeight: 800,
-    letterSpacing: "0.08em",
-    textTransform: "uppercase",
-    marginBottom: 8,
-  },
-  sampleText: {
-    margin: 0,
-    color: "#334155",
-    fontSize: 14,
-    lineHeight: 1.7,
-  },
-  sampleImpact: {
-    marginTop: 10,
-    color: "#b42318",
-    fontSize: 15,
-    fontWeight: 800,
-  },
-  secondaryButton: {
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    padding: "12px 16px",
-    borderRadius: 10,
-    border: "1px solid #cbd5e1",
-    background: "#ffffff",
-    color: "#0f172a",
-    fontSize: 14,
-    fontWeight: 800,
-    textDecoration: "none",
-  },
-  trustCard: {
-    background: "#ffffff",
-    border: "1px solid #d7dee5",
-    borderRadius: 12,
-    padding: 20,
-    boxShadow: "0 12px 26px rgba(15,23,42,0.05)",
-  },
-  trustItem: {
-    display: "flex",
-    alignItems: "center",
-    gap: 12,
-    padding: 14,
-    borderRadius: 10,
-    border: "1px solid #e5e7eb",
-    background: "#f8fafc",
-  },
-  trustIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    display: "grid",
-    placeItems: "center",
-    background: "#eef7f2",
-    color: "#0f7757",
-    flexShrink: 0,
-  },
-  trustText: {
-    color: "#1e293b",
-    fontSize: 15,
-    lineHeight: 1.6,
-    fontWeight: 700,
-  },
-  finalCard: {
-    background: "#ffffff",
-    border: "1px solid #d7dee5",
-    borderRadius: 12,
-    padding: 22,
-    boxShadow: "0 12px 26px rgba(15,23,42,0.05)",
-    textAlign: "center",
-  },
-  finalTitle: {
-    margin: "0 0 10px",
-    fontSize: 24,
-    lineHeight: 1.1,
-    fontWeight: 900,
-    color: "#111827",
-    letterSpacing: "-0.03em",
-  },
-  finalText: {
-    margin: "0 0 18px",
-    color: "#475569",
-    fontSize: 14,
-    lineHeight: 1.7,
-    fontWeight: 600,
-  },
-  finalButton: {
-    border: "1px solid #0b6a4d",
-    borderRadius: 10,
-    background: "#0f7757",
-    color: "#ffffff",
-    padding: "14px 20px",
-    fontSize: 15,
-    fontWeight: 800,
-    cursor: "pointer",
-    boxShadow: "0 12px 24px rgba(15, 118, 110, 0.18)",
-  },
-};

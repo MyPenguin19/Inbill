@@ -8,6 +8,7 @@ const navLinks = [
   { href: "/", label: "Home" },
   { href: "/sample", label: "Sample" },
   { href: "/pricing", label: "Pricing" },
+  { href: "/about", label: "About" },
 ] as const;
 
 export default function Navbar() {
@@ -15,7 +16,6 @@ export default function Navbar() {
 
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? "hidden" : "";
-
     return () => {
       document.body.style.overflow = "";
     };
@@ -23,250 +23,84 @@ export default function Navbar() {
 
   return (
     <>
-      <style jsx>{`
-        .nav-shell {
-          position: sticky;
-          top: 0;
-          z-index: 60;
-          height: 64px;
-          background: rgba(255, 255, 255, 0.96);
-          backdrop-filter: blur(12px);
-          border-bottom: 1px solid #d8e0e7;
-        }
-
-        .nav-bar {
-          width: min(900px, calc(100vw - 32px));
-          height: 100%;
-          margin: 0 auto;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 18px;
-        }
-
-        .brand {
-          font-size: 1.3rem;
-          line-height: 1;
-          font-weight: 800;
-          letter-spacing: -0.04em;
-          color: #0f172a;
-          text-decoration: none;
-        }
-
-        .desktopNav {
-          display: flex;
-          align-items: center;
-          gap: 26px;
-          margin-left: auto;
-        }
-
-        .link {
-          color: #334155;
-          font-size: 0.94rem;
-          font-weight: 700;
-          text-decoration: none;
-          transition: color 160ms ease;
-        }
-
-        .link:hover {
-          color: #0f172a;
-        }
-
-        .cta {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          min-height: 44px;
-          padding: 0 18px;
-          border-radius: 10px;
-          border: 1px solid #0b6a4d;
-          background: #0f7757;
-          color: #ffffff;
-          font-size: 0.94rem;
-          font-weight: 800;
-          text-decoration: none;
-          box-shadow: 0 10px 22px rgba(15, 119, 87, 0.18);
-        }
-
-        .burger {
-          display: none;
-          align-items: center;
-          justify-content: center;
-          width: 42px;
-          height: 42px;
-          border: 1px solid #e5e7eb;
-          border-radius: 12px;
-          background: #ffffff;
-          color: #0f172a;
-          cursor: pointer;
-        }
-
-        .overlay {
-          position: fixed;
-          inset: 0;
-          z-index: 100;
-          display: flex;
-          justify-content: flex-end;
-          background: rgba(15, 23, 42, 0.28);
-          opacity: 0;
-          pointer-events: none;
-          transition: opacity 180ms ease;
-        }
-
-        .overlay.open {
-          opacity: 1;
-          pointer-events: auto;
-        }
-
-        .panel {
-          width: min(100%, 420px);
-          min-height: 100vh;
-          background: #ffffff;
-          padding: 24px;
-          display: grid;
-          align-content: start;
-          gap: 18px;
-          box-shadow: -16px 0 36px rgba(15, 23, 42, 0.12);
-          transform: translateX(100%);
-          transition: transform 220ms ease;
-        }
-
-        .overlay.open .panel {
-          transform: translateX(0);
-        }
-
-        .panelHeader {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          margin-bottom: 4px;
-        }
-
-        .panelTitle {
-          font-size: 1.3rem;
-          line-height: 1;
-          font-weight: 800;
-          letter-spacing: -0.04em;
-          color: #0f172a;
-        }
-
-        .close {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          width: 42px;
-          height: 42px;
-          border: 1px solid #e5e7eb;
-          border-radius: 12px;
-          background: #ffffff;
-          color: #0f172a;
-          cursor: pointer;
-        }
-
-        .mobileLink {
-          color: #0f172a;
-          text-decoration: none;
-          font-size: 1.42rem;
-          line-height: 1.2;
-          font-weight: 800;
-          padding: 8px 0;
-        }
-
-        .mobileCta {
-          margin-top: 8px;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          min-height: 48px;
-          width: 100%;
-          border-radius: 10px;
-          border: 1px solid #0b6a4d;
-          background: #0f7757;
-          color: #ffffff;
-          font-size: 1rem;
-          font-weight: 800;
-          text-decoration: none;
-          box-shadow: 0 10px 24px rgba(15, 119, 87, 0.18);
-        }
-
-        .mobileSubtext {
-          color: #64748b;
-          font-size: 0.92rem;
-          line-height: 1.7;
-        }
-
-        @media (max-width: 860px) {
-          .desktopNav,
-          .cta {
-            display: none;
-          }
-
-          .burger {
-            display: inline-flex;
-          }
-        }
-      `}</style>
-
-      <header className="nav-shell">
-        <div className="nav-bar">
-          <Link href="/" className="brand">
+      <header className="sticky top-0 z-50 border-b border-gray-200/80 bg-white/90 backdrop-blur">
+        <div className="mx-auto flex h-16 w-full max-w-[1200px] items-center justify-between px-4 md:px-6 lg:px-8">
+          <Link href="/" className="text-lg font-semibold tracking-tight text-gray-950">
             BillFixa
           </Link>
 
-          <nav className="desktopNav" aria-label="Primary">
+          <nav className="hidden items-center gap-8 md:flex">
             {navLinks.map((item) => (
-              <Link key={item.href} href={item.href} className="link">
+              <Link key={item.href} href={item.href} className="text-sm font-medium text-gray-600 transition hover:text-gray-950">
                 {item.label}
               </Link>
             ))}
           </nav>
 
-          <Link href="/#analyze" className="cta">
-            Fix My Bill — $4.99
-          </Link>
+          <div className="hidden md:block">
+            <Link
+              href="/#analyze"
+              className="inline-flex rounded-xl bg-black px-4 py-3 text-sm font-semibold text-white transition hover:opacity-90"
+            >
+              Fix My Bill
+            </Link>
+          </div>
 
           <button
             type="button"
-            className="burger"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-900 md:hidden"
+            onClick={() => setMobileOpen(true)}
             aria-label="Open navigation menu"
             aria-expanded={mobileOpen}
-            onClick={() => setMobileOpen(true)}
           >
-            <Menu size={20} />
+            <Menu size={18} />
           </button>
         </div>
       </header>
 
-      <div className={mobileOpen ? "overlay open" : "overlay"} onClick={() => setMobileOpen(false)}>
-        <div
-          className="panel"
-          onClick={(event) => event.stopPropagation()}
-          role="dialog"
-          aria-modal="true"
-          aria-label="Mobile navigation"
-        >
-          <div className="panelHeader">
-            <div className="panelTitle">Menu</div>
-            <button type="button" className="close" aria-label="Close navigation menu" onClick={() => setMobileOpen(false)}>
-              <X size={20} />
-            </button>
-          </div>
+      {mobileOpen ? (
+        <div className="fixed inset-0 z-[60] bg-black/20 md:hidden" onClick={() => setMobileOpen(false)}>
+          <div
+            className="ml-auto flex min-h-screen w-full max-w-sm flex-col gap-6 bg-white p-6 shadow-sm"
+            onClick={(event) => event.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+          >
+            <div className="flex items-center justify-between">
+              <div className="text-lg font-semibold tracking-tight text-gray-950">BillFixa</div>
+              <button
+                type="button"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-900"
+                onClick={() => setMobileOpen(false)}
+                aria-label="Close navigation menu"
+              >
+                <X size={18} />
+              </button>
+            </div>
 
-          {navLinks.map((item) => (
-            <Link key={item.href} href={item.href} className="mobileLink" onClick={() => setMobileOpen(false)}>
-              {item.label}
+            <div className="flex flex-col gap-4">
+              {navLinks.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="text-base font-medium text-gray-700"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+
+            <Link
+              href="/#analyze"
+              className="mt-auto inline-flex w-full justify-center rounded-xl bg-black px-4 py-3 text-sm font-semibold text-white"
+              onClick={() => setMobileOpen(false)}
+            >
+              Fix My Bill
             </Link>
-          ))}
-
-          <Link href="/#analyze" className="mobileCta" onClick={() => setMobileOpen(false)}>
-            Fix My Bill — $4.99
-          </Link>
-
-          <div className="mobileSubtext">
-            Fix billing errors before you pay. No account required.
           </div>
         </div>
-      </div>
+      ) : null}
     </>
   );
 }

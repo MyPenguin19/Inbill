@@ -11,15 +11,10 @@ export default function Layout({ children }: { children: ReactNode }) {
   const isResultPage = pathname.startsWith("/result");
 
   return (
-    <div className="app-shell">
-      {!isResultPage && <Navbar />}
-      <main
-        className="app-content"
-        style={isResultPage ? { paddingTop: 40 } : undefined}
-      >
-        {children}
-      </main>
-      {!isResultPage && <Footer />}
+    <div className="min-h-screen bg-gradient-to-b from-white to-gray-100">
+      {!isResultPage ? <Navbar /> : null}
+      <main className={isResultPage ? "min-h-screen" : "min-h-[calc(100vh-64px)]"}>{children}</main>
+      {!isResultPage ? <Footer /> : null}
     </div>
   );
 }
