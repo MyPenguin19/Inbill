@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { ChangeEvent, DragEvent, useMemo, useState } from "react";
+import { ChangeEvent, DragEvent, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, BadgeDollarSign, ClipboardList, FileSearch, FileText, Receipt, ShieldX } from "lucide-react";
+import { ArrowRight, ClipboardList, FileSearch, FileText } from "lucide-react";
 
 import {
   BILL_IMAGE_STORAGE_KEY,
@@ -29,33 +29,6 @@ async function readJsonResponse<T>(response: Response): Promise<T> {
   return JSON.parse(bodyText) as T;
 }
 
-const moneyLossCards = [
-  {
-    icon: Receipt,
-    title: "Duplicate Charges",
-    description: "Same service billed multiple times",
-    impact: "+$180",
-  },
-  {
-    icon: ShieldX,
-    title: "Insurance Errors",
-    description: "Claims denied or misapplied",
-    impact: "+$420",
-  },
-  {
-    icon: BadgeDollarSign,
-    title: "Overpriced Services",
-    description: "Routine procedures billed above standard rates",
-    impact: "+$250",
-  },
-  {
-    icon: ClipboardList,
-    title: "Missing Adjustments",
-    description: "Discounts or negotiated rates not applied",
-    impact: "+$145",
-  },
-] as const;
-
 const steps = [
   {
     icon: FileText,
@@ -64,18 +37,19 @@ const steps = [
   },
   {
     icon: FileSearch,
-    title: "AI analyzes it",
-    description: "Finds errors, duplicates, and pricing issues",
+    title: "We analyze for common billing issues",
+    description: "Duplicate charges, denial patterns, and pricing problems",
   },
   {
     icon: ClipboardList,
-    title: "Get your report",
-    description: "See what to challenge and what to say before paying",
+    title: "See what to question before paying",
+    description: "A clear breakdown of what deserves a second look",
   },
 ] as const;
 
 export default function HomePage() {
   const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [dragActive, setDragActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedFileData, setSelectedFileData] = useState("");
@@ -266,26 +240,24 @@ export default function HomePage() {
               </div>
               <div className="space-y-4">
                 <h1 className="text-4xl font-semibold tracking-tight text-gray-950 md:text-5xl">
-                  Fix billing errors before you pay
+                  Don’t Pay Your Medical Bill Until You Check This
                 </h1>
                 <p className="max-w-2xl text-sm leading-relaxed text-gray-600 md:text-base">
-                  Upload your bill, find hidden charges, and get a clear action plan in under 60 seconds.
+                  You may be overcharged. Upload your bill and get a quick breakdown of potential errors before you pay.
                 </p>
               </div>
 
               <div className="space-y-4">
                 <button
-                  disabled={loading}
-                  onClick={handleAnalyze}
+                  onClick={() => fileInputRef.current?.click()}
                   className="inline-flex rounded-xl bg-black px-4 py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-wait disabled:opacity-70"
                   type="button"
                 >
-                  {loading ? "Preparing..." : "Fix My Bill — $4.99"}
+                  Upload Your Bill
                 </button>
-                <div className="flex flex-wrap gap-3 text-sm text-gray-500">
-                  <span>No account required</span>
-                  <span>Secure processing</span>
-                  <span>Files automatically deleted</span>
+                <div className="text-sm text-gray-500">Takes less than 60 seconds • No account required</div>
+                <div className="max-w-[60ch] text-sm leading-relaxed text-gray-500">
+                  Many patients find billing errors before payment using similar reviews.
                 </div>
               </div>
             </div>
@@ -297,10 +269,10 @@ export default function HomePage() {
                     <div className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">
                       Example result
                     </div>
-                    <div className="mt-2 text-2xl font-semibold tracking-tight text-gray-950">$320 identified</div>
+                    <div className="mt-2 text-2xl font-semibold tracking-tight text-gray-950">$162.72 potential overpayment</div>
                   </div>
                   <div className="rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
-                    Review recommended
+                    Duplicate charge identified
                   </div>
                 </div>
                 <div className="space-y-3 rounded-xl border border-gray-200 bg-white p-4">
@@ -340,7 +312,13 @@ export default function HomePage() {
               }}
               onDrop={handleDrop}
             >
-              <input accept=".pdf,image/*,.txt" onChange={handleFileInput} className="hidden" type="file" />
+              <input
+                ref={fileInputRef}
+                accept=".pdf,image/*,.txt"
+                onChange={handleFileInput}
+                className="hidden"
+                type="file"
+              />
               <div className="rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-700">
                 Upload Your Bill
               </div>
@@ -372,7 +350,7 @@ export default function HomePage() {
               className="w-full rounded-xl bg-black px-4 py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-wait disabled:opacity-70"
               type="button"
             >
-              {loading ? "Preparing..." : "Fix My Bill — $4.99"}
+              {loading ? "Preparing..." : "Upload Your Bill"}
             </button>
           </div>
         </section>
@@ -395,32 +373,11 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="space-y-4">
-          <div className="space-y-2">
-            <h2 className="text-xl font-semibold tracking-tight text-gray-950">Example result preview</h2>
-            <p className="text-sm leading-relaxed text-gray-600">A snapshot of the kind of issues and actions the report highlights.</p>
-          </div>
-          <div className="grid gap-6 md:grid-cols-3">
-            {moneyLossCards.map((item) => (
-              <article key={item.title} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <div className="inline-flex rounded-xl border border-gray-200 bg-gray-50 p-3 text-gray-900">
-                    <item.icon size={18} />
-                  </div>
-                  <div className="text-lg font-semibold tracking-tight text-gray-950">{item.impact}</div>
-                </div>
-                <h3 className="mt-4 text-lg font-semibold tracking-tight text-gray-950">{item.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-gray-600">{item.description}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-
         <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm md:p-8">
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div className="space-y-2">
               <h2 className="text-xl font-semibold tracking-tight text-gray-950">Check your bill before you pay it</h2>
-              <p className="text-sm leading-relaxed text-gray-600">One report, one action plan, one clear next step.</p>
+              <p className="text-sm leading-relaxed text-gray-600">A fast review can help you catch errors before sending money.</p>
             </div>
             <div className="flex flex-wrap gap-3">
               <Link
@@ -431,12 +388,11 @@ export default function HomePage() {
                 <ArrowRight size={16} />
               </Link>
               <button
-                disabled={loading}
-                onClick={handleAnalyze}
+                onClick={() => fileInputRef.current?.click()}
                 className="inline-flex rounded-xl bg-black px-4 py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-wait disabled:opacity-70"
                 type="button"
               >
-                {loading ? "Preparing..." : "Fix My Bill — $4.99"}
+                Upload Your Bill
               </button>
             </div>
           </div>
