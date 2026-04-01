@@ -3,15 +3,15 @@ import type { Metadata } from "next";
 import HomePageClient from "@/components/home-page-client";
 
 export const metadata: Metadata = {
-  title: "Check Medical Bills for Errors — MyBillScanner",
+  title: "Fix Medical Bill Errors — BillFixa",
   description:
-    "Find errors, overcharges, and denied claims in your medical bill. Upload your bill and avoid overpaying. Fast, secure, and easy.",
+    "Find and fix errors in your medical bill. Detect overcharges, duplicate fees, and insurance issues before you pay.",
   keywords: [
-    "medical bill check",
     "medical bill errors",
-    "overcharged hospital bill",
-    "bill audit",
-    "healthcare billing errors",
+    "fix hospital bill",
+    "overcharged medical bill",
+    "billing audit",
+    "insurance billing errors",
   ],
 };
 

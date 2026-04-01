@@ -232,7 +232,7 @@ export default function SamplePage() {
           <h2 style={styles.ctaTitle}>Check Your Own Bill Before You Pay</h2>
           <p style={styles.ctaText}>Takes 60 seconds. Could save you hundreds.</p>
           <Link href="/#analyze" style={styles.ctaButton}>
-            Analyze My Bill — $4.99
+            Fix My Bill — $4.99
           </Link>
         </section>
       </div>

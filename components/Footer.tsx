@@ -5,9 +5,9 @@ export default function Footer() {
     <footer className="app-footer">
       <div className="app-footer__top">
         <div className="app-footer__brand">
-          <div className="app-footer__logo">MyBillScanner</div>
+          <div className="app-footer__logo">BillFixa</div>
           <p className="app-footer__text">
-            Scan your medical bill and detect errors before you pay.
+            Fix billing errors before you pay.
           </p>
         </div>
 

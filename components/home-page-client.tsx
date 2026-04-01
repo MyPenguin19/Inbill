@@ -261,9 +261,9 @@ export default function HomePage() {
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    name: "MyBillScanner",
+    name: "BillFixa",
     description:
-      "Upload your medical bill and detect hidden charges, duplicate fees, and insurance errors in seconds. Avoid overpaying before you pay.",
+      "Tool to detect and fix medical billing errors before payment",
     applicationCategory: "FinanceApplication",
     operatingSystem: "Web",
   };
@@ -363,7 +363,7 @@ export default function HomePage() {
                   }}
                   type="button"
                 >
-              {loading ? "Preparing..." : "Check My Bill Before I Pay — $4.99"}
+                  {loading ? "Preparing..." : "Fix My Bill Before I Pay — $4.99"}
                 </button>
                 <div style={styles.trustRow}>
                   <span>No account required</span>
@@ -501,7 +501,7 @@ export default function HomePage() {
               }}
               type="button"
             >
-              {loading ? "Preparing..." : "Check My Bill Before I Pay — $4.99"}
+              {loading ? "Preparing..." : "Fix My Bill Before I Pay — $4.99"}
             </button>
           </div>
         </section>
@@ -632,7 +632,7 @@ export default function HomePage() {
               }}
               type="button"
             >
-              {loading ? "Preparing..." : "Analyze My Bill — $4.99"}
+              {loading ? "Preparing..." : "Fix My Bill — $4.99"}
             </button>
           </div>
         </section>

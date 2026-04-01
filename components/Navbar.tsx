@@ -210,7 +210,7 @@ export default function Navbar() {
       <header className="nav-shell">
         <div className="nav-bar">
           <Link href="/" className="brand">
-            MyBillScanner
+            BillFixa
           </Link>
 
           <nav className="desktopNav" aria-label="Primary">
@@ -222,7 +222,7 @@ export default function Navbar() {
           </nav>
 
           <Link href="/#analyze" className="cta">
-            Check My Bill — $4.99
+            Fix My Bill — $4.99
           </Link>
 
           <button
@@ -259,11 +259,11 @@ export default function Navbar() {
           ))}
 
           <Link href="/#analyze" className="mobileCta" onClick={() => setMobileOpen(false)}>
-            Check My Bill — $4.99
+            Fix My Bill — $4.99
           </Link>
 
           <div className="mobileSubtext">
-            Scan your medical bill and detect errors before you pay. No account required.
+            Fix billing errors before you pay. No account required.
           </div>
         </div>
       </div>

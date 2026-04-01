@@ -3,9 +3,9 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 
 export const metadata: Metadata = {
-  title: "Disclaimer — MyBillScanner",
+  title: "Disclaimer — BillFixa",
   description:
-    "MyBillScanner provides informational analysis only and does not replace professional medical or legal advice.",
+    "BillFixa provides informational analysis only and does not replace professional medical or legal advice.",
 };
 
 const disclaimerItems = [
@@ -48,7 +48,7 @@ export default function DisclaimerPage() {
         </section>
 
         <footer style={styles.footerNote}>
-          Questions? Contact us at <a href="mailto:support@mybillscanner.com" style={styles.link}>support@mybillscanner.com</a>.{" "}
+          Questions? Contact us at <a href="mailto:support@billfixa.com" style={styles.link}>support@billfixa.com</a>.{" "}
           <Link href="/" style={styles.link}>
             Return to home
           </Link>

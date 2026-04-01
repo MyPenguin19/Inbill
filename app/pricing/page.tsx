@@ -113,7 +113,7 @@ export default function PricingPage() {
             </div>
 
             <Link href="/#analyze" style={styles.ctaButton}>
-              Analyze My Bill — $4.99
+              Fix My Bill — $4.99
             </Link>
 
             <p style={styles.riskReversal}>
@@ -190,7 +190,7 @@ export default function PricingPage() {
             <h2 style={styles.finalCtaTitle}>Don’t Pay Your Bill Blind</h2>
             <p style={styles.finalCtaText}>Check it first. Takes 60 seconds.</p>
             <Link href="/#analyze" style={styles.finalCtaButton}>
-              Analyze My Bill — $4.99
+              Fix My Bill — $4.99
             </Link>
           </div>
         </section>

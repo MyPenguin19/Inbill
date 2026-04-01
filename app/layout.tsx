@@ -3,9 +3,9 @@ import Layout from "@/components/Layout";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "MyBillScanner — Check Your Medical Bill for Errors",
+  title: "BillFixa — Fix Medical Bill Errors Before You Pay",
   description:
-    "Upload your medical bill and detect hidden charges, duplicate fees, and insurance errors in seconds. Avoid overpaying before you pay.",
+    "Upload your medical bill and detect hidden charges, duplicate fees, and insurance errors. Fix costly billing mistakes before you pay.",
   robots: {
     index: true,
     follow: true,

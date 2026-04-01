@@ -150,7 +150,7 @@ export function FileUploadForm() {
       {statusMessage ? <p className="status-text">{statusMessage}</p> : null}
       {error ? <p className="error-text">{error}</p> : null}
       <button className="primary-button" type="submit" disabled={isSubmitting}>
-        {isSubmitting ? "Redirecting to Checkout..." : "Analyze My Bill"}
+        {isSubmitting ? "Redirecting to Checkout..." : "Fix My Bill"}
       </button>
     </form>
   );

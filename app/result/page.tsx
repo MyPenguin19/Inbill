@@ -12,6 +12,8 @@ import {
 import { clearPendingBillPayload, getPendingBillPayload } from "@/lib/client-bill-session";
 import type { AnalysisReport } from "@/lib/types";
 
+const UNLOCK_STATE_PREFIX = "medical-bill-report-unlocked";
+
 function readJsonResponse<T>(response: Response): Promise<T> {
   return response.json() as Promise<T>;
 }
@@ -86,30 +88,77 @@ function getRiskMeterWidth(level: AnalysisReport["concern_level"]["level"]) {
 }
 
 function getFindingFinancialImpact(range: string, index: number) {
-  if (!range.trim()) {
+  const amount = getTopSavingsAmount(range);
+
+  if (!amount) {
     return "Included in the overall savings estimate above.";
   }
 
   if (index === 0) {
-    return `${range} at risk across the bill.`;
+    return `${amount} at risk on this bill right now.`;
   }
 
-  return `Contributes to the estimated ${range} in potential savings.`;
+  return `Contributes to the ${amount} in potential overpayment identified.`;
 }
 
 function getFindingMeaning(title: string, impact: string) {
-  return `${title} indicates this bill does not reflect the correct patient balance yet. ${impact}`;
+  return `${title} indicates this bill does not reflect the correct patient balance yet. ${directifyText(impact)}`;
+}
+
+function getTopSavingsAmount(range: string) {
+  const matches = range.match(/\$[\d,]+(?:\.\d{1,2})?/g);
+
+  if (!matches || matches.length === 0) {
+    return range.trim();
+  }
+
+  return matches[matches.length - 1];
+}
+
+function directifyText(text: string) {
+  return text
+    .replace(/^You may be responsible/i, "You are currently responsible")
+    .replace(/^This may indicate/i, "This indicates")
+    .replace(/\bmay increase\b/gi, "increase")
+    .replace(/\bmay result\b/gi, "result")
+    .replace(/\bmay be\b/gi, "is")
+    .replace(/\bappears to\b/gi, "is likely to");
+}
+
+function getUnlockStateKey(fileName: string, billText: string, billImageData: string) {
+  return `${UNLOCK_STATE_PREFIX}:${fileName}:${billText.length}:${billImageData.length}`;
+}
+
+function getTeaserSummary(report: AnalysisReport | null) {
+  if (!report) {
+    return "We detected multiple issues that may increase your cost.";
+  }
+
+  return directifyText(report.summary || "We detected multiple issues that may increase your cost.");
+}
+
+function getPreviewSnippet(report: AnalysisReport | null) {
+  if (!report || report.key_findings.length === 0) {
+    return "Duplicate charge detected on lab services. Insurance adjustment missing on claim review.";
+  }
+
+  return `${report.key_findings[0].title}. ${directifyText(report.key_findings[0].impact)}`;
 }
 
 export default function ResultPage() {
   const router = useRouter();
+  const paywallRef = useRef<HTMLDivElement | null>(null);
   const [billText, setBillText] = useState("");
   const [billImageData, setBillImageData] = useState("");
   const [fileName, setFileName] = useState("medical-bill");
   const [report, setReport] = useState<AnalysisReport | null>(null);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isStartingCheckout, setIsStartingCheckout] = useState(false);
   const [hasHydrated, setHasHydrated] = useState(false);
+  const [isUnlocked, setIsUnlocked] = useState(false);
+  const [justUnlocked, setJustUnlocked] = useState(false);
+  const [scrollOffset, setScrollOffset] = useState(0);
   const hasAutoStarted = useRef(false);
 
   useEffect(() => {
@@ -140,6 +189,55 @@ export default function ResultPage() {
     setFileName(storedFileName);
     setHasHydrated(true);
   }, [router]);
+
+  useEffect(() => {
+    if (!hasHydrated) {
+      return;
+    }
+
+    const unlockKey = getUnlockStateKey(fileName, billText, billImageData);
+    const hasSessionId = Boolean(new URLSearchParams(window.location.search).get("session_id"));
+    const storedUnlockState = window.sessionStorage.getItem(unlockKey) === "paid";
+
+    if (hasSessionId) {
+      window.sessionStorage.setItem(unlockKey, "paid");
+      setIsUnlocked(true);
+      setJustUnlocked(true);
+      return;
+    }
+
+    setIsUnlocked(storedUnlockState);
+  }, [billImageData, billText, fileName, hasHydrated]);
+
+  useEffect(() => {
+    if (!justUnlocked) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => setJustUnlocked(false), 2200);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [justUnlocked]);
+
+  useEffect(() => {
+    if (isUnlocked) {
+      setScrollOffset(0);
+      return;
+    }
+
+    const handleScroll = () => {
+      setScrollOffset(Math.min(window.scrollY, 180));
+    };
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [isUnlocked]);
 
   async function generateAnalysis(nextBillText = billText, nextBillImageData = billImageData) {
     if (!nextBillText.trim() && !nextBillImageData.trim()) {
@@ -191,6 +289,42 @@ export default function ResultPage() {
     }
   }
 
+  async function handleUnlockReport() {
+    setError("");
+    setIsStartingCheckout(true);
+
+    try {
+      const response = await fetch("/api/checkout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          fileName,
+        }),
+      });
+
+      const payload = await readJsonResponse<{ url?: string; error?: string }>(response);
+
+      if (!response.ok || !payload.url) {
+        throw new Error(payload.error || "Unable to start checkout.");
+      }
+
+      window.location.href = payload.url;
+    } catch (checkoutError) {
+      setError(
+        checkoutError instanceof Error
+          ? checkoutError.message
+          : "Something went wrong while starting checkout.",
+      );
+      setIsStartingCheckout(false);
+    }
+  }
+
+  function handleDownloadReport() {
+    window.print();
+  }
+
   useEffect(() => {
     if (!hasHydrated || hasAutoStarted.current || (!billText.trim() && !billImageData.trim())) {
       return;
@@ -203,6 +337,9 @@ export default function ResultPage() {
   const scriptLines = report ? splitScript(report.call_script) : [];
   const analyzedDate = useMemo(() => formatAnalysisDate(), []);
   const concernTone = report ? getConcernTone(report.concern_level.level) : getConcernTone("MEDIUM");
+  const savingsAmount = report ? getTopSavingsAmount(report.potential_savings.range) : "$162.72";
+  const parallaxShift = Math.round(scrollOffset * 0.18);
+  const overlayShift = Math.round(scrollOffset * 0.06);
 
   return (
     <main style={styles.page}>
@@ -215,14 +352,15 @@ export default function ResultPage() {
 
         .audit-shell {
           width: 100%;
-          max-width: 1000px;
+          max-width: 1180px;
           margin: 0 auto;
         }
 
-        .audit-grid-2 {
+        .audit-grid {
           display: grid;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 18px;
+          grid-template-columns: minmax(0, 1.28fr) minmax(320px, 0.72fr);
+          gap: 20px;
+          align-items: start;
         }
 
         .audit-card {
@@ -236,19 +374,77 @@ export default function ResultPage() {
           box-shadow: 0 18px 30px rgba(15, 23, 42, 0.08);
         }
 
-        @media (max-width: 760px) {
-          .audit-grid-2 {
+        .cta-animated:hover {
+          transform: scale(1.03);
+          box-shadow: 0 16px 28px rgba(15, 119, 87, 0.24);
+        }
+
+        .locked-preview {
+          position: relative;
+          overflow: hidden;
+        }
+
+        .locked-preview::after {
+          content: "";
+          position: absolute;
+          inset: 0;
+          backdrop-filter: blur(6px);
+          background: linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.28) 24%, rgba(255, 255, 255, 0.76) 66%, rgba(237, 242, 247, 0.98) 100%);
+          pointer-events: none;
+          transition:
+            opacity 0.3s ease,
+            backdrop-filter 0.3s ease;
+        }
+
+        .locked-content {
+          filter: blur(6px);
+          opacity: 0.6;
+          user-select: none;
+          pointer-events: none;
+          transition:
+            filter 0.3s ease,
+            opacity 0.3s ease,
+            transform 0.2s ease;
+        }
+
+        @media print {
+          .hide-on-print {
+            display: none !important;
+          }
+
+          body {
+            background: #ffffff;
+          }
+        }
+
+        @media (max-width: 920px) {
+          .audit-grid {
             grid-template-columns: 1fr;
           }
         }
       `}</style>
 
       <div className="audit-shell" style={styles.container}>
+        <div style={styles.brandBar}>
+          <div style={styles.brand}>BillFixa</div>
+          {isUnlocked ? (
+            <button type="button" onClick={handleDownloadReport} style={styles.downloadButton}>
+              Download Report
+            </button>
+          ) : null}
+        </div>
+
+        {justUnlocked ? <div style={styles.unlockFlash}>Full report unlocked</div> : null}
+
         <section className="audit-card" style={styles.reportHeaderCard}>
           <div style={styles.reportHeaderTop}>
             <div>
-              <div style={styles.reportEyebrow}>Medical Bill Audit Report</div>
-              <h1 style={styles.reportTitle}>Audit Summary</h1>
+              <div style={styles.reportEyebrow}>
+                {isUnlocked ? "Medical Bill Audit Report" : "Early Risk Preview"}
+              </div>
+              <h1 style={styles.reportTitle}>
+                {isUnlocked ? "Medical Bill Audit Report" : "Your Bill Has Issues"}
+              </h1>
             </div>
             {report ? (
               <div
@@ -281,10 +477,23 @@ export default function ResultPage() {
             </div>
           </div>
 
-          <p style={styles.reportSummary}>
-            {report?.summary ||
-              "This bill contains multiple issues that result in overpayment risk if not addressed."}
-          </p>
+          <div style={styles.headerBody}>
+            <div style={styles.summaryBlock}>
+              <div style={styles.summaryLabel}>{isUnlocked ? "Audit Summary" : "Short Summary"}</div>
+              <p style={styles.reportSummary}>
+                {isUnlocked
+                  ? getTeaserSummary(report)
+                  : "We detected multiple issues that may increase your cost."}
+              </p>
+            </div>
+
+            {report ? (
+              <div style={styles.headerSavingsChip}>
+                <div style={styles.headerSavingsLabel}>Potential Overpayment</div>
+                <div style={styles.headerSavingsValue}>{`${savingsAmount} Identified`}</div>
+              </div>
+            ) : null}
+          </div>
         </section>
 
         {error ? <div style={styles.errorCard}>{error}</div> : null}
@@ -305,50 +514,61 @@ export default function ResultPage() {
 
         {report ? (
           <>
-            <section className="audit-grid-2" style={styles.dashboardGrid}>
+            <section
+              className="audit-grid"
+              style={{
+                ...styles.dashboardGrid,
+                ...(!isUnlocked ? styles.lockedDashboard : {}),
+              }}
+            >
               <div style={styles.mainColumn}>
-                <article className="audit-card" style={styles.card}>
-                  <h2 style={styles.sectionTitle}>Detailed Findings</h2>
-                  <div style={styles.findingsList}>
-                    {report.key_findings.map((finding, index) => (
-                      <div key={finding.title} style={styles.findingCard}>
-                        <div style={styles.findingHeader}>
-                          <div style={styles.findingIcon}>⚠️</div>
-                          <h3 style={styles.findingTitle}>{finding.title}</h3>
-                        </div>
+                <article
+                  className={`audit-card ${!isUnlocked ? "locked-preview" : ""}`}
+                  style={styles.card}
+                >
+                  <div
+                    className={!isUnlocked ? "locked-content" : undefined}
+                    style={!isUnlocked ? { transform: `translateY(-${parallaxShift}px)` } : undefined}
+                  >
+                    <h2 style={styles.sectionTitle}>
+                      {isUnlocked ? "Detailed Findings" : "Detailed Findings Preview"}
+                    </h2>
+                    <div style={styles.findingsList}>
+                      {report.key_findings.map((finding, index) => (
+                        <div key={finding.title} style={styles.findingCard}>
+                          <div style={styles.findingHeader}>
+                            <div style={styles.findingIcon}>⚠️</div>
+                            <h3 style={styles.findingTitle}>{finding.title}</h3>
+                          </div>
 
-                        <div style={styles.findingRow}>
-                          <div style={styles.findingLabel}>Impact</div>
-                          <div style={styles.findingValue}>
-                            {finding.impact
-                              .replace(/^You may be responsible/i, "You are currently responsible")
-                              .replace(/^This may indicate/i, "This indicates")}
+                          <div style={styles.findingRow}>
+                            <div style={styles.findingLabel}>Impact</div>
+                            <div style={styles.findingValue}>{directifyText(finding.impact)}</div>
+                          </div>
+
+                          <div style={styles.findingRow}>
+                            <div style={styles.findingLabel}>Financial Impact</div>
+                            <div style={styles.findingValue}>
+                              {getFindingFinancialImpact(report.potential_savings.range, index)}
+                            </div>
+                          </div>
+
+                          <div style={styles.findingRow}>
+                            <div style={styles.findingLabel}>What This Means</div>
+                            <div style={styles.findingValue}>{getFindingMeaning(finding.title, finding.impact)}</div>
+                          </div>
+
+                          <div style={styles.findingRow}>
+                            <div style={styles.findingLabel}>Action</div>
+                            <div style={styles.findingAction}>
+                              {finding.action.replace(/^Contact/i, "Call").replace(/^Request/i, "Ask for")}
+                            </div>
                           </div>
                         </div>
-
-                        <div style={styles.findingRow}>
-                          <div style={styles.findingLabel}>Financial Impact</div>
-                          <div style={styles.findingValue}>
-                            {getFindingFinancialImpact(report.potential_savings.range, index)}
-                          </div>
-                        </div>
-
-                        <div style={styles.findingRow}>
-                          <div style={styles.findingLabel}>What This Means</div>
-                          <div style={styles.findingValue}>{getFindingMeaning(finding.title, finding.impact)}</div>
-                        </div>
-
-                        <div style={styles.findingRow}>
-                          <div style={styles.findingLabel}>Action</div>
-                          <div style={styles.findingAction}>
-                            {finding.action
-                              .replace(/^Contact/i, "Call")
-                              .replace(/^Request/i, "Ask for")}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
+
                 </article>
               </div>
 
@@ -356,11 +576,11 @@ export default function ResultPage() {
                 <article className="audit-card" style={styles.savingsHeroCard}>
                   <div style={styles.savingsHeroBadge}>Potential Overpayment</div>
                   <div style={styles.savingsHeroLabel}>Potential Overpayment</div>
-                  <div style={styles.savingsHeroAmount}>
-                    {`${report.potential_savings.range.replace(/^\$0\s*-\s*/, "$")} Potential Overpayment Identified`}
-                  </div>
+                  <div style={styles.savingsHeroAmount}>{`${savingsAmount} Potential Overpayment Identified`}</div>
                   <p style={styles.savingsHeroText}>
-                    This amount is at risk due to detected billing issues.
+                    {isUnlocked
+                      ? "This amount is at risk due to detected billing issues and missing adjustments."
+                      : "This amount is at risk due to detected billing issues."}
                   </p>
                 </article>
 
@@ -390,59 +610,154 @@ export default function ResultPage() {
                     </div>
                   </div>
                   <p style={styles.riskReason}>
-                    {(
-                      report.concern_level.reason ||
-                      "Multiple issues detected that increase your out-of-pocket cost."
-                    )
-                      .replace(/may increase/gi, "increase")
-                      .replace(/may result/gi, "result")}
+                    {isUnlocked
+                      ? directifyText(report.concern_level.reason)
+                      : "Multiple issues detected that may increase your out-of-pocket cost."}
                   </p>
                 </article>
 
-                <article className="audit-card" style={styles.card}>
-                  <h2 style={styles.sectionTitle}>Recommended Next Steps</h2>
-                  <div style={styles.actionList}>
-                    {report.priority_actions.slice(0, 4).map((item, index) => (
-                      <div key={item} style={styles.actionItem}>
-                        <span style={styles.actionNumber}>{index + 1}.</span>
-                        <span style={styles.actionText}>{item}</span>
+                <article
+                  className={`audit-card ${!isUnlocked ? "locked-preview" : ""}`}
+                  style={styles.card}
+                >
+                  <div
+                    className={!isUnlocked ? "locked-content" : undefined}
+                    style={!isUnlocked ? { transform: `translateY(-${parallaxShift}px)` } : undefined}
+                  >
+                    <h2 style={styles.sectionTitle}>Recommended Next Steps</h2>
+                    <div style={styles.actionList}>
+                      {report.priority_actions.slice(0, 4).map((item, index) => (
+                        <div key={item} style={styles.actionItem}>
+                          <span style={styles.actionNumber}>{index + 1}.</span>
+                          <span style={styles.actionText}>{item}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                </article>
+
+                <article
+                  className={`audit-card ${!isUnlocked ? "locked-preview" : ""}`}
+                  style={styles.card}
+                >
+                  <div
+                    className={!isUnlocked ? "locked-content" : undefined}
+                    style={!isUnlocked ? { transform: `translateY(-${parallaxShift}px)` } : undefined}
+                  >
+                    <h2 style={styles.sectionTitle}>What to Say When You Call</h2>
+                    <div style={styles.scriptBox}>
+                      {scriptLines.length > 0 ? (
+                        scriptLines.map((line) => (
+                          <p key={line} style={styles.scriptLine}>
+                            {directifyText(line).replace(/can you/i, "I need you to")}
+                          </p>
+                        ))
+                      ) : (
+                        <p style={styles.scriptLine}>{report.call_script}</p>
+                      )}
+                    </div>
+                  </div>
+
+                </article>
+              </div>
+
+              {!isUnlocked ? (
+                <div
+                  style={{
+                    ...styles.lockOverlayWrap,
+                    transform: `translate(-50%, calc(-50% + ${overlayShift}px))`,
+                  }}
+                >
+                  <div style={styles.lockProof}>Most people find billing errors before paying</div>
+                  <div style={styles.lockOverlay}>
+                    <div style={styles.lockTitle}>Unlock Full Report</div>
+                    <p style={styles.lockText}>
+                      See exactly what’s wrong and how to fix it before you pay.
+                    </p>
+                    <div style={styles.lockList}>
+                      <div style={styles.lockListItem}>✔ Full error breakdown</div>
+                      <div style={styles.lockListItem}>✔ Exact steps to fix issues</div>
+                      <div style={styles.lockListItem}>✔ Call script included</div>
+                    </div>
+                    <button
+                      className="cta-animated"
+                      type="button"
+                      onClick={() => void handleUnlockReport()}
+                      disabled={isStartingCheckout}
+                      style={{
+                        ...styles.lockButton,
+                        ...(isStartingCheckout ? styles.buttonDisabled : {}),
+                      }}
+                    >
+                      {isStartingCheckout ? "Processing..." : "Unlock Full Report — $4.99"}
+                    </button>
+                    <div style={styles.lockSubtext}>One-time payment • Takes 60 seconds</div>
+                    <div style={styles.lockWarning}>You may be overpaying if you don’t review this</div>
+                  </div>
+                </div>
+              ) : null}
+            </section>
+
+            {!isUnlocked ? (
+              <section ref={paywallRef} style={styles.sectionStack}>
+                <div style={styles.fadedBottomWarning}>
+                  ⚠️ Do not pay this bill until you review these issues
+                </div>
+                <article className="audit-card" style={styles.paywallCard}>
+                  <div style={styles.paywallEyebrow}>Unlock full report</div>
+                  <h2 style={styles.paywallTitle}>Fix Your Bill Before You Pay</h2>
+                  <div style={styles.paywallGrid}>
+                    <div style={styles.paywallList}>
+                      <div style={styles.paywallItem}>✔ Full error breakdown</div>
+                      <div style={styles.paywallItem}>✔ Exact steps to fix issues</div>
+                      <div style={styles.paywallItem}>✔ Call script included</div>
+                      <div style={styles.paywallItem}>✔ Takes 60 seconds</div>
+                    </div>
+
+                    <div style={styles.paywallOffer}>
+                      <div style={styles.paywallPriceLabel}>One-time price</div>
+                      <div style={styles.paywallPrice}>$4.99 one-time</div>
+                      <button
+                        className="cta-animated"
+                        type="button"
+                        onClick={() => void handleUnlockReport()}
+                        disabled={isStartingCheckout}
+                        style={{
+                          ...styles.paywallButton,
+                          ...(isStartingCheckout ? styles.buttonDisabled : {}),
+                        }}
+                      >
+                        {isStartingCheckout ? "Processing..." : "Unlock Full Report"}
+                      </button>
+                      <div style={styles.trustLine}>
+                        Secure processing • No account required • Files deleted after analysis
                       </div>
-                    ))}
+                    </div>
                   </div>
                 </article>
 
-                <article className="audit-card" style={styles.card}>
-                  <h2 style={styles.sectionTitle}>What to Say When You Call</h2>
-                  <div style={styles.scriptBox}>
-                    {scriptLines.length > 0 ? (
-                      scriptLines.map((line) => (
-                        <p key={line} style={styles.scriptLine}>
-                          {line
-                            .replace(/appears to have/gi, "has")
-                            .replace(/may be/gi, "is")
-                            .replace(/can you/i, "I need you to")}
-                        </p>
-                      ))
-                    ) : (
-                      <p style={styles.scriptLine}>{report.call_script}</p>
-                    )}
-                  </div>
+                <article className="audit-card" style={styles.warningCard}>
+                  <div style={styles.warningTitle}>⚠️ Do Not Pay This Bill Yet</div>
+                  <p style={styles.warningText}>
+                    Paying this bill now may prevent you from disputing these charges and could result in overpayment.
+                  </p>
                 </article>
-              </div>
-            </section>
+              </section>
+            ) : (
+              <section style={styles.sectionStack}>
+                <article className="audit-card" style={styles.warningCard}>
+                  <div style={styles.warningTitle}>⚠️ Do Not Pay This Bill Yet</div>
+                  <p style={styles.warningText}>
+                    Paying this bill now may prevent you from disputing these charges and could result in overpayment.
+                  </p>
+                </article>
 
-            <section style={styles.sectionStack}>
-              <article className="audit-card" style={styles.warningCard}>
-                <div style={styles.warningTitle}>⚠️ Do Not Pay This Bill Yet</div>
-                <p style={styles.warningText}>
-                  Paying this bill now may prevent you from disputing these charges and could result in overpayment.
-                </p>
-              </article>
-
-              <div style={styles.reportFooter}>
-                Report generated using AI-assisted billing analysis.
-              </div>
-            </section>
+                <div style={styles.reportFooter}>
+                  Report generated using AI-assisted billing analysis.
+                </div>
+              </section>
+            )}
           </>
         ) : null}
       </div>
@@ -454,24 +769,64 @@ const styles: Record<string, CSSProperties> = {
   page: {
     minHeight: "100vh",
     background: "#f4f6f8",
-    padding: "48px 16px 64px",
+    padding: "40px 16px 64px",
   },
   container: {
     width: "100%",
-    maxWidth: 1000,
+    maxWidth: 1180,
     margin: "0 auto",
+  },
+  brandBar: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 16,
+    marginBottom: 16,
+  },
+  unlockFlash: {
+    marginBottom: 16,
+    border: "1px solid #bbf7d0",
+    background: "#f0fdf4",
+    color: "#166534",
+    borderRadius: 12,
+    padding: "12px 16px",
+    fontSize: 14,
+    fontWeight: 800,
+    boxShadow: "0 10px 20px rgba(22, 163, 74, 0.08)",
+  },
+  brand: {
+    color: "#0f172a",
+    fontSize: 22,
+    lineHeight: 1,
+    fontWeight: 900,
+    letterSpacing: "-0.04em",
+  },
+  downloadButton: {
+    border: "1px solid #cbd5e1",
+    background: "#ffffff",
+    color: "#0f172a",
+    borderRadius: 10,
+    padding: "12px 16px",
+    fontSize: 14,
+    fontWeight: 800,
+    cursor: "pointer",
+    boxShadow: "0 8px 18px rgba(15, 23, 42, 0.06)",
   },
   sectionStack: {
     display: "grid",
-    gap: 22,
+    gap: 20,
   },
   dashboardGrid: {
     alignItems: "start",
-    gap: 22,
+    gap: 20,
+    position: "relative",
+  },
+  lockedDashboard: {
+    paddingBottom: 72,
   },
   mainColumn: {
     display: "grid",
-    gap: 22,
+    gap: 20,
   },
   sidebarColumn: {
     display: "grid",
@@ -505,7 +860,7 @@ const styles: Record<string, CSSProperties> = {
   reportTitle: {
     margin: 0,
     color: "#0f172a",
-    fontSize: "clamp(1.9rem, 4vw, 2.4rem)",
+    fontSize: "clamp(1.9rem, 4vw, 2.5rem)",
     lineHeight: 1,
     letterSpacing: "-0.04em",
     fontWeight: 900,
@@ -549,12 +904,52 @@ const styles: Record<string, CSSProperties> = {
     fontWeight: 700,
     lineHeight: 1.5,
   },
+  headerBody: {
+    display: "grid",
+    gridTemplateColumns: "minmax(0, 1fr) auto",
+    gap: 16,
+    alignItems: "end",
+    paddingTop: 16,
+  },
+  summaryBlock: {
+    display: "grid",
+    gap: 8,
+  },
+  summaryLabel: {
+    color: "#64748b",
+    fontSize: 12,
+    fontWeight: 800,
+    letterSpacing: "0.06em",
+    textTransform: "uppercase",
+  },
   reportSummary: {
-    margin: "16px 0 0",
+    margin: 0,
     color: "#334155",
     fontSize: 14,
     lineHeight: 1.75,
-    fontWeight: 500,
+    fontWeight: 600,
+  },
+  headerSavingsChip: {
+    border: "1px solid #bbf7d0",
+    background: "#f0fdf4",
+    borderRadius: 12,
+    padding: "12px 14px",
+    minWidth: 220,
+  },
+  headerSavingsLabel: {
+    color: "#166534",
+    fontSize: 11,
+    fontWeight: 800,
+    letterSpacing: "0.08em",
+    textTransform: "uppercase",
+    marginBottom: 6,
+  },
+  headerSavingsValue: {
+    color: "#0f172a",
+    fontSize: 18,
+    lineHeight: 1.15,
+    fontWeight: 900,
+    letterSpacing: "-0.03em",
   },
   errorCard: {
     background: "#fff1f2",
@@ -627,7 +1022,7 @@ const styles: Record<string, CSSProperties> = {
   },
   savingsHeroAmount: {
     color: "#0f172a",
-    fontSize: "clamp(2.4rem, 5vw, 3.6rem)",
+    fontSize: "clamp(2.8rem, 5vw, 4.2rem)",
     lineHeight: 0.92,
     letterSpacing: "-0.06em",
     fontWeight: 900,
@@ -646,6 +1041,24 @@ const styles: Record<string, CSSProperties> = {
     border: "1px solid #d9e0e7",
     padding: 18,
     boxShadow: "0 12px 26px rgba(15,23,42,0.05)",
+    position: "relative",
+  },
+  lockOverlayWrap: {
+    position: "absolute",
+    top: "53%",
+    left: "50%",
+    width: "min(100%, 360px)",
+    zIndex: 4,
+    transition: "transform 0.18s ease",
+  },
+  lockProof: {
+    textAlign: "center",
+    color: "#475569",
+    fontSize: 12,
+    fontWeight: 800,
+    letterSpacing: "0.06em",
+    textTransform: "uppercase",
+    marginBottom: 10,
   },
   sectionTitle: {
     margin: "0 0 16px",
@@ -785,6 +1198,167 @@ const styles: Record<string, CSSProperties> = {
     lineHeight: 1.85,
     fontFamily:
       'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+  },
+  lockOverlay: {
+    background: "rgba(255,255,255,0.98)",
+    border: "1px solid #dbe3ea",
+    borderRadius: 12,
+    padding: 18,
+    boxShadow: "0 24px 48px rgba(15, 23, 42, 0.12)",
+  },
+  lockTitle: {
+    color: "#0f172a",
+    fontSize: 24,
+    lineHeight: 1.15,
+    fontWeight: 900,
+    letterSpacing: "-0.03em",
+    marginBottom: 8,
+    maxWidth: 520,
+  },
+  lockText: {
+    margin: "0 0 14px",
+    color: "#475569",
+    fontSize: 14,
+    lineHeight: 1.7,
+    fontWeight: 600,
+    maxWidth: 520,
+  },
+  lockList: {
+    display: "grid",
+    gap: 10,
+    marginBottom: 14,
+  },
+  lockListItem: {
+    color: "#0f172a",
+    fontSize: 14,
+    lineHeight: 1.6,
+    fontWeight: 700,
+  },
+  lockButton: {
+    border: "none",
+    background: "#0f7757",
+    color: "#ffffff",
+    borderRadius: 10,
+    padding: "14px 18px",
+    fontSize: 15,
+    fontWeight: 900,
+    cursor: "pointer",
+    boxShadow: "0 12px 24px rgba(15, 119, 87, 0.18)",
+    transition: "transform 0.15s ease, box-shadow 0.15s ease",
+  },
+  lockSubtext: {
+    marginTop: 10,
+    color: "#64748b",
+    fontSize: 12,
+    lineHeight: 1.6,
+    fontWeight: 700,
+    textAlign: "center",
+  },
+  lockWarning: {
+    marginTop: 10,
+    color: "#991b1b",
+    fontSize: 13,
+    lineHeight: 1.6,
+    fontWeight: 800,
+    textAlign: "center",
+  },
+  paywallCard: {
+    background: "#ffffff",
+    border: "1px solid #d9e0e7",
+    borderRadius: 14,
+    padding: 24,
+    boxShadow: "0 16px 32px rgba(15,23,42,0.07)",
+  },
+  paywallEyebrow: {
+    color: "#475569",
+    fontSize: 12,
+    fontWeight: 800,
+    letterSpacing: "0.08em",
+    textTransform: "uppercase",
+    marginBottom: 8,
+  },
+  paywallTitle: {
+    margin: "0 0 18px",
+    color: "#0f172a",
+    fontSize: "clamp(2rem, 4vw, 2.6rem)",
+    lineHeight: 1,
+    letterSpacing: "-0.04em",
+    fontWeight: 900,
+  },
+  paywallGrid: {
+    display: "grid",
+    gridTemplateColumns: "minmax(0, 1fr) minmax(280px, 360px)",
+    gap: 20,
+    alignItems: "start",
+  },
+  paywallList: {
+    display: "grid",
+    gap: 12,
+  },
+  paywallItem: {
+    color: "#0f172a",
+    fontSize: 16,
+    lineHeight: 1.6,
+    fontWeight: 700,
+    padding: "12px 14px",
+    borderRadius: 10,
+    background: "#f8fafc",
+    border: "1px solid #e5e7eb",
+  },
+  paywallOffer: {
+    border: "1px solid #dbe3ea",
+    background: "#f8fafc",
+    borderRadius: 12,
+    padding: 18,
+    textAlign: "center",
+  },
+  paywallPriceLabel: {
+    color: "#64748b",
+    fontSize: 12,
+    fontWeight: 800,
+    letterSpacing: "0.08em",
+    textTransform: "uppercase",
+    marginBottom: 8,
+  },
+  paywallPrice: {
+    color: "#0f172a",
+    fontSize: 36,
+    lineHeight: 1,
+    fontWeight: 900,
+    letterSpacing: "-0.05em",
+    marginBottom: 14,
+  },
+  paywallButton: {
+    width: "100%",
+    border: "none",
+    background: "#0f7757",
+    color: "#ffffff",
+    borderRadius: 10,
+    padding: "15px 18px",
+    fontSize: 16,
+    fontWeight: 900,
+    cursor: "pointer",
+    boxShadow: "0 12px 24px rgba(15, 119, 87, 0.18)",
+    transition: "transform 0.15s ease, box-shadow 0.15s ease",
+  },
+  trustLine: {
+    marginTop: 12,
+    color: "#64748b",
+    fontSize: 13,
+    lineHeight: 1.7,
+    fontWeight: 600,
+  },
+  buttonDisabled: {
+    opacity: 0.7,
+    cursor: "wait",
+  },
+  fadedBottomWarning: {
+    color: "#9a3412",
+    fontSize: 13,
+    lineHeight: 1.7,
+    fontWeight: 800,
+    textAlign: "center",
+    opacity: 0.7,
   },
   warningCard: {
     background: "#fff7ed",

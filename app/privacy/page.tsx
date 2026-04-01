@@ -3,15 +3,15 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy — MyBillScanner",
+  title: "Privacy Policy — BillFixa",
   description:
-    "Learn how MyBillScanner protects your data and handles uploaded medical documents securely.",
+    "Learn how BillFixa protects your data and handles uploaded medical documents securely.",
 };
 
 const policySections = [
   {
     title: "Overview",
-    body: "MyBillScanner analyzes uploaded medical bills so patients can understand charges, spot likely billing issues, and decide what to question before making payment.",
+    body: "BillFixa analyzes uploaded medical bills so patients can understand charges, spot likely billing issues, and decide what to question before making payment.",
   },
   {
     title: "What We Collect",
@@ -39,7 +39,7 @@ const policySections = [
   },
   {
     title: "Contact",
-    body: "Questions about privacy can be sent to support@mybillscanner.com.",
+    body: "Questions about privacy can be sent to support@billfixa.com.",
   },
 ] as const;
 
@@ -73,7 +73,7 @@ export default function PrivacyPage() {
         </section>
 
         <footer style={styles.footerNote}>
-          Questions? Contact us at <a href="mailto:support@mybillscanner.com" style={styles.link}>support@mybillscanner.com</a>.{" "}
+          Questions? Contact us at <a href="mailto:support@billfixa.com" style={styles.link}>support@billfixa.com</a>.{" "}
           <Link href="/" style={styles.link}>
             Return to home
           </Link>
