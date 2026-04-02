@@ -250,7 +250,7 @@ export default function HomePage() {
               <div className="space-y-4">
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="inline-flex rounded-xl bg-black px-4 py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-wait disabled:opacity-70"
+                  className="inline-flex rounded-xl bg-black px-4 py-3 text-sm font-semibold text-white transition hover:bg-gray-900 disabled:cursor-wait disabled:opacity-70"
                   type="button"
                 >
                   Upload Your Bill
@@ -334,7 +334,7 @@ export default function HomePage() {
                 </div>
                 <button
                   onClick={removeFile}
-                  className="rounded-xl border border-gray-300 px-4 py-3 text-sm font-medium text-gray-700 transition hover:bg-white"
+                  className="rounded-xl border border-gray-300 px-4 py-3 text-sm font-medium text-gray-800 transition hover:bg-gray-100"
                   type="button"
                 >
                   Remove
@@ -347,7 +347,7 @@ export default function HomePage() {
             <button
               disabled={loading}
               onClick={handleAnalyze}
-              className="w-full rounded-xl bg-black px-4 py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-wait disabled:opacity-70"
+              className="w-full rounded-xl bg-black px-4 py-3 text-sm font-semibold text-white transition hover:bg-gray-900 disabled:cursor-wait disabled:opacity-70"
               type="button"
             >
               {loading ? "Preparing..." : "Upload Your Bill"}
@@ -382,14 +382,14 @@ export default function HomePage() {
             <div className="flex flex-wrap gap-3">
               <Link
                 href="/sample"
-                className="inline-flex items-center gap-2 rounded-xl border border-gray-300 px-4 py-3 text-sm font-medium text-gray-700 transition hover:bg-gray-100"
+                className="inline-flex items-center gap-2 rounded-xl border border-gray-300 px-4 py-3 text-sm font-medium text-gray-800 transition hover:bg-gray-100"
               >
                 See sample
                 <ArrowRight size={16} />
               </Link>
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="inline-flex rounded-xl bg-black px-4 py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-wait disabled:opacity-70"
+                className="inline-flex rounded-xl bg-black px-4 py-3 text-sm font-semibold text-white transition hover:bg-gray-900 disabled:cursor-wait disabled:opacity-70"
                 type="button"
               >
                 Upload Your Bill

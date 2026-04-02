@@ -39,7 +39,7 @@ export default function PricingPage() {
 
           <Link
             href="/#analyze"
-            className="mt-8 inline-flex w-full justify-center rounded-xl bg-black px-4 py-3 text-sm font-semibold text-white transition hover:opacity-90"
+            className="mt-8 inline-flex w-full justify-center rounded-xl bg-black px-4 py-3 text-sm font-semibold text-white transition hover:bg-gray-900"
           >
             Fix My Bill — $4.99
           </Link>

@@ -136,7 +136,7 @@ export default function SamplePage() {
             </div>
             <Link
               href="/#analyze"
-              className="inline-flex rounded-xl bg-black px-4 py-3 text-sm font-semibold text-white transition hover:opacity-90"
+              className="inline-flex rounded-xl bg-black px-4 py-3 text-sm font-semibold text-white transition hover:bg-gray-900"
             >
               Fix My Bill — $4.99
             </Link>
