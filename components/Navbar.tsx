@@ -23,15 +23,16 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/85 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 w-full max-w-[1280px] items-center justify-between px-6 lg:px-12">
-          <Link href="/" className="text-lg font-semibold tracking-tight text-gray-950">
-            BillFixa
+      <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/70 backdrop-blur shadow-sm">
+        <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-4 lg:px-12">
+          <Link href="/" className="flex items-center gap-2 text-lg font-semibold tracking-tight text-gray-950">
+            <span className="h-6 w-6 rounded-md bg-blue-600" />
+            <span>BillFixa</span>
           </Link>
 
           <nav className="hidden items-center gap-8 md:flex">
             {navLinks.map((item) => (
-              <Link key={item.href} href={item.href} className="text-sm font-medium text-gray-600 transition hover:text-gray-950">
+              <Link key={item.href} href={item.href} className="text-sm text-gray-600 transition hover:text-black">
                 {item.label}
               </Link>
             ))}
@@ -40,7 +41,7 @@ export default function Navbar() {
           <div className="hidden md:block">
             <Link
               href="/#analyze"
-              className="inline-flex rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:bg-blue-700 hover:shadow-lg active:scale-[0.99]"
+              className="inline-flex rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:bg-blue-700 active:scale-[0.99]"
             >
               Fix My Bill
             </Link>
@@ -67,7 +68,10 @@ export default function Navbar() {
             aria-modal="true"
           >
             <div className="flex items-center justify-between">
-              <div className="text-lg font-semibold tracking-tight text-gray-950">BillFixa</div>
+              <div className="flex items-center gap-2 text-lg font-semibold tracking-tight text-gray-950">
+                <span className="h-6 w-6 rounded-md bg-blue-600" />
+                <span>BillFixa</span>
+              </div>
               <button
                 type="button"
                 className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-gray-100 bg-white text-gray-900 shadow-sm"
@@ -93,7 +97,7 @@ export default function Navbar() {
 
             <Link
               href="/#analyze"
-              className="mt-auto inline-flex w-full justify-center rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:bg-blue-700 hover:shadow-lg active:scale-[0.99]"
+              className="mt-auto inline-flex w-full justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:bg-blue-700 active:scale-[0.99]"
               onClick={() => setMobileOpen(false)}
             >
               Fix My Bill
