@@ -1,6 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import CallScriptCard from "@/components/results/CallScriptCard";
+import IssueList from "@/components/results/IssueList";
+import NextStepsCard from "@/components/results/NextStepsCard";
+import SavingsCard from "@/components/results/SavingsCard";
+import SummaryCard from "@/components/results/SummaryCard";
 
 const findings = [
   {
@@ -26,117 +31,47 @@ const script = `Hi, I reviewed my bill and noticed a duplicate charge and an ins
 
 Can you verify these charges and send me a corrected statement once the review is complete?`;
 
-const letter = `Dear Billing Department,
-
-I am requesting a review of my recent bill because I identified a possible duplicate charge and an insurance-related issue that may affect the balance.
-
-Please review the charges, confirm whether the balance is correct, and provide an updated itemized statement once the review is complete.
-
-Thank you,
-[Your Name]`;
-
 export default function SamplePage() {
+  const callSections = script.split(/\n+/).filter(Boolean);
+
   return (
     <main className="min-h-screen py-16">
-      <div className="mx-auto w-full max-w-[1280px] space-y-10 px-6 lg:px-12">
-        <section className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm md:p-8">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div className="space-y-2">
-              <div className="inline-flex rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">
-                Sample
-              </div>
-              <h1 className="text-3xl font-semibold tracking-tight text-gray-950">Example result preview</h1>
-              <p className="text-sm leading-relaxed text-gray-600">
-                This page uses the same report structure as the live results page, but with sample content.
-              </p>
-            </div>
-            <div className="rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-600">Sample only</div>
-          </div>
-        </section>
+      <div className="mx-auto w-full max-w-7xl space-y-12 px-6 lg:px-12">
+        <div className="space-y-12">
+          <SummaryCard
+            label="Sample Report"
+            title="Potential Overcharge Detected"
+            amount="$162.72"
+            amountLabel="Estimated Overpayment"
+            confidenceScore={82}
+            confidenceLabel="High"
+            riskScore={86}
+            riskLabel="High"
+            verdict="This bill likely contains billing errors that may increase what you pay."
+          />
 
-        <section className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm md:p-8">
-          <div className="grid gap-12 lg:grid-cols-[1.3fr_0.7fr]">
-            <article className="space-y-6">
-              <div className="rounded-2xl border border-blue-100 bg-blue-50 p-6">
-                <div className="text-sm font-semibold uppercase tracking-[0.14em] text-blue-600">
-                  Potential Overcharge Detected
-                </div>
-                <div className="mt-3 text-5xl font-semibold tracking-tight text-blue-700">$162.72</div>
-                <div className="mt-2 text-sm text-gray-500">Estimated Overpayment</div>
-                <p className="mt-4 text-sm font-medium leading-relaxed text-gray-700">
-                  This bill likely contains billing errors that may increase what you pay.
-                </p>
-              </div>
+          <IssueList issues={findings} />
 
-              <div className="rounded-2xl border border-red-100 bg-white p-6 shadow-sm">
-                <h2 className="text-xl font-semibold tracking-tight text-gray-950">Key Findings</h2>
-                <div className="mt-6 space-y-4">
-                  {findings.map((finding) => (
-                    <div key={finding.title} className="rounded-xl border border-red-100 bg-red-50 p-4">
-                      <div className="text-base font-semibold tracking-tight text-gray-950">{finding.title}</div>
-                      <p className="mt-2 text-sm leading-relaxed text-gray-600">{finding.description}</p>
-                      <div className="mt-2 text-sm font-semibold text-gray-900">{finding.impact}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+          <SavingsCard
+            amount="$162.72"
+            insight="Based on the billing patterns identified, this bill shows characteristics commonly associated with duplicate charges and insurance issues. In similar cases, these discrepancies are often reviewed and adjusted after contacting the billing department."
+            meaning="These findings suggest your total bill may be higher than necessary. In many cases, similar discrepancies are reviewed and corrected after contacting the billing department."
+          />
 
-              <div className="rounded-2xl border border-purple-100 bg-white p-6 shadow-sm">
-                <h2 className="text-xl font-semibold tracking-tight text-gray-950">What This Means</h2>
-                <p className="mt-3 text-sm leading-relaxed text-gray-600">
-                  These findings suggest your total bill may be higher than necessary. In many cases, similar discrepancies are reviewed and corrected after contacting the billing department.
-                </p>
-              </div>
-            </article>
+          <CallScriptCard sections={callSections} copied={false} />
 
-            <aside className="space-y-6">
-              <div className="rounded-2xl border border-blue-100 bg-white p-6 shadow-sm">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <h2 className="text-xl font-semibold tracking-tight text-gray-950">What to Say When You Call</h2>
-                    <p className="mt-2 text-sm leading-relaxed text-gray-600">
-                      Use this script to explain the issue clearly and request a review.
-                    </p>
-                  </div>
-                </div>
-                <div className="mt-4 rounded-xl border border-blue-100 bg-blue-50 p-5 text-sm leading-relaxed text-gray-800 whitespace-pre-line">
-                  {script}
-                </div>
-              </div>
+          <NextStepsCard steps={[...steps]} />
+        </div>
 
-              <div className="rounded-2xl border border-green-100 bg-white p-6 shadow-sm">
-                <h2 className="text-xl font-semibold tracking-tight text-gray-950">Written Dispute (Ready to Send)</h2>
-                <p className="mt-2 text-sm leading-relaxed text-gray-600">
-                  You can copy and send this directly to the billing department.
-                </p>
-                <div className="mt-4 rounded-xl border border-gray-200 bg-white p-6 text-sm leading-relaxed text-gray-800 whitespace-pre-line">
-                  {letter}
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-purple-100 bg-white p-6 shadow-sm">
-                <h2 className="text-xl font-semibold tracking-tight text-gray-950">Recommended Next Steps</h2>
-                <div className="mt-4 space-y-3">
-                  {steps.map((step, index) => (
-                    <div key={step} className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700">
-                      {index + 1}. {step}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </aside>
-          </div>
-        </section>
-
-        <section className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm md:p-8">
+        <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div className="space-y-2">
-              <h2 className="text-xl font-semibold tracking-tight text-gray-950">Get your own analysis</h2>
-              <p className="text-sm leading-relaxed text-gray-600">Use the live report flow to review your actual bill.</p>
+              <h2 className="text-lg font-semibold tracking-tight text-gray-950">Get your own analysis</h2>
+              <p className="text-sm text-gray-700">Use the live report flow to review your actual bill.</p>
             </div>
             <Link
               href="/#analyze"
-              className="inline-flex rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:bg-blue-700 hover:shadow-lg active:scale-[0.99]"
+              className="inline-flex rounded-xl bg-blue-600 px-6 py-3 text-sm font-medium text-white transition-all duration-200 hover:bg-blue-700"
             >
               Fix My Bill — $4.99
             </Link>

@@ -27,7 +27,7 @@ const sections = [
 export default function AboutPage() {
   return (
     <main className="min-h-screen py-16">
-      <div className="mx-auto w-full max-w-[1280px] space-y-10 px-6 lg:px-12">
+      <div className="mx-auto w-full max-w-7xl space-y-12 px-6 lg:px-12">
         <section className="mx-auto max-w-3xl rounded-2xl border border-gray-100 bg-white p-6 shadow-sm md:p-8">
           <div className="space-y-4">
             <div className="inline-flex rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">

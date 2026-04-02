@@ -238,7 +238,7 @@ export default function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
 
-      <div className="mx-auto w-full max-w-7xl space-y-20 px-6 lg:px-12">
+      <div className="mx-auto w-full max-w-7xl space-y-12 px-6 lg:px-12">
         <section className="py-4">
           <div className="grid grid-cols-1 items-center gap-16 lg:grid-cols-2">
             <div className="space-y-8">
