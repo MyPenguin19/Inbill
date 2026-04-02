@@ -878,11 +878,11 @@ export default function ResultPage() {
       : "Based on the billing patterns identified, this bill shows characteristics commonly associated with charges that warrant clarification before payment.";
 
   const baseCardClass =
-    "audit-card rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition duration-150 ease-out hover:-translate-y-[1px] hover:shadow-md";
+    "audit-card rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition duration-150 ease-out hover:-translate-y-[1px] hover:shadow-md";
   const primaryButtonClass =
-    "audit-button w-full rounded-xl bg-gray-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 ease-out hover:bg-black hover:shadow-md active:scale-[0.99] disabled:cursor-wait disabled:opacity-70";
+    "audit-button w-full rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 ease-out hover:bg-blue-700 hover:shadow-lg active:scale-[0.99] disabled:cursor-wait disabled:opacity-70";
   const secondaryButtonClass =
-    "audit-button w-full rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-medium text-gray-900 transition-all duration-200 ease-out hover:border-gray-400 hover:bg-gray-100 active:scale-[0.99]";
+    "audit-button w-full rounded-xl bg-gray-100 px-5 py-3 text-sm font-medium text-gray-800 transition-all duration-200 ease-out hover:bg-gray-200 active:scale-[0.99]";
   const utilityButtonClass =
     "audit-button inline-flex items-center rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition-all duration-200 ease-out hover:bg-gray-50";
   const confidenceClass =
@@ -893,8 +893,8 @@ export default function ResultPage() {
         : "bg-red-100 text-red-700";
 
   return (
-    <main className="min-h-screen bg-gray-50">
-      <div className="mx-auto w-full max-w-6xl space-y-4 px-6 py-12">
+    <main className="min-h-screen">
+      <div className="mx-auto w-full max-w-[1280px] space-y-6 px-6 py-16 lg:px-12">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="space-y-3">
             <div className="text-lg font-semibold tracking-tight text-gray-950">BillFixa</div>
@@ -932,7 +932,7 @@ export default function ResultPage() {
 
         {report && analysisJson ? (
           <div className="space-y-4">
-            <section className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
+            <section className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
               <div className="space-y-6">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div className="space-y-3">
@@ -1008,7 +1008,7 @@ export default function ResultPage() {
               </div>
             </section>
 
-            <section className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+            <section className="grid grid-cols-1 gap-8 lg:grid-cols-3">
               <div className="space-y-4 lg:col-span-2">
               <article className={baseCardClass}>
                 <div className="space-y-4">
@@ -1027,7 +1027,7 @@ export default function ResultPage() {
                     {analysisJson.issues.map((issue) => (
                       <div
                         key={issue.title}
-                        className="flex gap-4 rounded-xl border border-gray-200 bg-white p-4 transition duration-150 ease-out hover:-translate-y-[1px] hover:bg-red-50 hover:shadow-sm"
+                        className="flex gap-4 rounded-xl border border-red-100 bg-red-50 p-4 transition duration-150 ease-out hover:-translate-y-[1px] hover:shadow-sm"
                       >
                         <div className="w-[4px] rounded-full bg-red-500" />
                         <div className="min-w-0 space-y-3">
@@ -1052,7 +1052,7 @@ export default function ResultPage() {
                   <h2 className="mb-4 text-lg font-semibold tracking-tight text-gray-950">
                     Professional Review Insight
                   </h2>
-                  <div className="rounded-xl border border-gray-200 bg-gray-50 p-5">
+                  <div className="rounded-xl border border-gray-100 bg-gray-50 p-5">
                     <p className="max-w-[60ch] text-sm text-gray-700">
                       {professionalInsight}
                     </p>
@@ -1071,7 +1071,7 @@ export default function ResultPage() {
                 <div className="space-y-4">
                   <h2 className="mb-4 text-lg font-semibold tracking-tight text-gray-950">Diagnostic Overview</h2>
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <div className="rounded-xl border border-gray-200 bg-white p-4">
+                    <div className="rounded-xl border border-blue-100 bg-blue-50 p-4">
                       <div className="text-sm font-medium text-gray-500">Likelihood Score</div>
                       <div className="mt-2 text-3xl font-semibold tracking-tight text-gray-950">
                         {likelihoodScore}
@@ -1082,7 +1082,7 @@ export default function ResultPage() {
                       </p>
                     </div>
 
-                    <div className="rounded-xl border border-gray-200 bg-white p-4">
+                    <div className="rounded-xl border border-green-100 bg-green-50 p-4">
                       <div className="text-sm font-medium text-gray-500">Confidence Level</div>
                       <div className="mt-2 text-base font-semibold tracking-tight text-gray-950">{confidenceText}</div>
                       <p className="mt-2 max-w-[36ch] text-sm text-gray-700">
@@ -1090,17 +1090,17 @@ export default function ResultPage() {
                       </p>
                     </div>
 
-                    <div className="rounded-xl border border-gray-200 bg-white p-4">
+                    <div className="rounded-xl border border-yellow-100 bg-yellow-50 p-4">
                       <div className="text-sm font-medium text-gray-500">Priority Action</div>
                       <div className="mt-2 text-base font-semibold tracking-tight text-gray-950">{priorityAction}</div>
                     </div>
 
-                    <div className="rounded-xl border border-gray-200 bg-white p-4">
+                    <div className="rounded-xl border border-purple-100 bg-purple-50 p-4">
                       <div className="text-sm font-medium text-gray-500">Expected Outcome</div>
                       <div className="mt-2 text-base font-semibold tracking-tight text-gray-950">{expectedOutcome}</div>
                     </div>
 
-                    <div className="rounded-xl border border-gray-200 bg-white p-4 sm:col-span-2">
+                    <div className="rounded-xl border border-purple-100 bg-purple-50 p-4 sm:col-span-2">
                       <div className="text-sm font-medium text-gray-500">Estimated Resolution Time</div>
                       <div className="mt-2 text-base font-semibold tracking-tight text-gray-950">{resolutionTime}</div>
                     </div>
@@ -1231,7 +1231,7 @@ export default function ResultPage() {
                   </div>
 
                   {emailExpanded ? (
-                    <div className="rounded-xl border border-gray-200 bg-gray-50 p-5">
+                    <div className="rounded-xl border border-purple-100 bg-purple-50 p-5">
                       <div className="space-y-4">
                         <div>
                           <div className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">
@@ -1265,7 +1265,7 @@ export default function ResultPage() {
                       "Reference the issues identified above",
                       "Request a corrected statement",
                     ].map((item) => (
-                      <div key={item} className="flex items-start gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-700">
+                      <div key={item} className="flex items-start gap-3 rounded-xl border border-purple-100 bg-purple-50 px-4 py-3 text-sm text-gray-700">
                         <span className="mt-0.5 text-blue-600">✓</span>
                         <span>{item}</span>
                       </div>
@@ -1302,7 +1302,7 @@ export default function ResultPage() {
                 </div>
               </article>
 
-              <article className={`${baseCardClass} border-gray-900`}>
+              <article className={`${baseCardClass} border-blue-100`}>
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <h2 className="text-lg font-semibold tracking-tight text-gray-950">Next best step</h2>

@@ -15,9 +15,9 @@ type LegalPageProps = {
 
 export default function LegalPage({ title, subtitle, sections }: LegalPageProps) {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-white to-gray-100 py-10">
-      <div className="mx-auto w-full max-w-[1200px] space-y-10 px-4 md:px-6 lg:px-8">
-        <section className="mx-auto max-w-[800px] rounded-2xl border border-gray-200 bg-white p-6 shadow-sm md:p-8">
+    <main className="min-h-screen py-16">
+      <div className="mx-auto w-full max-w-[1280px] space-y-10 px-6 lg:px-12">
+        <section className="mx-auto max-w-[800px] rounded-2xl border border-gray-100 bg-white p-6 shadow-sm md:p-8">
           <div className="inline-flex rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">
             Legal
           </div>
@@ -30,7 +30,7 @@ export default function LegalPage({ title, subtitle, sections }: LegalPageProps)
           {sections.map((section) => (
             <article
               key={section.title}
-              className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm md:p-8"
+              className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm md:p-8"
             >
               <h2 className="text-xl font-semibold tracking-tight text-gray-950">{section.title}</h2>
               {section.body ? (
@@ -49,7 +49,7 @@ export default function LegalPage({ title, subtitle, sections }: LegalPageProps)
           ))}
         </section>
 
-        <footer className="mx-auto max-w-[800px] rounded-2xl border border-gray-200 bg-white p-6 text-sm leading-relaxed text-gray-600 shadow-sm">
+        <footer className="mx-auto max-w-[800px] rounded-2xl border border-gray-100 bg-white p-6 text-sm leading-relaxed text-gray-600 shadow-sm">
           Questions? Contact us at{" "}
           <a href="mailto:support@billfixa.com" className="font-medium text-gray-900">
             support@billfixa.com

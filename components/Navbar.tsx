@@ -23,8 +23,8 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b border-gray-200/80 bg-white/90 backdrop-blur">
-        <div className="mx-auto flex h-16 w-full max-w-[1200px] items-center justify-between px-4 md:px-6 lg:px-8">
+      <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/85 backdrop-blur-xl">
+        <div className="mx-auto flex h-16 w-full max-w-[1280px] items-center justify-between px-6 lg:px-12">
           <Link href="/" className="text-lg font-semibold tracking-tight text-gray-950">
             BillFixa
           </Link>
@@ -40,7 +40,7 @@ export default function Navbar() {
           <div className="hidden md:block">
             <Link
               href="/#analyze"
-              className="inline-flex rounded-xl bg-gray-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-black hover:shadow-md active:scale-[0.99]"
+              className="inline-flex rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:bg-blue-700 hover:shadow-lg active:scale-[0.99]"
             >
               Fix My Bill
             </Link>
@@ -48,7 +48,7 @@ export default function Navbar() {
 
           <button
             type="button"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-900 md:hidden"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-gray-100 bg-white text-gray-900 shadow-sm md:hidden"
             onClick={() => setMobileOpen(true)}
             aria-label="Open navigation menu"
             aria-expanded={mobileOpen}
@@ -59,7 +59,7 @@ export default function Navbar() {
       </header>
 
       {mobileOpen ? (
-        <div className="fixed inset-0 z-[60] bg-black/20 md:hidden" onClick={() => setMobileOpen(false)}>
+        <div className="fixed inset-0 z-[60] bg-gray-950/20 md:hidden" onClick={() => setMobileOpen(false)}>
           <div
             className="ml-auto flex min-h-screen w-full max-w-sm flex-col gap-6 bg-white p-6 shadow-sm"
             onClick={(event) => event.stopPropagation()}
@@ -70,7 +70,7 @@ export default function Navbar() {
               <div className="text-lg font-semibold tracking-tight text-gray-950">BillFixa</div>
               <button
                 type="button"
-                className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-900"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-gray-100 bg-white text-gray-900 shadow-sm"
                 onClick={() => setMobileOpen(false)}
                 aria-label="Close navigation menu"
               >
@@ -93,7 +93,7 @@ export default function Navbar() {
 
             <Link
               href="/#analyze"
-              className="mt-auto inline-flex w-full justify-center rounded-xl bg-gray-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-black hover:shadow-md active:scale-[0.99]"
+              className="mt-auto inline-flex w-full justify-center rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:bg-blue-700 hover:shadow-lg active:scale-[0.99]"
               onClick={() => setMobileOpen(false)}
             >
               Fix My Bill

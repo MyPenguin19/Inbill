@@ -18,6 +18,7 @@ body {
   min-height: 100vh;
   font-family: "Inter", "Segoe UI", Arial, sans-serif;
   color: #111827;
+  background: linear-gradient(to bottom right, #f8fafc, #eef2ff);
 }
 
 a {

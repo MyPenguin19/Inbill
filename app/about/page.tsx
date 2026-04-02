@@ -26,9 +26,9 @@ const sections = [
 
 export default function AboutPage() {
   return (
-    <main className="min-h-screen bg-gray-50 py-10">
-      <div className="mx-auto w-full max-w-[1200px] space-y-10 px-4 md:px-6 lg:px-8">
-        <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm md:p-8">
+    <main className="min-h-screen py-16">
+      <div className="mx-auto w-full max-w-[1280px] space-y-10 px-6 lg:px-12">
+        <section className="mx-auto max-w-3xl rounded-2xl border border-gray-100 bg-white p-6 shadow-sm md:p-8">
           <div className="space-y-4">
             <div className="inline-flex rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">
               About
@@ -40,9 +40,9 @@ export default function AboutPage() {
           </div>
         </section>
 
-        <section className="grid gap-6 md:grid-cols-3">
+        <section className="mx-auto grid max-w-6xl gap-6 md:grid-cols-3">
           {sections.map((section) => (
-            <article key={section.title} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+            <article key={section.title} className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
               <div className="space-y-4">
                 <h2 className="text-xl font-semibold tracking-tight text-gray-950">{section.title}</h2>
                 {"body" in section ? (
@@ -64,7 +64,7 @@ export default function AboutPage() {
           ))}
         </section>
 
-        <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm md:p-8">
+        <section className="mx-auto max-w-3xl rounded-2xl border border-gray-100 bg-white p-6 shadow-sm md:p-8">
           <div className="space-y-4">
             <h2 className="text-xl font-semibold tracking-tight text-gray-950">Disclaimer</h2>
             <div className="rounded-xl border border-gray-200 bg-gray-50 p-5">
@@ -72,6 +72,9 @@ export default function AboutPage() {
                 This is not medical, legal, or financial advice. BillFixa is designed to help you review billing details and prepare questions before you pay.
               </p>
             </div>
+            <p className="text-sm leading-relaxed text-gray-600">
+              BillFixa is meant to help you ask better questions, understand confusing charges, and move into billing conversations with more confidence.
+            </p>
           </div>
         </section>
       </div>

@@ -11,7 +11,7 @@ export default function Layout({ children }: { children: ReactNode }) {
   const isResultPage = pathname.startsWith("/result");
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-100">
+    <div className="min-h-screen">
       {!isResultPage ? <Navbar /> : null}
       <main className={isResultPage ? "min-h-screen" : "min-h-[calc(100vh-64px)]"}>{children}</main>
       {!isResultPage ? <Footer /> : null}

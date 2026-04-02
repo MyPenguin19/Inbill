@@ -232,32 +232,33 @@ export default function HomePage() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50 py-10">
+    <main className="min-h-screen py-16">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
 
-      <div className="mx-auto w-full max-w-[1200px] space-y-10 px-4 md:px-6 lg:px-8">
-        <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm md:p-8">
-          <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
+      <div className="mx-auto w-full max-w-[1280px] space-y-10 px-6 lg:px-12">
+        <section className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm md:p-8">
+          <div className="grid gap-12 lg:grid-cols-2 lg:items-start">
             <div className="space-y-6">
               <div className="inline-flex rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">
                 Medical Bill Review
               </div>
               <div className="space-y-4">
-                <h1 className="text-4xl font-semibold tracking-tight text-gray-950 md:text-5xl">
-                  Check Your Medical Bill for Errors in Seconds
+                <h1 className="text-5xl font-semibold tracking-tight text-gray-950 md:text-6xl">
+                  You could be overpaying your medical bill by{" "}
+                  <span className="text-blue-600">$500-$2,000</span>
                 </h1>
                 <p className="max-w-[60ch] text-sm leading-relaxed text-gray-600 md:text-base">
-                  Upload your bill and instantly detect duplicate charges, hidden fees, and billing mistakes.
+                  Scan your bill in seconds and detect errors before you pay.
                 </p>
               </div>
 
               <div className="space-y-4">
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="inline-flex w-full max-w-sm rounded-xl bg-gray-900 px-5 py-4 text-base font-semibold text-white shadow-sm transition-all duration-200 hover:bg-black hover:shadow-md active:scale-[0.99] disabled:cursor-wait disabled:opacity-70"
+                  className="inline-flex w-full max-w-sm rounded-xl bg-blue-600 px-6 py-3 text-base font-semibold text-white shadow-md transition-all duration-200 hover:bg-blue-700 hover:shadow-lg active:scale-[0.99] disabled:cursor-wait disabled:opacity-70"
                   type="button"
                 >
                   Upload Your Bill
@@ -276,7 +277,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div id="analyze" className="rounded-2xl border border-gray-200 bg-gray-50 p-6 shadow-sm">
+            <div id="analyze" className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
               <div className="space-y-6">
                 <div className="space-y-2">
                   <h2 className="text-xl font-semibold tracking-tight text-gray-950">Upload your bill</h2>
@@ -287,7 +288,7 @@ export default function HomePage() {
 
                 <label
                   className={`grid cursor-pointer justify-items-center gap-3 rounded-2xl border border-dashed p-8 text-center transition ${
-                    dragActive ? "border-gray-900 bg-gray-100" : "border-gray-300 bg-white"
+                    dragActive ? "border-blue-200 bg-blue-50" : "border-gray-200 bg-gray-50"
                   }`}
                   onDragLeave={() => setDragActive(false)}
                   onDragOver={(event) => {
@@ -331,7 +332,7 @@ export default function HomePage() {
                 <button
                   disabled={loading}
                   onClick={handleAnalyze}
-                  className="w-full rounded-xl bg-gray-900 px-5 py-4 text-base font-semibold text-white shadow-sm transition-all duration-200 hover:bg-black hover:shadow-md active:scale-[0.99] disabled:cursor-wait disabled:opacity-70"
+                  className="w-full rounded-xl bg-blue-600 px-6 py-3 text-base font-semibold text-white shadow-md transition-all duration-200 hover:bg-blue-700 hover:shadow-lg active:scale-[0.99] disabled:cursor-wait disabled:opacity-70"
                   type="button"
                 >
                   {loading ? "Preparing..." : "Analyze My Bill — $4.99"}
@@ -341,8 +342,8 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm md:p-8">
-          <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+        <section className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm md:p-8">
+          <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
             <div className="space-y-2">
               <div className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Example result</div>
               <h2 className="text-3xl font-semibold tracking-tight text-gray-950">$162.72 potential overcharge</h2>
@@ -351,26 +352,32 @@ export default function HomePage() {
               </p>
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="mt-4 inline-flex w-full max-w-sm rounded-xl bg-gray-900 px-5 py-4 text-base font-semibold text-white shadow-sm transition-all duration-200 hover:bg-black hover:shadow-md active:scale-[0.99]"
+                className="mt-4 inline-flex w-full max-w-sm rounded-xl bg-blue-600 px-6 py-3 text-base font-semibold text-white shadow-md transition-all duration-200 hover:bg-blue-700 hover:shadow-lg active:scale-[0.99]"
                 type="button"
               >
                 Analyze My Bill — $4.99
               </button>
             </div>
-            <div className="rounded-2xl border border-gray-200 bg-gray-50 p-5">
-              <div className="space-y-3">
-                {[
-                  "Duplicate charge identified for the same service",
-                  "Insurance adjustment missing from the statement",
-                  "Service fee appears higher than expected",
-                ].map((item) => (
-                  <div key={item} className="flex items-start gap-3 rounded-xl border border-gray-200 bg-white p-4">
-                    <span className="mt-0.5 text-red-600">
-                      <CheckCircle2 size={16} />
-                    </span>
-                    <span className="text-sm text-gray-700">{item}</span>
-                  </div>
-                ))}
+            <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+              <div className="space-y-4">
+                <div className="rounded-xl border border-blue-100 bg-blue-50 p-5">
+                  <div className="text-sm font-semibold text-blue-700">Negotiation Strategy</div>
+                  <p className="mt-2 text-sm leading-relaxed text-gray-700">
+                    Ask for an itemized review and request clarification on charges before payment is expected.
+                  </p>
+                </div>
+                <div className="rounded-xl border border-green-100 bg-green-50 p-5">
+                  <div className="text-sm font-semibold text-green-700">Suggested Script</div>
+                  <p className="mt-2 text-sm leading-relaxed text-gray-700">
+                    I reviewed my bill and found charges that need clarification before I make payment.
+                  </p>
+                </div>
+                <div className="rounded-xl border border-purple-100 bg-purple-50 p-5">
+                  <div className="text-sm font-semibold text-purple-700">Next Steps</div>
+                  <p className="mt-2 text-sm leading-relaxed text-gray-700">
+                    Contact billing, reference the flagged charges, and request a corrected statement.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -383,8 +390,8 @@ export default function HomePage() {
           </div>
           <div className="grid gap-6 md:grid-cols-3">
             {steps.map((item) => (
-              <article key={item.title} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-                <div className="mb-4 inline-flex rounded-xl border border-gray-200 bg-gray-50 p-3 text-gray-900">
+              <article key={item.title} className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+                <div className="mb-4 inline-flex rounded-xl border border-blue-100 bg-blue-50 p-3 text-blue-700">
                   <item.icon size={18} />
                 </div>
                 <h3 className="text-lg font-semibold tracking-tight text-gray-950">{item.title}</h3>
@@ -394,7 +401,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm md:p-8">
+        <section className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm md:p-8">
           <div className="space-y-4">
             <div className="space-y-2">
               <h2 className="text-xl font-semibold tracking-tight text-gray-950">What you get</h2>
@@ -404,7 +411,7 @@ export default function HomePage() {
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               {valuePoints.map((item) => (
-                <div key={item} className="flex items-start gap-3 rounded-xl border border-gray-200 bg-gray-50 p-4">
+                <div key={item} className="flex items-start gap-3 rounded-xl border border-gray-100 bg-gray-50 p-4">
                   <span className="mt-0.5 text-green-600">
                     <CheckCircle2 size={16} />
                   </span>
@@ -415,7 +422,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm md:p-8">
+        <section className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm md:p-8">
           <div className="space-y-2">
             <h2 className="text-xl font-semibold tracking-tight text-gray-950">Built for private medical documents</h2>
             <p className="max-w-[60ch] text-sm leading-relaxed text-gray-600">
@@ -424,7 +431,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm md:p-8">
+        <section className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm md:p-8">
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div className="space-y-2">
               <h2 className="text-xl font-semibold tracking-tight text-gray-950">Check your bill before you pay it</h2>
@@ -433,7 +440,7 @@ export default function HomePage() {
             <div className="flex flex-wrap gap-3">
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="inline-flex w-full sm:w-auto rounded-xl bg-gray-900 px-5 py-4 text-base font-semibold text-white shadow-sm transition-all duration-200 hover:bg-black hover:shadow-md active:scale-[0.99] disabled:cursor-wait disabled:opacity-70"
+                className="inline-flex w-full sm:w-auto rounded-xl bg-blue-600 px-6 py-3 text-base font-semibold text-white shadow-md transition-all duration-200 hover:bg-blue-700 hover:shadow-lg active:scale-[0.99] disabled:cursor-wait disabled:opacity-70"
                 type="button"
               >
                 Analyze My Bill — $4.99
