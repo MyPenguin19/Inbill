@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { ChangeEvent, DragEvent, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, ClipboardList, FileSearch, FileText } from "lucide-react";
+import { ArrowRight, CheckCircle2, ClipboardList, FileSearch, FileText } from "lucide-react";
 
 import {
   BILL_IMAGE_STORAGE_KEY,
@@ -45,6 +45,13 @@ const steps = [
     title: "See what to question before paying",
     description: "A clear breakdown of what deserves a second look",
   },
+] as const;
+
+const valuePoints = [
+  "Flags duplicate charges and billing mistakes",
+  "Highlights charges worth questioning before payment",
+  "Gives you a script you can use when calling billing",
+  "Creates a faster path to a corrected statement",
 ] as const;
 
 export default function HomePage() {
@@ -225,7 +232,7 @@ export default function HomePage() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-white to-gray-100 py-10">
+    <main className="min-h-screen bg-gray-50 py-10">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
@@ -233,17 +240,17 @@ export default function HomePage() {
 
       <div className="mx-auto w-full max-w-[1200px] space-y-10 px-4 md:px-6 lg:px-8">
         <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm md:p-8">
-          <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+          <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
             <div className="space-y-6">
               <div className="inline-flex rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">
                 Medical Bill Review
               </div>
               <div className="space-y-4">
                 <h1 className="text-4xl font-semibold tracking-tight text-gray-950 md:text-5xl">
-                  Don’t Pay Your Medical Bill Until You Check This
+                  Check Your Medical Bill for Errors in Seconds
                 </h1>
-                <p className="max-w-2xl text-sm leading-relaxed text-gray-600 md:text-base">
-                  You may be overcharged. Upload your bill and get a quick breakdown of potential errors before you pay.
+                <p className="max-w-[60ch] text-sm leading-relaxed text-gray-600 md:text-base">
+                  Upload your bill and instantly detect duplicate charges, hidden fees, and billing mistakes.
                 </p>
               </div>
 
@@ -256,109 +263,116 @@ export default function HomePage() {
                   Upload Your Bill
                 </button>
                 <div className="text-sm text-gray-500">Takes less than 60 seconds • No account required</div>
+                <div className="flex flex-wrap gap-2 text-sm text-gray-500">
+                  <span>No signup required</span>
+                  <span>•</span>
+                  <span>Secure & private</span>
+                  <span>•</span>
+                  <span>Results in seconds</span>
+                </div>
                 <div className="max-w-[60ch] text-sm leading-relaxed text-gray-500">
                   Many patients find billing errors before payment using similar reviews.
                 </div>
               </div>
             </div>
 
-            <div className="rounded-2xl border border-gray-200 bg-gray-50 p-6 shadow-sm">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">
-                      Example result
+            <div id="analyze" className="rounded-2xl border border-gray-200 bg-gray-50 p-6 shadow-sm">
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <h2 className="text-xl font-semibold tracking-tight text-gray-950">Upload your bill</h2>
+                  <p className="text-sm leading-relaxed text-gray-600">
+                    Drag and drop a PDF or image to start your review.
+                  </p>
+                </div>
+
+                <label
+                  className={`grid cursor-pointer justify-items-center gap-3 rounded-2xl border border-dashed p-8 text-center transition ${
+                    dragActive ? "border-gray-900 bg-gray-100" : "border-gray-300 bg-white"
+                  }`}
+                  onDragLeave={() => setDragActive(false)}
+                  onDragOver={(event) => {
+                    event.preventDefault();
+                    setDragActive(true);
+                  }}
+                  onDrop={handleDrop}
+                >
+                  <input
+                    ref={fileInputRef}
+                    accept=".pdf,image/*,.txt"
+                    onChange={handleFileInput}
+                    className="hidden"
+                    type="file"
+                  />
+                  <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-medium text-gray-700">
+                    Drag & drop or click to upload
+                  </div>
+                  <div className="text-sm font-medium text-gray-900">Upload your bill here</div>
+                  <div className="text-sm text-gray-500">Accepted files: PDF, JPG, PNG</div>
+                </label>
+
+                {selectedFile ? (
+                  <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-gray-200 bg-white p-4">
+                    <div>
+                      <div className="text-sm font-semibold text-gray-950">{selectedFile.name}</div>
+                      <div className="text-sm text-gray-500">{fileSummary}</div>
                     </div>
-                    <div className="mt-2 text-2xl font-semibold tracking-tight text-gray-950">$162.72 potential overpayment</div>
+                    <button
+                      onClick={removeFile}
+                      className="rounded-xl border border-gray-300 px-4 py-3 text-sm font-medium text-gray-800 transition hover:bg-gray-100"
+                      type="button"
+                    >
+                      Remove
+                    </button>
                   </div>
-                  <div className="rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
-                    Duplicate charge identified
-                  </div>
-                </div>
-                <div className="space-y-3 rounded-xl border border-gray-200 bg-white p-4">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-500">85025</span>
-                    <span className="font-medium text-gray-900">$52.05</span>
-                  </div>
-                  <div className="flex items-center justify-between rounded-lg bg-red-50 px-3 py-2 text-sm">
-                    <span className="font-medium text-red-700">Duplicate charge detected</span>
-                    <span className="font-semibold text-red-700">+$52.05</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-500">Insurance adjustment missing</span>
-                    <span className="font-medium text-gray-900">$215.50</span>
-                  </div>
-                </div>
+                ) : null}
+
+                {error ? <div className="text-sm font-medium text-red-700">{error}</div> : null}
+
+                <button
+                  disabled={loading}
+                  onClick={handleAnalyze}
+                  className="w-full rounded-xl bg-black px-4 py-3 text-sm font-semibold text-white transition hover:bg-gray-900 disabled:cursor-wait disabled:opacity-70"
+                  type="button"
+                >
+                  {loading ? "Preparing..." : "Analyze My Bill — $4.99"}
+                </button>
               </div>
             </div>
           </div>
         </section>
 
-        <section id="analyze" className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm md:p-8">
-          <div className="space-y-6">
+        <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm md:p-8">
+          <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
             <div className="space-y-2">
-              <h2 className="text-xl font-semibold tracking-tight text-gray-950">Upload your bill</h2>
-              <p className="text-sm leading-relaxed text-gray-600">PDF, screenshot, or photo. We’ll prepare the report before you pay.</p>
+              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Example result</div>
+              <h2 className="text-3xl font-semibold tracking-tight text-gray-950">$162.72 potential overcharge</h2>
+              <p className="max-w-[60ch] text-sm leading-relaxed text-gray-600">
+                A quick review can surface the exact items worth questioning before payment.
+              </p>
             </div>
-
-            <label
-              className={`grid cursor-pointer justify-items-center gap-3 rounded-2xl border border-dashed p-8 text-center transition ${
-                dragActive ? "border-gray-900 bg-gray-100" : "border-gray-300 bg-gray-50"
-              }`}
-              onDragLeave={() => setDragActive(false)}
-              onDragOver={(event) => {
-                event.preventDefault();
-                setDragActive(true);
-              }}
-              onDrop={handleDrop}
-            >
-              <input
-                ref={fileInputRef}
-                accept=".pdf,image/*,.txt"
-                onChange={handleFileInput}
-                className="hidden"
-                type="file"
-              />
-              <div className="rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-700">
-                Upload Your Bill
+            <div className="rounded-2xl border border-gray-200 bg-gray-50 p-5">
+              <div className="space-y-3">
+                {[
+                  "Duplicate charge identified for the same service",
+                  "Insurance adjustment missing from the statement",
+                  "Service fee appears higher than expected",
+                ].map((item) => (
+                  <div key={item} className="flex items-start gap-3 rounded-xl border border-gray-200 bg-white p-4">
+                    <span className="mt-0.5 text-red-600">
+                      <CheckCircle2 size={16} />
+                    </span>
+                    <span className="text-sm text-gray-700">{item}</span>
+                  </div>
+                ))}
               </div>
-              <div className="text-sm font-medium text-gray-900">Drag and drop your file here</div>
-              <div className="text-sm text-gray-500">PDF, image, or screenshot</div>
-            </label>
-
-            {selectedFile ? (
-              <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-gray-200 bg-gray-50 p-4">
-                <div>
-                  <div className="text-sm font-semibold text-gray-950">{selectedFile.name}</div>
-                  <div className="text-sm text-gray-500">{fileSummary}</div>
-                </div>
-                <button
-                  onClick={removeFile}
-                  className="rounded-xl border border-gray-300 px-4 py-3 text-sm font-medium text-gray-800 transition hover:bg-gray-100"
-                  type="button"
-                >
-                  Remove
-                </button>
-              </div>
-            ) : null}
-
-            {error ? <div className="text-sm font-medium text-red-700">{error}</div> : null}
-
-            <button
-              disabled={loading}
-              onClick={handleAnalyze}
-              className="w-full rounded-xl bg-black px-4 py-3 text-sm font-semibold text-white transition hover:bg-gray-900 disabled:cursor-wait disabled:opacity-70"
-              type="button"
-            >
-              {loading ? "Preparing..." : "Upload Your Bill"}
-            </button>
+            </div>
           </div>
         </section>
 
         <section className="space-y-4">
           <div className="space-y-2">
             <h2 className="text-xl font-semibold tracking-tight text-gray-950">How it works</h2>
-            <p className="text-sm leading-relaxed text-gray-600">A fast workflow designed to help you review the bill before sending money.</p>
+            <p className="text-sm leading-relaxed text-gray-600">Three quick steps to check the bill before you pay it.</p>
           </div>
           <div className="grid gap-6 md:grid-cols-3">
             {steps.map((item) => (
@@ -374,10 +388,40 @@ export default function HomePage() {
         </section>
 
         <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm md:p-8">
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <h2 className="text-xl font-semibold tracking-tight text-gray-950">What you get</h2>
+              <p className="text-sm leading-relaxed text-gray-600">
+                A focused review designed to help you spot costly issues before sending payment.
+              </p>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              {valuePoints.map((item) => (
+                <div key={item} className="flex items-start gap-3 rounded-xl border border-gray-200 bg-gray-50 p-4">
+                  <span className="mt-0.5 text-green-600">
+                    <CheckCircle2 size={16} />
+                  </span>
+                  <span className="text-sm text-gray-700">{item}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm md:p-8">
+          <div className="space-y-2">
+            <h2 className="text-xl font-semibold tracking-tight text-gray-950">Built for private medical documents</h2>
+            <p className="max-w-[60ch] text-sm leading-relaxed text-gray-600">
+              BillFixa is designed to help patients review sensitive billing documents quickly, without adding signup friction or unnecessary steps.
+            </p>
+          </div>
+        </section>
+
+        <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm md:p-8">
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div className="space-y-2">
               <h2 className="text-xl font-semibold tracking-tight text-gray-950">Check your bill before you pay it</h2>
-              <p className="text-sm leading-relaxed text-gray-600">A fast review can help you catch errors before sending money.</p>
+              <p className="text-sm leading-relaxed text-gray-600">Upload once, review the issues, and decide what to question before sending money.</p>
             </div>
             <div className="flex flex-wrap gap-3">
               <Link
@@ -392,7 +436,7 @@ export default function HomePage() {
                 className="inline-flex rounded-xl bg-black px-4 py-3 text-sm font-semibold text-white transition hover:bg-gray-900 disabled:cursor-wait disabled:opacity-70"
                 type="button"
               >
-                Upload Your Bill
+                Analyze My Bill — $4.99
               </button>
             </div>
           </div>
