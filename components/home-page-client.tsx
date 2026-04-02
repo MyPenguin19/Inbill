@@ -257,7 +257,7 @@ export default function HomePage() {
               <div className="space-y-4">
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="inline-flex rounded-xl bg-black px-4 py-3 text-sm font-semibold text-white transition hover:bg-gray-900 disabled:cursor-wait disabled:opacity-70"
+                  className="inline-flex w-full max-w-sm rounded-xl bg-gray-900 px-5 py-4 text-base font-semibold text-white shadow-sm transition-all duration-200 hover:bg-black hover:shadow-md active:scale-[0.99] disabled:cursor-wait disabled:opacity-70"
                   type="button"
                 >
                   Upload Your Bill
@@ -318,7 +318,7 @@ export default function HomePage() {
                     </div>
                     <button
                       onClick={removeFile}
-                      className="rounded-xl border border-gray-300 px-4 py-3 text-sm font-medium text-gray-800 transition hover:bg-gray-100"
+                      className="rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-medium text-gray-900 transition-all duration-200 hover:border-gray-400 hover:bg-gray-100"
                       type="button"
                     >
                       Remove
@@ -331,7 +331,7 @@ export default function HomePage() {
                 <button
                   disabled={loading}
                   onClick={handleAnalyze}
-                  className="w-full rounded-xl bg-black px-4 py-3 text-sm font-semibold text-white transition hover:bg-gray-900 disabled:cursor-wait disabled:opacity-70"
+                  className="w-full rounded-xl bg-gray-900 px-5 py-4 text-base font-semibold text-white shadow-sm transition-all duration-200 hover:bg-black hover:shadow-md active:scale-[0.99] disabled:cursor-wait disabled:opacity-70"
                   type="button"
                 >
                   {loading ? "Preparing..." : "Analyze My Bill — $4.99"}
@@ -349,6 +349,13 @@ export default function HomePage() {
               <p className="max-w-[60ch] text-sm leading-relaxed text-gray-600">
                 A quick review can surface the exact items worth questioning before payment.
               </p>
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="mt-4 inline-flex w-full max-w-sm rounded-xl bg-gray-900 px-5 py-4 text-base font-semibold text-white shadow-sm transition-all duration-200 hover:bg-black hover:shadow-md active:scale-[0.99]"
+                type="button"
+              >
+                Analyze My Bill — $4.99
+              </button>
             </div>
             <div className="rounded-2xl border border-gray-200 bg-gray-50 p-5">
               <div className="space-y-3">
@@ -424,16 +431,9 @@ export default function HomePage() {
               <p className="text-sm leading-relaxed text-gray-600">Upload once, review the issues, and decide what to question before sending money.</p>
             </div>
             <div className="flex flex-wrap gap-3">
-              <Link
-                href="/sample"
-                className="inline-flex items-center gap-2 rounded-xl border border-gray-300 px-4 py-3 text-sm font-medium text-gray-800 transition hover:bg-gray-100"
-              >
-                See sample
-                <ArrowRight size={16} />
-              </Link>
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="inline-flex rounded-xl bg-black px-4 py-3 text-sm font-semibold text-white transition hover:bg-gray-900 disabled:cursor-wait disabled:opacity-70"
+                className="inline-flex w-full sm:w-auto rounded-xl bg-gray-900 px-5 py-4 text-base font-semibold text-white shadow-sm transition-all duration-200 hover:bg-black hover:shadow-md active:scale-[0.99] disabled:cursor-wait disabled:opacity-70"
                 type="button"
               >
                 Analyze My Bill — $4.99

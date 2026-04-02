@@ -880,11 +880,11 @@ export default function ResultPage() {
   const baseCardClass =
     "audit-card rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition duration-150 ease-out hover:-translate-y-[1px] hover:shadow-md";
   const primaryButtonClass =
-    "audit-button w-full rounded-xl bg-black px-4 py-3 text-sm font-semibold text-white transition-all duration-150 ease-out hover:bg-gray-900 active:scale-[0.99] disabled:opacity-70 disabled:cursor-wait";
+    "audit-button w-full rounded-xl bg-gray-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 ease-out hover:bg-black hover:shadow-md active:scale-[0.99] disabled:cursor-wait disabled:opacity-70";
   const secondaryButtonClass =
-    "audit-button w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-800 transition-all duration-150 ease-out hover:bg-gray-100 active:scale-[0.99]";
+    "audit-button w-full rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-medium text-gray-900 transition-all duration-200 ease-out hover:border-gray-400 hover:bg-gray-100 active:scale-[0.99]";
   const utilityButtonClass =
-    "audit-button rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-800 transition-all duration-150 ease-out hover:bg-gray-100";
+    "audit-button inline-flex items-center rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition-all duration-200 ease-out hover:bg-gray-50";
   const confidenceClass =
     report?.concern_level.level === "HIGH"
       ? "bg-red-100 text-red-700"
@@ -1280,7 +1280,7 @@ export default function ResultPage() {
                   <p className="max-w-[60ch] text-sm text-gray-700">
                     Save this report for your records before you call or email the billing department.
                   </p>
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <div className="grid grid-cols-1 gap-3">
                     {isPaid ? (
                       <button
                         className={primaryButtonClass}
@@ -1292,13 +1292,32 @@ export default function ResultPage() {
                       </button>
                     ) : null}
                     <button
-                      className={isPaid ? secondaryButtonClass : primaryButtonClass}
+                      className={secondaryButtonClass}
                       type="button"
                       onClick={() => void handleShareSummary()}
                     >
                       {shareFeedback || "Share Summary"}
                     </button>
                   </div>
+                </div>
+              </article>
+
+              <article className={`${baseCardClass} border-gray-900`}>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <h2 className="text-lg font-semibold tracking-tight text-gray-950">Next best step</h2>
+                    <p className="text-sm text-gray-700">
+                      Keep this report open while you call billing so you can reference the issues immediately.
+                    </p>
+                  </div>
+                  <button
+                    className={primaryButtonClass}
+                    type="button"
+                    onClick={() => void handleDownloadPdf()}
+                    disabled={isDownloadingPdf}
+                  >
+                    {isDownloadingPdf ? "Preparing PDF..." : "Download Report and Start Review"}
+                  </button>
                 </div>
               </article>
 

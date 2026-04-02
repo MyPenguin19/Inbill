@@ -40,7 +40,7 @@ export default function Navbar() {
           <div className="hidden md:block">
             <Link
               href="/#analyze"
-              className="inline-flex rounded-xl bg-black px-4 py-3 text-sm font-semibold text-white transition hover:bg-gray-900"
+              className="inline-flex rounded-xl bg-gray-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-black hover:shadow-md active:scale-[0.99]"
             >
               Fix My Bill
             </Link>
@@ -93,7 +93,7 @@ export default function Navbar() {
 
             <Link
               href="/#analyze"
-              className="mt-auto inline-flex w-full justify-center rounded-xl bg-black px-4 py-3 text-sm font-semibold text-white transition hover:bg-gray-900"
+              className="mt-auto inline-flex w-full justify-center rounded-xl bg-gray-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-black hover:shadow-md active:scale-[0.99]"
               onClick={() => setMobileOpen(false)}
             >
               Fix My Bill
